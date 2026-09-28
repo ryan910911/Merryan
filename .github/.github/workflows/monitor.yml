@@ -2,7 +2,7 @@ name: Mercari Monitor
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # 每小時一次；公開 repo 可改成 "*/30 * * * *"
+    - cron: "7,37 * * * *"   # 每小時一次；公開 repo 可改成 "*/30 * * * *"
   workflow_dispatch:       # 允許手動執行
 
 permissions:
