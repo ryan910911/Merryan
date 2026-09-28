@@ -2,8 +2,8 @@ name: Mercari Monitor
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # 每小時一次；公開 repo 可改成 "*/30 * * * *"
-  workflow_dispatch:       # 允許手動執行
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -38,4 +38,7 @@ jobs:
           git config user.name "mercari-bot"
           git config user.email "bot@users.noreply.github.com"
           git add seen.json
-          git diff --staged --quiet || (git commit -m "update seen" && git push)
+          git diff --staged --quiet && exit 0
+          git commit -m "update seen"
+          git pull --rebase -X theirs
+          git push
