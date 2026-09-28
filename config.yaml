@@ -1,1 +1,60 @@
+# Mercari 監控設定
+# 新增/刪除品項只要改 items 清單即可
+
+defaults:
+  # 商品狀態：1 新品未使用 / 2 未使用に近い / 3 目立った傷や汚れなし
+  #          4 やや傷や汚れあり / 5 傷や汚れあり / 6 全體的に狀態が悪い
+  # 預設剔除 6（嚴重損傷）；想更嚴格可拿掉 5，只要新品就只留 [1]
+  conditions: [1, 2, 3, 4, 5]
+  # 價格上限（日圓），留空 = 不限；單一品項也可自己設 max_price
+  max_price:
+  # 標題含這些字的商品一律略過（嚴重損傷、破損、零件用）
+  exclude_words:
+    - ジャンク
+    - 破損
+    - 破れ
+    - 大きな折れ
+    - 大きな傷
+    - 傷多数
+    - 水濡れ
+    - ジャンク品
+
+items:
+  # ---- 寶可夢 皮卡丘 ----
+  - name: PCG-P 004
+    keyword: ピカチュウ PCG-P 004
+  - name: PCG-P 153
+    keyword: ピカチュウ PCG-P 153
+  - name: DP-P 003
+    keyword: ピカチュウ DP-P 003
+  - name: e-P 004
+    keyword: ピカチュウ e-P 004
+  - name: e-P 021
+    keyword: ピカチュウ e-P 021
+  - name: ADV-P 023
+    keyword: ピカチュウ ADV-P 023
+  - name: ADV-P 024
+    keyword: ピカチュウ ADV-P 024
+  - name: XY-P
+    keyword: ピカチュウ XY-P
+  - name: ホロンの幻影 デルタ種 041
+    keyword: ピカチュウ デルタ種 ホロンの幻影 041
+  - name: 旧裏 コロコロ イラストレーター
+    keyword: ピカチュウ 旧裏 コロコロ 光沢あり イラストレーター
+  - name: フレンドリィショップ
+    keyword: ピカチュウ フレンドリィショップ
+  - name: スイクンex 027
+    keyword: スイクンex 027
+  - name: メガフェスタ
+    keyword: メガフェスタ
+
+  # ---- 迪士尼 Lorcana ----
+  - name: エルサ 氷をつくりし者 英語版
+    keyword: ロルカナ エルサ 氷をつくりし者 英語版
+  - name: エルサ イラスト違い Foil
+    keyword: エルサ 氷をつくりし者 イラスト違い Foil
+  - name: 香港ディズニー限定 3枚セット
+    keyword: ロルカナ 香港ディズニー限定 プロモカード 3枚セット
+  - name: FABLED 物語のおもいで
+    keyword: FABLED 物語のおもいで
 
