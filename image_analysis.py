@@ -198,8 +198,12 @@ class HeuristicAnalyzer:
                 obs.centering_lr = obs.centering_tb = None  # 信心太低不拿來設上限
 
         if scans:
-            obs.edges = worst(s.edge_severity for s in scans)
-            obs.corners = worst(s.corner_severity for s in scans)
+            # 白背景的照片判斷不了白邊，不拿來算邊角；全部都是白背景就當作看不出來
+            judged = [s for s in scans if not any("白邊無法判斷" in n for n in s.notes)]
+            obs.edges = worst(s.edge_severity for s in judged)
+            obs.corners = worst(s.corner_severity for s in judged)
+            if not judged:
+                obs.notes.append("照片都是白背景，白邊、角尖看不出來，請自己看照片")
             lines = [l for s in scans for l in s.lines]
             specks = sum(s.specks for s in scans)
             creased = sum(s.crease_suspect for s in scans)

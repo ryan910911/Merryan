@@ -7,7 +7,7 @@
 2. 用卡框（黃框或藍底）的顏色區塊取凸包，當成卡片的輪廓。
 3. 白邊：沿凸包外緣每 2 px 取一條垂直邊緣的短線，線上有「白」就算這一點白掉。
    「白」= 絕對偏白，或比同一點內側的卡框明顯更淡更亮（照片壓縮後的細白邊）。
-   卡片外圍也偏白（白桌面、卡套、硬殼）時分不出來，只看內側並註記。
+   卡套、硬殼（外圍灰色）時只看內側；白背景跟白邊分不開，該張不判斷邊緣並註記。
    靠近四角的點另外算「轉角」；被照片邊界切掉的那一側不算。
 4. 白點：黃框卡只在卡框那一圈算（圖面、logo 亮部太容易誤判）；旧裏背面看整面。
 5. 刮痕／摺痕：在卡面顏色內，用形態學 closing 找「被顏色包圍的細白線」：
@@ -186,8 +186,10 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     if cased:
         res.notes.append(f"#{index + 1}：卡片可能在卡套或硬殼裡，邊緣只看內側")
     bg_white = bg_white or cased
-    if bg_white and not cased:
-        res.notes.append(f"#{index + 1}：背景偏白，邊緣外側白掉可能看不出來")
+    white_bg_only = bg_white and not cased
+    if white_bg_only:
+        # 白背景跟白邊分不開（卡邊會跟背景混色），這張不判斷邊緣
+        res.notes.append(f"#{index + 1}：背景偏白，白邊無法判斷")
 
     # 轉角：色塊最小外接矩形的四個角（沒碰到照片邊界的才算）
     rect = cv2.boxPoints(cv2.minAreaRect(pts))
@@ -208,7 +210,7 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     center = poly.mean(axis=0)
     edge_white = np.zeros((h, w), np.uint8)
     flags = {"edge": [], "corner": []}
-    for i in range(len(poly)):
+    for i in range(0 if white_bg_only else len(poly)):
         a, b = poly[i], poly[(i + 1) % len(poly)]
         seg = float(np.linalg.norm(b - a))
         if seg < 1:
