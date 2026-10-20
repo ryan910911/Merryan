@@ -13,8 +13,8 @@ fx:
 
 costs:
   buy:                     # 從 Mercari 買到手
-    proxy_fee_pct: 0.0     # 代購手續費（比例，0.05 = 5%）（範例）
-    proxy_fee_fixed: "500 JPY"  # 代購每件固定費（範例）
+    proxy_fee_pct: 0.0     # 代購手續費（比例，0.05 = 5%）（暫不計）
+    proxy_fee_fixed: 0     # 代購每件固定費（暫不計）
     domestic_shipping: 0   # 日本國內運費（暫不計）
     intl_shipping: 0       # 國際運費（暫不計）
     import_duty_pct: 0.0   # 關稅／進口稅（比例）
