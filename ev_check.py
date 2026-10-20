@@ -64,7 +64,8 @@ def pick_card(cfg: dict, spec, title: str) -> str | None:
     return None
 
 
-def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None):
+def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None,
+                     live: dict | None = None):
     """回傳 (Estimate, Evaluation 或 None)"""
     fx = cfg["fx"]
     card = card_profile(cfg, card_key)
@@ -98,6 +99,12 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
         raw_key = "raw_price_played"
     raw_price = parse_money(card[raw_key], fx)
     prices = {g: parse_money(v, fx) for g, v in (card.get("prices") or {}).items() if v not in (None, "")}
+    if live:  # Mercari 近期成交（日圓）優先於 cards.yaml 的行情
+        for g, jpy in (live.get("prices") or {}).items():
+            prices[g] = parse_money(f"{jpy} JPY", fx)
+        if live.get("raw"):
+            raw_price = parse_money(f"{live['raw']} JPY", fx)
+        est.notes[:0] = live.get("notes") or []
     low = parse_money(card["low_grade_price"], fx) if card.get("low_grade_price") else None
     ev = evaluate(
         price=parse_money(f"{listing['price']} JPY", fx),  # Mercari 價格是日圓
@@ -180,12 +187,15 @@ def append_log(path: Path, card_key: str, listing: dict, est: Estimate, ev: Eval
         ] + [round(base.probs[g], 3) if base else "" for g in GRADES] + [""])
 
 
-def watched_by(title: str, config_path: Path | None = None) -> list[str]:
-    """粗估標題會被 config.yaml 哪些品項搜到：關鍵字每個詞都出現在標題裡"""
+def _items() -> list[dict]:
     import yaml
 
-    path = config_path or Path(__file__).with_name("config.yaml")
-    items = yaml.safe_load(path.read_text(encoding="utf-8")).get("items", [])
+    return yaml.safe_load(Path(__file__).with_name("config.yaml").read_text(encoding="utf-8")).get("items", [])
+
+
+def watched_by(title: str) -> list[str]:
+    """粗估標題會被 config.yaml 哪些品項搜到：關鍵字每個詞都出現在標題裡"""
+    items = _items()
     norm = unicodedata.normalize("NFKC", title).lower()
     return [
         it["name"]
@@ -205,6 +215,7 @@ def main(argv=None) -> int:
     ap.add_argument("--config", default=str(CARDS_PATH))
     ap.add_argument("--log", help="把結果附加到 CSV")
     ap.add_argument("--report", help="輸出視覺化報告 PNG 的路徑")
+    ap.add_argument("--no-live", action="store_true", help="不查 Mercari 近期成交價")
     ap.add_argument("--telegram", action="store_true", help="把結果、報告圖與瑕疵照片傳到 Telegram")
     args = ap.parse_args(argv)
 
@@ -247,7 +258,25 @@ def main(argv=None) -> int:
             notify(f"{msg}\n{args.url or ''}")
         return 0  # 對不到卡不算錯誤，避免 GitHub 寄失敗通知
     print("使用行情：", card_key)
-    est, ev = evaluate_listing(cfg, card_key, listing, photos)
+    live = None
+    if args.url and not args.no_live:
+        hits = watched_by(title)
+        keyword = next(it["keyword"] for it in _items() if it["name"] == hits[0]) if hits else card_profile(cfg, card_key).get("name", "").split("（")[0]
+        try:
+            from playwright.sync_api import sync_playwright
+
+            from listing import UA
+            from market import live_prices
+
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_context(locale="ja-JP", timezone_id="Asia/Tokyo", user_agent=UA).new_page()
+                live = live_prices(page, keyword, card_profile(cfg, card_key)["match"])
+                browser.close()
+            print("近期成交：", live["notes"] or f"「{keyword}」查不到足夠成交，用 cards.yaml 行情")
+        except Exception as e:
+            print("查近期成交失敗：", e)
+    est, ev = evaluate_listing(cfg, card_key, listing, photos, live=live)
     name = card_profile(cfg, card_key).get("name", card_key)
     msg = format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"])
     print(msg)

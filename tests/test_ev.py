@@ -338,3 +338,32 @@ def test_pick_card_skips_bundles_and_slabs():
     assert pick_card(cfg, "auto", "旧裏 リザードン") == "a"
     assert pick_card(cfg, "auto", "まとめ売り 旧裏 リザードン カメックス") is None
     assert pick_card(cfg, "auto", "PSA10 リザードン 旧裏") is None
+
+
+def test_market_summarize_filters_by_card_and_grade():
+    from market import summarize
+
+    graded = [
+        {"title": "リザード 011/T PSA10", "price": "¥50,000"},
+        {"title": "リザード 011/T PSA 10 美品", "price": "¥60,000"},
+        {"title": "リザード 011/T PSA9", "price": "¥20,000"},
+        {"title": "リザードン 014/P PSA10", "price": "¥900,000"},
+    ]
+    raw = [{"title": f"リザード 011/T {i}", "price": f"¥{p}"} for i, p in enumerate((5000, 7000, 6000))]
+    raw.append({"title": "リザード 011/T まとめ", "price": "¥99,999"})
+    out = summarize(graded, raw, r"リザード(?!ン).*011/T")
+    assert out["prices"] == {10: 55000}
+    assert out["raw"] == 6000
+    assert "PSA10 ¥55,000（2筆）" in out["notes"][0]
+
+
+def test_live_prices_override_profile():
+    from ev_check import evaluate_listing, load_ev_config
+
+    cfg = load_ev_config()
+    listing = {"title": "メガトウキョーのピカチュウ 098/XY-P", "price": 70000, "condition": 3}
+    _, base = evaluate_listing(cfg, "pikachu-xy-p-098", dict(listing))
+    est, live = evaluate_listing(cfg, "pikachu-xy-p-098", dict(listing),
+                                 live={"prices": {10: 1}, "raw": None, "notes": ["Mercari 近期成交中位數：PSA10 ¥1（2筆）"]})
+    assert live.scenarios["base"].ev_net < base.scenarios["base"].ev_net
+    assert est.notes[0].startswith("Mercari 近期成交")

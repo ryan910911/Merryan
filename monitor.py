@@ -128,6 +128,9 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
+LIVE_CACHE: dict = {}  # 同一輪同一張卡只查一次近期成交
+
+
 def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
     """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
     from ev_calc import VERDICT_BUY, VERDICT_RISKY
@@ -140,7 +143,16 @@ def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: 
         listing = fetch_listing(page, r["id"])
         listing["price"] = listing.get("price") or int(re.sub(r"\D", "", r["price"]) or 0) or None
         photos = download_photos(listing["photos"])
-        est, ev = evaluate_listing(ev_cfg, card_key, listing, photos)
+        cache_key = (item["keyword"], card_key)
+        if cache_key not in LIVE_CACHE:
+            try:
+                from market import live_prices
+
+                LIVE_CACHE[cache_key] = live_prices(page, item["keyword"], card_profile(ev_cfg, card_key)["match"])
+            except Exception as e:
+                print(f"[{item['name']}] 查近期成交失敗: {e}")
+                LIVE_CACHE[cache_key] = None
+        est, ev = evaluate_listing(ev_cfg, card_key, listing, photos, live=LIVE_CACHE[cache_key])
         name = card_profile(ev_cfg, card_key).get("name", item["name"])
         worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
         jpy = ev_cfg["fx"]["JPY"]
