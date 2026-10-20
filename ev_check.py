@@ -14,7 +14,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -39,6 +41,20 @@ def card_profile(cfg: dict, key: str) -> dict:
     if key not in cards:
         raise KeyError(f"cards.yaml 找不到卡種 {key!r}（可用：{', '.join(cards)}）")
     return cards[key]
+
+
+def pick_card(cfg: dict, spec, title: str) -> str | None:
+    """依品項的 card 設定挑卡種：字串直接用；清單則用各卡 match（正規式）比對標題，第一個符合的勝出"""
+    if not spec:
+        return None
+    if isinstance(spec, str):
+        return spec
+    norm = unicodedata.normalize("NFKC", title or "")
+    for key in spec:
+        pattern = card_profile(cfg, key).get("match")
+        if pattern and re.search(pattern, norm, re.IGNORECASE):
+            return key
+    return None
 
 
 def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None):
@@ -71,6 +87,8 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
 
     # 「不鑑定、直接賣裸卡」的比較基準：新品〜未使用に近い 用 A 品相價，其餘用有使用痕跡的裸卡價
     raw_key = "raw_price" if est.condition in (1, 2) or not card.get("raw_price_played") else "raw_price_played"
+    if not card.get(raw_key):
+        raw_key = "raw_price_played"
     raw_price = parse_money(card[raw_key], fx)
     prices = {g: parse_money(v, fx) for g, v in (card.get("prices") or {}).items() if v not in (None, "")}
     low = parse_money(card["low_grade_price"], fx) if card.get("low_grade_price") else None

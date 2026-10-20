@@ -26,28 +26,39 @@ items:
   # ---- 寶可夢 皮卡丘 ----
   - name: PCG-P 004
     keyword: ピカチュウ PCG-P 004
+    card: &pika [pikachu-e-p-004, pikachu-e-p-021, pikachu-pcg-p-153, pikachu-adv-p-023, pikachu-adv-p-024, pikachu-xy-p-098, pikachu-xy-p-207, pikachu-xy-p-208, pikachu-xy-p-230, pikachu-xy-p-231, pikachu-friendly-shop-227, pikachu-friendly-shop-249]
   - name: PCG-P 153
     keyword: ピカチュウ PCG-P 153
+    card: *pika
   - name: DP-P 003
     keyword: ピカチュウ DP-P 003
+    card: *pika
   - name: e-P 004
     keyword: ピカチュウ e-P 004
+    card: *pika
   - name: e-P 021
     keyword: ピカチュウ e-P 021
+    card: *pika
   - name: ADV-P 023
     keyword: ピカチュウ ADV-P 023
+    card: *pika
   - name: ADV-P 024
     keyword: ピカチュウ ADV-P 024
+    card: *pika
   - name: XY-P
     keyword: ピカチュウ XY-P
+    card: *pika
   - name: ホロンの幻影 デルタ種 041
     keyword: ピカチュウ デルタ種 ホロンの幻影 041
+    card: [pikachu-delta-041]
   - name: 旧裏 コロコロ イラストレーター
     keyword: ピカチュウ 旧裏 コロコロ 光沢あり イラストレーター
   - name: フレンドリィショップ
     keyword: ピカチュウ フレンドリィショップ
+    card: *pika
   - name: スイクンex 027
     keyword: スイクンex 027
+    card: [suicune-ex-027]
 
   # ---- 寶可夢 鑑定候選（附 EV 評估）----
   - name: ルギア e-P 047
@@ -55,26 +66,36 @@ items:
     card: lugia-e-p-047
 
   # ---- 寶可夢 e 卡促銷卡（P 編號，2001~2002）----
-  # 編號依 Serebii／TCGCollector 的 P Promos 清單；要附 EV 評估，先在 cards.yaml 補行情再加 card:
+  # 編號依 Serebii／TCGCollector 的 P Promos 清單
+  # card 可以是清單：依標題裡的卡號挑 cards.yaml 的行情（match），對不到就只發一般通知
   - name: リザードン e-P 014
     keyword: リザードン 014/P
+    card: &eprom [lugia-e-p-047, charizard-e-p-014, ho-oh-e-p-010, mew-e-p-033, celebi-e-p-006, celebi-e-p-007, celebi-e-p-042, pikachu-e-p-004, pikachu-e-p-021]
   - name: ホウオウ e-P 010
     keyword: ホウオウ 010/P
+    card: *eprom
   - name: ミュウ e-P 033
     keyword: ミュウ 033/P
+    card: *eprom
   - name: セレビィ e-P 006
     keyword: セレビィ 006/P
+    card: *eprom
   - name: セレビィ e-P 007
     keyword: セレビィ 007/P
+    card: *eprom
   - name: セレビィ e-P 042
     keyword: セレビィ 042/P
+    card: *eprom
   - name: ピカチュウ e-P 004（004/P 寫法）
     keyword: ピカチュウ 004/P
+    card: *eprom
   - name: ピカチュウ e-P 021（021/P 寫法）
     keyword: ピカチュウ 021/P
+    card: *eprom
   # 全部 e 卡促銷卡的新刊登（量可能較多，嫌吵可刪掉或加 max_price）
   - name: ポケモンカードe プロモ 全般
     keyword: ポケモンカードe プロモ
+    card: *eprom
 
   # ---- 寶可夢 舊版卡（旧裏，1996~2001）----
   - name: 旧裏 ゲンガー

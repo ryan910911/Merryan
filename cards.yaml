@@ -75,4 +75,160 @@ cards:
       7: "583 USD"
       6: "609 USD"
     low_grade_price: "400 USD"   # PSA 5 以下（範例）
+    match: '(?<!\d)0?47\s*/\s*P(?![A-Za-z])|e-?P\s*0?47(?!\d)|(?<![A-Za-z-])P\s*047(?!\d)'
     probability_set: default     # 或直接寫 probabilities: {optimistic: …, base: …, pessimistic: …}
+
+  # ===== 以下行情由 WebSearch 摘要整理（PriceCharting／Card Rush／SNKRDUNK 等），2026-10-20 =====
+  # 價格只是快照，買之前請再看一次當期成交；缺的級數程式會用「低分價」補，且不高於上一級。
+  # match：正規式比對 Mercari 標題，挑出要用哪張卡的行情（同一個搜尋品項可對應多張卡）
+
+  # ---- e 卡促銷卡 ----
+  pikachu-e-p-004:
+    name: ピカチュウ e-P 004（ANA 2001）
+    match: '(?<!\d)0?04\s*/\s*P(?![A-Za-z])|e-?P\s*0?04(?!\d)|(?<![A-Za-z-])P\s*004(?!\d)'
+    raw_price: "45800 JPY"          # SNKRDUNK 刊登價（可能是最低價而非成交）
+    raw_price_played: "211.25 USD"  # PriceCharting 未鑑定
+    prices: {10: "4205 USD", 9: "692.51 USD", 8: "387.57 USD", 7: "255 USD"}   # PriceCharting；PSA 10 最近成交 $4,400（2026-08-29）
+    probability_set: default
+  pikachu-e-p-021:
+    name: ピカチュウ e-P 021（マクドナルド 2002）
+    match: '(?<!\d)0?21\s*/\s*P(?![A-Za-z])|e-?P\s*0?21(?!\d)|(?<![A-Za-z-])P\s*021(?!\d)'
+    raw_price: "49800 JPY"          # Card Rush 一般狀態
+    raw_price_played: "119.99 USD"  # PriceCharting 未鑑定
+    prices: {10: "3075 USD", 9: "504.86 USD", 8: "290 USD", 7: "251.50 USD", 6: "50.50 USD"}
+    low_grade_price: "50.50 USD"
+    probability_set: default
+  charizard-e-p-014:
+    name: リザードン e-P 014
+    match: '(?<!\d)0?14\s*/\s*P(?![A-Za-z])|e-?P\s*0?14(?!\d)|(?<![A-Za-z-])P\s*014(?!\d)'
+    raw_price: "378000 JPY"         # Card Rush 一般狀態
+    raw_price_played: "2127.35 USD" # PriceCharting 未鑑定
+    prices: {10: "14600 USD", 9: "6985.05 USD", 8: "2451.69 USD", 7: "1961 USD", 6: "1834.70 USD"}   # PSA 7 一年約 1 筆，參考就好
+    low_grade_price: "1834.70 USD"
+    probability_set: default
+  ho-oh-e-p-010:
+    name: ホウオウ e-P 010（コロコロ 2001）
+    match: '(?<!\d)0?10\s*/\s*P(?![A-Za-z])|e-?P\s*0?10(?!\d)|(?<![A-Za-z-])P\s*010(?!\d)'
+    raw_price: "10000 JPY"          # 晴れる屋2 售價（缺貨）；日本實際成交約 ¥1,000~3,000
+    raw_price_played: "18.90 USD"
+    prices: {10: "958.43 USD", 9: "344.07 USD", 8: "94 USD", 7: "37.85 USD"}
+    low_grade_price: "6.50 USD"     # 僅一筆 PSA 5
+    probability_set: default
+  mew-e-p-033:
+    name: ミュウ e-P 033（マクドナルド 2002）
+    match: '(?<!\d)0?33\s*/\s*P(?![A-Za-z])|e-?P\s*0?33(?!\d)|(?<![A-Za-z-])P\s*033(?!\d)'
+    raw_price: "39800 JPY"          # Card Rush 一般狀態
+    raw_price_played: "249.99 USD"
+    prices: {10: "3289.85 USD", 9: "771 USD", 8: "701 USD", 7: "246.10 USD", 6: "58.79 USD"}   # PSA 10 最近 $3,800（2026-10-08）
+    low_grade_price: "58.79 USD"
+    probability_set: default
+  celebi-e-p-006:
+    name: セレビィ e-P 006
+    match: '(?<!\d)0?06\s*/\s*P(?![A-Za-z])|e-?P\s*0?06(?!\d)|(?<![A-Za-z-])P\s*006(?!\d)'
+    raw_price: "7980 JPY"
+    raw_price_played: "31.81 USD"
+    prices: {10: "602.50 USD", 9: "148.06 USD", 8: "72 USD", 7: "33.55 USD", 6: "27 USD"}
+    low_grade_price: "27 USD"
+    probability_set: default
+  celebi-e-p-007:
+    name: セレビィ e-P 007（トレーナーズ Vol.13）
+    match: '(?<!\d)0?07\s*/\s*P(?![A-Za-z])|e-?P\s*0?07(?!\d)|(?<![A-Za-z-])P\s*007(?!\d)'
+    raw_price: "980 JPY"            # Card Rush，可能過時（低信心）
+    raw_price_played: "140.89 USD"  # PriceCharting，偏高（低信心）
+    prices: {10: "750 USD", 9: "212.50 USD", 8: "52.77 USD", 7: "42 USD", 6: "34 USD"}
+    low_grade_price: "34 USD"
+    probability_set: default
+  celebi-e-p-042:
+    name: セレビィ e-P 042（JR スタンプラリー 2002）
+    match: '(?<!\d)0?42\s*/\s*P(?![A-Za-z])|e-?P\s*0?42(?!\d)|(?<![A-Za-z-])P\s*042(?!\d)'
+    raw_price: "17800 JPY"
+    raw_price_played: "155.65 USD"
+    prices: {10: "1540.61 USD", 9: "449.99 USD", 8: "137.75 USD", 7: "110 USD", 6: "88 USD"}   # PSA 10 無成交紀錄，僅估價
+    low_grade_price: "88 USD"
+    probability_set: default
+
+  # ---- 皮卡丘促銷卡 ----
+  pikachu-pcg-p-153:
+    name: ピカチュウ 153/PCG-P（ANA ピカ夏トリップ）
+    match: '(?<!\d)0?153\s*/\s*PCG-?P|PCG-?P\s*0?153(?!\d)'
+    raw_price: "39800 JPY"          # Card Rush
+    raw_price_played: "132 USD"
+    prices: {10: "7269.38 USD", 9: "1165.89 USD", 8: "180.80 USD", 7: "128.09 USD"}   # 最新成交多在 2026-01
+    probability_set: default
+  pikachu-adv-p-023:
+    name: ピカチュウ 023/ADV-P（7-Eleven 2003）
+    match: '(?<!\d)0?23\s*/\s*ADV-?P|ADV-?P\s*0?23(?!\d)'
+    raw_price: "7980 JPY"
+    raw_price_played: "90 USD"
+    prices: {10: "2706.55 USD", 9: "350 USD", 8: "52.52 USD"}   # PSA 8 僅一筆 2025 成交，可能偏低
+    probability_set: default
+  pikachu-adv-p-024:
+    name: ピカチュウ 024/ADV-P（7-Eleven 2003）
+    match: '(?<!\d)0?24\s*/\s*ADV-?P|ADV-?P\s*0?24(?!\d)'
+    raw_price: "12800 JPY"
+    raw_price_played: "136 USD"
+    prices: {10: "5699.75 USD", 9: "760 USD", 8: "499.99 USD", 7: "212.05 USD"}
+    probability_set: default
+  pikachu-xy-p-098:
+    name: メガトウキョーのピカチュウ 098/XY-P
+    match: '(?<!\d)0?98\s*/\s*XY-?P|XY-?P\s*0?98(?!\d)'
+    raw_price: "84800 JPY"          # magi S~A 刊登價（Card Rush 狀態B ¥79,800、C ¥54,800）
+    raw_price_played: "465 USD"     # PriceCharting 未鑑定
+    prices: {10: "2386 USD", 9: "1075 USD", 8: "816.85 USD", 7: "678 USD"}
+    probability_set: default
+  pikachu-xy-p-207:
+    name: ポンチョを着たピカチュウ 207/XY-P（メガリザードンX）
+    match: '(?<!\d)0?207\s*/\s*XY-?P|XY-?P\s*0?207(?!\d)'
+    raw_price: "2780000 JPY"        # Card Rush
+    raw_price_played: "5373.93 USD"
+    prices: {10: "23624.50 USD", 9: "9848.05 USD", 8: "7336.85 USD", 7: "4875 USD"}   # PSA 10 最近 $19,800（2026-10-04）
+    probability_set: default
+  pikachu-xy-p-208:
+    name: ポンチョを着たピカチュウ 208/XY-P（メガリザードンY）
+    match: '(?<!\d)0?208\s*/\s*XY-?P|XY-?P\s*0?208(?!\d)'
+    raw_price: "2080000 JPY"
+    raw_price_played: "4367.50 USD"
+    prices: {10: "18150 USD", 9: "9349.50 USD", 8: "5139.04 USD", 7: "4111 USD"}
+    probability_set: default
+  pikachu-xy-p-230:
+    name: ポンチョを着たピカチュウ 230/XY-P（メガレックウザ）
+    match: '(?<!\d)0?230\s*/\s*XY-?P|XY-?P\s*0?230(?!\d)'
+    raw_price: "1780000 JPY"
+    raw_price_played: "3147.07 USD"
+    prices: {10: "15861 USD", 9: "7475 USD", 8: "6200 USD", 7: "5018.58 USD"}
+    probability_set: default
+  pikachu-xy-p-231:
+    name: ポンチョを着たピカチュウ 231/XY-P（色違いメガレックウザ）
+    match: '(?<!\d)0?231\s*/\s*XY-?P|XY-?P\s*0?231(?!\d)'
+    raw_price: "1780000 JPY"        # gamepedia 未標欄位，低信心
+    raw_price_played: "4242.52 USD"
+    prices: {10: "17775 USD", 9: "6900 USD", 8: "6000 USD", 7: "4450 USD"}
+    probability_set: default
+  pikachu-delta-041:
+    name: ピカチュウδ ホロンの幻影 041
+    match: '(?<!\d)041(?!\d)|δ|デルタ'
+    raw_price: "2480 JPY"           # Card Rush（1st Ed PSA 10 約 $1,800，此處用無限版）
+    raw_price_played: "17.82 USD"
+    prices: {10: "1774.19 USD", 9: "138.59 USD", 8: "29 USD", 7: "12.50 USD"}
+    low_grade_price: "12.50 USD"
+    probability_set: default
+  pikachu-friendly-shop-227:
+    name: ピカチュウ 227/SM-P フレンドリィショップ
+    match: '(?<!\d)0?227\s*/\s*SM-?P|SM-?P\s*0?227(?!\d)'
+    raw_price_played: "104.50 USD"
+    prices: {10: "366.71 USD", 9: "123.58 USD"}
+    probability_set: default
+  pikachu-friendly-shop-249:
+    name: ピカチュウ 249/SM-P フレンドリィショップ
+    match: '(?<!\d)0?249\s*/\s*SM-?P|SM-?P\s*0?249(?!\d)'
+    raw_price: "11800 JPY"          # ポケカジラ售價
+    raw_price_played: "102.29 USD"
+    prices: {10: "408.40 USD", 9: "94.32 USD"}
+    probability_set: default
+  suicune-ex-027:
+    name: スイクンex 027/080 マグマVSアクア（1st Ed 行情為主）
+    match: '(?<!\d)027(?!\d)'
+    raw_price: "59800 JPY"          # Card Rush
+    raw_price_played: "54.65 USD"
+    prices: {10: "3677.36 USD", 9: "270 USD", 8: "295 USD", 7: "150 USD"}
+    probability_set: default

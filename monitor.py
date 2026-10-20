@@ -126,7 +126,7 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
-def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
+def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
     """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
     from ev_calc import VERDICT_BUY, VERDICT_RISKY
     from ev_check import card_profile, evaluate_listing, format_message
@@ -138,8 +138,8 @@ def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[s
         listing = fetch_listing(page, r["id"])
         listing["price"] = listing.get("price") or int(re.sub(r"\D", "", r["price"]) or 0) or None
         photos = download_photos(listing["photos"])
-        est, ev = evaluate_listing(ev_cfg, item["card"], listing, photos)
-        name = card_profile(ev_cfg, item["card"]).get("name", item["name"])
+        est, ev = evaluate_listing(ev_cfg, card_key, listing, photos)
+        name = card_profile(ev_cfg, card_key).get("name", item["name"])
         worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
         jpy = ev_cfg["fx"]["JPY"]
         try:
@@ -168,8 +168,9 @@ def main() -> None:
     new_count = 0
     ev_count = 0
     ev_cfg = None
+    pick_card = None
     if any(item.get("card") for item in cfg["items"]):
-        from ev_check import load_ev_config
+        from ev_check import load_ev_config, pick_card
 
         ev_cfg = load_ev_config()
 
@@ -208,9 +209,10 @@ def main() -> None:
                         break
                     msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
                     png, album = None, []
-                    if item.get("card") and ev_cfg and ev_count < MAX_EV_PER_RUN:
+                    card_key = pick_card(ev_cfg, item.get("card"), r["title"]) if ev_cfg else None
+                    if card_key and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
-                        msg, worth, png, album = ev_message(ctx, ev_cfg, item, r, msg)
+                        msg, worth, png, album = ev_message(ctx, ev_cfg, item, card_key, r, msg)
                         if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
                             print(f"[{key}] {r['id']} EV 不划算，略過通知")
                             continue

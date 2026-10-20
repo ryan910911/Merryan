@@ -318,3 +318,14 @@ def test_local_analyzer_over_full_listing():
     from ev_report import annotated_photos
     album = annotated_photos(photos, Estimate(est.scenarios, 3, observations=[obs]))
     assert 1 <= len(album) <= len(photos)
+
+
+def test_pick_card_by_title():
+    from ev_check import pick_card
+
+    cfg = {"cards": {"a": {"match": r"098\s*/?\s*XY-?P"}, "b": {"match": r"207/XY-P"}}}
+    assert pick_card(cfg, "lugia", "whatever") == "lugia"
+    assert pick_card(cfg, ["a", "b"], "メガトウキョーのピカチュウ ０９８/XY-P") == "a"
+    assert pick_card(cfg, ["a", "b"], "ポンチョ 207/XY-P") == "b"
+    assert pick_card(cfg, ["a", "b"], "ピカチュウ XY-P 150") is None
+    assert pick_card(cfg, None, "x") is None

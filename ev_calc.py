@@ -143,9 +143,19 @@ def _grade_price(prices: dict, g, fallback: float) -> float:
     return fallback
 
 
+def gross_prices(prices: dict, low_price: float) -> dict:
+    """各級賣價；沒有行情的級數用低分價補，但不高於上一個較高級數的價格"""
+    out, ceiling = {}, float("inf")
+    for g in GRADES:
+        v = _grade_price(prices, g, min(low_price, ceiling))
+        out[g] = v
+        ceiling = min(ceiling, v)
+    return out
+
+
 def scenario(name: str, probs: dict, prices: dict, low_price: float, price: float, costs: Costs) -> ScenarioResult:
     probs = normalize(probs)
-    gross = {g: _grade_price(prices, g, low_price) for g in GRADES}
+    gross = gross_prices(prices, low_price)
     revenue_by_grade = {g: probs[g] * costs.net_sale(gross[g]) for g in GRADES}
     ev_revenue = sum(revenue_by_grade.values())
     declared = sum(probs[g] * gross[g] for g in GRADES)
