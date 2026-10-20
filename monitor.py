@@ -24,6 +24,8 @@ SEEN_PATH = ROOT / "seen.json"
 MAX_SEEN_PER_ITEM = 500
 MAX_NOTIFY_PER_ITEM = 10
 MAX_EV_PER_RUN = 15  # 每輪最多深入評估幾件（每件要開商品頁、下載照片）
+TIME_BUDGET = 11 * 60  # 每輪最多跑幾秒；沒輪到的品項下一輪從這裡接著跑
+CURSOR_KEY = "__cursor__"  # seen.json 裡記錄下一輪從第幾個品項開始
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TG_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -101,7 +103,7 @@ def build_url(item: dict, defaults: dict) -> str:
 def scrape(page, url: str) -> list[dict]:
     page.goto(url, wait_until="domcontentloaded", timeout=60000)
     try:
-        page.wait_for_selector('a[href*="/item/m"]', timeout=20000)
+        page.wait_for_selector('a[href*="/item/m"]', timeout=12000)
     except Exception:
         return []  # 沒結果，或被擋
 
@@ -169,7 +171,7 @@ def main() -> None:
     ev_count = 0
     ev_cfg = None
     pick_card = None
-    if any(item.get("card") for item in cfg["items"]):
+    if defaults.get("card") or any(item.get("card") for item in cfg["items"]):
         from ev_check import load_ev_config, pick_card
 
         ev_cfg = load_ev_config()
@@ -184,9 +186,23 @@ def main() -> None:
                 "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             ),
         )
+        # 搜尋頁不需要圖片、字型，擋掉加快速度
+        ctx.route(
+            re.compile(r".*\.(png|jpe?g|webp|gif|svg|woff2?|ttf)(\?.*)?$"),
+            lambda route: route.abort(),
+        )
         page = ctx.new_page()
 
-        for item in cfg["items"]:
+        items = cfg["items"]
+        start = (seen.get(CURSOR_KEY) or [0])[0] % max(len(items), 1)
+        order = items[start:] + items[:start]
+        began = time.monotonic()
+        done = 0
+        for item in order:
+            if time.monotonic() - began > TIME_BUDGET:
+                print(f"超過時間預算，剩下 {len(order) - done} 個品項下一輪再跑")
+                break
+            done += 1
             key = item["name"]
             try:
                 results = scrape(page, build_url(item, defaults))
@@ -209,7 +225,7 @@ def main() -> None:
                         break
                     msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
                     png, album = None, []
-                    card_key = pick_card(ev_cfg, item.get("card"), r["title"]) if ev_cfg else None
+                    card_key = pick_card(ev_cfg, item.get("card", defaults.get("card")), r["title"]) if ev_cfg else None
                     if card_key and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
                         msg, worth, png, album = ev_message(ctx, ev_cfg, item, card_key, r, msg)
@@ -226,8 +242,9 @@ def main() -> None:
 
             merged = [r["id"] for r in results] + [i for i in seen.get(key, []) if i not in {r["id"] for r in results}]
             seen[key] = merged[:MAX_SEEN_PER_ITEM]
-            time.sleep(random.uniform(2, 4))
+            time.sleep(random.uniform(1, 2))
 
+        seen[CURSOR_KEY] = [(start + done) % max(len(items), 1)]
         browser.close()
 
     # 全部品項都 0 筆，八成是被 Mercari 擋掉或頁面改版

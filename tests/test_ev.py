@@ -329,3 +329,12 @@ def test_pick_card_by_title():
     assert pick_card(cfg, ["a", "b"], "ポンチョ 207/XY-P") == "b"
     assert pick_card(cfg, ["a", "b"], "ピカチュウ XY-P 150") is None
     assert pick_card(cfg, None, "x") is None
+
+
+def test_pick_card_skips_bundles_and_slabs():
+    from ev_check import pick_card
+
+    cfg = {"cards": {"a": {"match": "リザードン"}}}
+    assert pick_card(cfg, "auto", "旧裏 リザードン") == "a"
+    assert pick_card(cfg, "auto", "まとめ売り 旧裏 リザードン カメックス") is None
+    assert pick_card(cfg, "auto", "PSA10 リザードン 旧裏") is None

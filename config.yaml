@@ -11,6 +11,8 @@ defaults:
   # 品項有 card（對應 cards.yaml）時，通知會附鑑定期望值判斷
   # annotate = 全部通知並附判斷；worth_only = 只通知「建議買進／可考慮」
   ev_notify: annotate
+  # auto = 依標題比對 cards.yaml 全部卡（match），對到才評估；個別品項可寫 card: 卡種 key 指定
+  card: auto
   # 標題含這些字的商品一律略過（嚴重損傷、破損、零件用）
   exclude_words:
     - ジャンク
@@ -26,76 +28,54 @@ items:
   # ---- 寶可夢 皮卡丘 ----
   - name: PCG-P 004
     keyword: ピカチュウ PCG-P 004
-    card: &pika [pikachu-e-p-004, pikachu-e-p-021, pikachu-pcg-p-153, pikachu-adv-p-023, pikachu-adv-p-024, pikachu-xy-p-098, pikachu-xy-p-207, pikachu-xy-p-208, pikachu-xy-p-230, pikachu-xy-p-231, pikachu-friendly-shop-227, pikachu-friendly-shop-249]
   - name: PCG-P 153
     keyword: ピカチュウ PCG-P 153
-    card: *pika
   - name: DP-P 003
     keyword: ピカチュウ DP-P 003
-    card: *pika
   - name: e-P 004
     keyword: ピカチュウ e-P 004
-    card: *pika
   - name: e-P 021
     keyword: ピカチュウ e-P 021
-    card: *pika
   - name: ADV-P 023
     keyword: ピカチュウ ADV-P 023
-    card: *pika
   - name: ADV-P 024
     keyword: ピカチュウ ADV-P 024
-    card: *pika
   - name: XY-P
     keyword: ピカチュウ XY-P
-    card: *pika
   - name: ホロンの幻影 デルタ種 041
     keyword: ピカチュウ デルタ種 ホロンの幻影 041
-    card: [pikachu-delta-041]
   - name: 旧裏 コロコロ イラストレーター
     keyword: ピカチュウ 旧裏 コロコロ 光沢あり イラストレーター
   - name: フレンドリィショップ
     keyword: ピカチュウ フレンドリィショップ
-    card: *pika
   - name: スイクンex 027
     keyword: スイクンex 027
-    card: [suicune-ex-027]
 
   # ---- 寶可夢 鑑定候選（附 EV 評估）----
   - name: ルギア e-P 047
     keyword: ルギア 047/P
-    card: lugia-e-p-047
 
   # ---- 寶可夢 e 卡促銷卡（P 編號，2001~2002）----
   # 編號依 Serebii／TCGCollector 的 P Promos 清單
-  # card 可以是清單：依標題裡的卡號挑 cards.yaml 的行情（match），對不到就只發一般通知
   - name: リザードン e-P 014
     keyword: リザードン 014/P
-    card: &eprom [lugia-e-p-047, charizard-e-p-014, ho-oh-e-p-010, mew-e-p-033, celebi-e-p-006, celebi-e-p-007, celebi-e-p-042, pikachu-e-p-004, pikachu-e-p-021]
   - name: ホウオウ e-P 010
     keyword: ホウオウ 010/P
-    card: *eprom
   - name: ミュウ e-P 033
     keyword: ミュウ 033/P
-    card: *eprom
   - name: セレビィ e-P 006
     keyword: セレビィ 006/P
-    card: *eprom
   - name: セレビィ e-P 007
     keyword: セレビィ 007/P
-    card: *eprom
   - name: セレビィ e-P 042
     keyword: セレビィ 042/P
-    card: *eprom
   - name: ピカチュウ e-P 004（004/P 寫法）
     keyword: ピカチュウ 004/P
-    card: *eprom
   - name: ピカチュウ e-P 021（021/P 寫法）
     keyword: ピカチュウ 021/P
-    card: *eprom
   # 全部 e 卡促銷卡的新刊登（量可能較多，嫌吵可刪掉或加 max_price）
   - name: ポケモンカードe プロモ 全般
     keyword: ポケモンカードe プロモ
-    card: *eprom
 
   # ---- 寶可夢 舊版卡（旧裏，1996~2001）----
   - name: 旧裏 ゲンガー
@@ -130,6 +110,56 @@ items:
   # ---- 寶可夢 金星卡（☆，ADV／PCG 時期）----
   - name: ゴールドスター
     keyword: ポケモンカード ゴールドスター
+
+  # ---- 寶可夢 舊版卡補充（2026-10-20 依卡表補齊；評估用 cards.yaml 的 match 自動對卡）----
+  - {name: 旧裏 リザード, keyword: 旧裏 リザード}
+  - {name: 旧裏 ヒトカゲ, keyword: 旧裏 ヒトカゲ}
+  - {name: ひかるリザードン, keyword: ひかるリザードン}
+  - {name: わるいリザード, keyword: わるいリザード}
+  - {name: カツラのリザード, keyword: カツラのリザード}
+  - {name: 旧裏 ゼニガメ, keyword: 旧裏 ゼニガメ}
+  - {name: 旧裏 カメール, keyword: 旧裏 カメール}
+  - {name: 旧裏 フシギダネ, keyword: 旧裏 フシギダネ}
+  - {name: 旧裏 フシギソウ, keyword: 旧裏 フシギソウ}
+  - {name: わるいカメックス, keyword: わるいカメックス}
+  - {name: わるいフシギバナ, keyword: わるいフシギバナ}
+  - {name: エリカのフシギバナ, keyword: エリカのフシギバナ}
+  - {name: カメックス 013/P, keyword: カメックス 013/P}
+  - {name: フシギバナ 012/P, keyword: フシギバナ 012/P}
+  - {name: フシギソウ 010/T, keyword: フシギソウ 010/T}
+  - {name: カメール 012/T, keyword: カメール 012/T}
+  - {name: カメックス カードe, keyword: カメックス ポケモンカードe}
+  - {name: ナツメのゲンガー, keyword: ナツメのゲンガー}
+  - {name: ゲンガー 通信進化, keyword: ゲンガー 通信進化}
+  - {name: ゲンガー web, keyword: ゲンガー web}
+  - {name: R団のミュウツー, keyword: R団のミュウツー}
+  - {name: ひかるミュウツー, keyword: ひかるミュウツー}
+  - {name: ミュウツーex 026/055, keyword: ミュウツーex 026/055}
+  - {name: ミュウ LV.8 プロモ, keyword: ミュウ LV.8}
+  - {name: ミュウ スタンプラリー, keyword: ミュウ スタンプラリー}
+  - {name: ルギア neo, keyword: ルギア neo}
+  - {name: ルギア プレミアムファイル, keyword: ルギア プレミアムファイル}
+  - {name: ルギア GB プロモ, keyword: ルギア GB プロモ}
+  # e 卡時期促銷卡
+  - {name: マクドナルド カードe, keyword: マクドナルド ポケモンカードe}
+  - {name: ピチュー兄弟, keyword: ピチュー兄弟 プロモ}
+  - {name: トリプルゲット プロモ, keyword: トリプルゲット プロモ}
+  - {name: JR スタンプラリー 2002, keyword: JR スタンプラリー 2002 ポケモン}
+  - {name: ポケモンフェスタ ピカチュウ, keyword: ポケモンフェスタ ピカチュウ}
+  - {name: ひかるイマクニ, keyword: ひかるイマクニ}
+  - {name: トロピカルウインド, keyword: トロピカルウインド}
+  - {name: トレーナーズ プロモ /T, keyword: トレーナーズ プロモ ポケモンカードe}
+  # 金星卡（各彈）
+  - {name: 蒼空の激突 スター, keyword: 蒼空の激突 スター}
+  - {name: ロケット団の逆襲 スター, keyword: ロケット団の逆襲 スター}
+  - {name: 金の空銀の海 スター, keyword: 金の空 銀の海 スター}
+  - {name: まぼろしの森 スター, keyword: まぼろしの森 スター}
+  - {name: ホロンの研究塔 スター, keyword: ホロンの研究塔 スター}
+  - {name: ホロンの幻影 ギャラドス, keyword: ホロンの幻影 ギャラドス スター}
+  - {name: 奇跡の結晶 スター, keyword: 奇跡の結晶 スター}
+  - {name: さいはての攻防 スター, keyword: さいはての攻防 スター}
+  - {name: ギフトボックス スター, keyword: ギフトボックス ピカチュウ ミュウツー スター}
+  - {name: PLAY プロモ スター, keyword: PLAY プロモ スター ポケモン}
 
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版

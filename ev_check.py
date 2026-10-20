@@ -43,13 +43,20 @@ def card_profile(cfg: dict, key: str) -> dict:
     return cards[key]
 
 
+NOT_SINGLE_RAW = re.compile(r"まとめ|セット|\d+\s*枚|オリパ|PSA\s*\d|BGS|CGC|ARS|鑑定済|鑑定品", re.IGNORECASE)
+
+
 def pick_card(cfg: dict, spec, title: str) -> str | None:
-    """依品項的 card 設定挑卡種：字串直接用；清單則用各卡 match（正規式）比對標題，第一個符合的勝出"""
+    """依品項的 card 設定挑卡種：字串直接用；auto 或清單則用各卡 match（正規式）比對標題，第一個符合的勝出"""
     if not spec:
         return None
-    if isinstance(spec, str):
+    if spec == "auto":  # 用 cards.yaml 全部卡的 match 比對
+        spec = list(cfg.get("cards") or {})
+    elif isinstance(spec, str):
         return spec
     norm = unicodedata.normalize("NFKC", title or "")
+    if NOT_SINGLE_RAW.search(norm):  # 多張一起賣或已鑑定的卡，不適用裸卡鑑定評估
+        return None
     for key in spec:
         pattern = card_profile(cfg, key).get("match")
         if pattern and re.search(pattern, norm, re.IGNORECASE):
