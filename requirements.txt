@@ -5,3 +5,4 @@ pyyaml
 numpy
 pillow
 anthropic
+opencv-python-headless

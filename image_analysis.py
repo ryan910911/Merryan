@@ -4,9 +4,9 @@
 grade_estimator 再依 Observation 調整分數機率。
 
 內建兩種：
-- heuristic：純像素量測（numpy + Pillow），量正面黃框置中、背面藍底邊角白邊。
-  只在照片夠正、卡片輪廓清楚時才給高信心；手機斜拍、卡套反光多半會被判低信心而不採用。
-- claude：把照片交給 Claude 視覺模型判讀（需要 ANTHROPIC_API_KEY，會產生 API 費用）。
+- local（預設，不呼叫 API）：正面全圖量黃框置中；每一張照片（含四角、邊緣特寫）
+  用 defect_scan.py 找白邊、角尖白、白點、刮痕、疑似摺痕。
+- claude（選用）：把照片交給 Claude 視覺模型判讀（需要 ANTHROPIC_API_KEY，會產生 API 費用）。
 
 要接別的模型，寫一個有 `name` 和 `analyze(images, listing) -> Observation` 的類別，
 加進 ANALYZERS 即可。
@@ -84,11 +84,6 @@ def _yellow_mask(rgb: np.ndarray) -> np.ndarray:
     return (h > 35) & (h < 65) & (s > 0.35) & (v > 0.5)
 
 
-def _blue_ratio(rgb: np.ndarray) -> float:
-    h, s, v = _hsv(rgb)
-    return float(((h > 190) & (h < 250) & (s > 0.3)).mean())
-
-
 def _run_length(line: np.ndarray) -> int:
     """從線的開頭算連續 True 的長度（容忍 1~2 像素雜訊）"""
     n = 0
@@ -140,38 +135,34 @@ def measure_centering(card: np.ndarray) -> tuple[float, float, float, tuple] | N
     return lr, tb, confidence, borders
 
 
-def measure_whitening(card: np.ndarray) -> tuple[str, float, dict] | None:
-    """量背面藍底邊緣與四角的白點比例：回傳 (嚴重度, 分數, 各角比例 {"tl": .., "tr": .., "bl": .., "br": ..})"""
-    if _blue_ratio(card) < 0.3:
-        return None
-    h, w, _ = card.shape
-    band = max(2, int(min(h, w) * 0.02))
-    _, s, v = _hsv(card)
-    white = (s < 0.18) & (v > 0.8)
-    edge = np.concatenate([white[:band].ravel(), white[-band:].ravel(), white[:, :band].ravel(), white[:, -band:].ravel()])
-    c = band * 3
-    per_corner = {
-        "tl": float(white[:c, :c].mean()), "tr": float(white[:c, -c:].mean()),
-        "bl": float(white[-c:, :c].mean()), "br": float(white[-c:, -c:].mean()),
-    }
-    score = max(float(edge.mean()), float(np.mean(list(per_corner.values()))))
-    if score < 0.02:
-        sev = "none"
-    elif score < 0.08:
-        sev = "light"
-    else:
-        sev = "heavy"
-    return sev, score, per_corner
-
-
 class HeuristicAnalyzer:
-    name = "heuristic"
+    """本機分析（不呼叫 API）：正面全圖量置中，所有照片（含特寫）逐張找白邊、白點、刮痕、摺痕"""
+
+    name = "local"
 
     def analyze(self, images: list[bytes], listing: dict) -> Observation:
+        from defect_scan import scan_photo, worst
+
         obs = Observation(source=self.name)
         best_center = None
-        whitening = []
+        scans = []
         for i, raw in enumerate(images):
+            try:
+                scan = scan_photo(raw, i)
+            except Exception as e:
+                print(f"照片 #{i + 1} 分析失敗: {e}")
+                continue
+            if scan.side is None:
+                continue
+            scans.append(scan)
+            obs.annotations.append({"image": i, "kind": "scan", "scan": scan})
+            if scan.side == "front":
+                obs.has_front = True
+            else:
+                obs.has_back = True
+            if scan.side != "front":
+                continue
+            # 置中只在拍到整張正面時量
             try:
                 rgb, scale = _load(raw)
             except Exception:
@@ -180,37 +171,54 @@ class HeuristicAnalyzer:
             if not box:
                 continue
             x0, y0, x1, y1 = box
+            ih, iw = rgb.shape[:2]
+            m = 0.01 * max(ih, iw)
+            if x0 < m or y0 < m or x1 > iw - m or y1 > ih - m:
+                continue  # 卡片碰到照片邊界 = 特寫或沒拍到整張
             aspect = (x1 - x0) / max(1, (y1 - y0))
-            aspect_ok = abs(aspect - CARD_ASPECT) / CARD_ASPECT < 0.06
-            card = rgb[y0:y1, x0:x1]
-            full_box = tuple(v * scale for v in box)
-            c = measure_centering(card)
-            if c:
-                obs.has_front = True
-                lr, tb, conf, borders = c
-                if not aspect_ok:
-                    conf *= 0.3  # 斜拍或沒裁到整張卡
-                if best_center is None or conf > best_center[2]:
-                    best_center = (lr, tb, conf)
-                obs.annotations.append({"image": i, "kind": "front", "box": full_box, "confidence": conf,
-                                        "borders": tuple(b * scale for b in borders), "lr": lr, "tb": tb})
-            wtn = None if c else measure_whitening(card)  # 有黃框就是正面，不量背面白邊
-            if wtn:
-                obs.has_back = True
-                whitening.append((wtn[:2], 1.0 if aspect_ok else 0.3))
-                obs.annotations.append({"image": i, "kind": "back", "box": full_box, "severity": wtn[0],
-                                        "corners": wtn[2], "corner_size": max(2, int(min(card.shape[:2]) * 0.02)) * 3 * scale})
-        confs = []
+            if abs(aspect - CARD_ASPECT) / CARD_ASPECT > 0.12:
+                continue
+            c = measure_centering(rgb[y0:y1, x0:x1])
+            if not c:
+                continue
+            lr, tb, conf, borders = c
+            if max(lr, tb) > 90:
+                continue  # 量到的不是黃框
+            if abs(aspect - CARD_ASPECT) / CARD_ASPECT > 0.06:
+                conf *= 0.3  # 斜拍
+            if best_center is None or conf > best_center[2]:
+                best_center = (lr, tb, conf)
+            obs.annotations.append({"image": i, "kind": "front", "box": tuple(v * scale for v in box), "confidence": conf,
+                                    "borders": tuple(b * scale for b in borders), "lr": lr, "tb": tb})
+
         if best_center:
-            obs.centering_lr, obs.centering_tb, conf = best_center
-            confs.append(conf)
-            obs.notes.append(f"量測置中 左右 {obs.centering_lr:.0f}/{100 - obs.centering_lr:.0f}、上下 {obs.centering_tb:.0f}/{100 - obs.centering_tb:.0f}（信心 {conf:.0%}）")
-        if whitening:
-            (sev, score), conf = max(whitening, key=lambda x: x[0][1])
-            obs.corners = obs.edges = sev
-            confs.append(conf * 0.6)  # 照片解析度與反光影響大，打折
-            obs.notes.append(f"背面邊角白點比例 {score:.1%}（{sev}）")
-        obs.confidence = float(min(confs)) if confs else 0.0
+            obs.centering_lr, obs.centering_tb, cconf = best_center
+            obs.notes.append(f"量測置中 左右 {obs.centering_lr:.0f}/{100 - obs.centering_lr:.0f}、上下 {obs.centering_tb:.0f}/{100 - obs.centering_tb:.0f}（信心 {cconf:.0%}）")
+            if cconf < 0.5:
+                obs.centering_lr = obs.centering_tb = None  # 信心太低不拿來設上限
+
+        if scans:
+            obs.edges = worst(s.edge_severity for s in scans)
+            obs.corners = worst(s.corner_severity for s in scans)
+            lines = [l for s in scans for l in s.lines]
+            specks = sum(s.specks for s in scans)
+            creased = sum(s.crease_suspect for s in scans)
+            if creased >= 2:
+                obs.crease = True  # 兩張以上照片都看到同樣的長直線，當成摺痕
+                obs.surface = "heavy"
+            elif creased:
+                obs.surface = "heavy"  # 只有一張：先當明顯表面瑕疵，請人工確認
+            elif lines or specks >= 3:
+                obs.surface = "light"
+            else:
+                obs.surface = "none"
+            for s in scans:
+                obs.notes.extend(s.notes)
+            fronts = sum(s.side == "front" for s in scans)
+            backs = sum(s.side == "back" for s in scans)
+            obs.notes.append(f"逐張檢查 {len(scans)} 張（正面 {fronts}、背面 {backs}）：邊緣 {obs.edges}、四角 {obs.corners}、表面 {obs.surface}")
+            # 張數越多、正反都有，越可信；只拍單面最多 0.5
+            obs.confidence = min(0.85, 0.5 + 0.05 * len(scans)) if fronts and backs else 0.5
         return obs
 
 
@@ -334,8 +342,8 @@ def build_analyzers(cfg: dict) -> list:
     """依 cards.yaml 的 analysis 設定建立 analyzer 清單"""
     cfg = cfg or {}
     out = []
-    for name in cfg.get("analyzers", ["heuristic", "claude"]):
-        if name == "heuristic":
+    for name in cfg.get("analyzers", ["local"]):
+        if name in ("local", "heuristic"):
             out.append(HeuristicAnalyzer())
         elif name == "claude":
             if ClaudeVisionAnalyzer.available():

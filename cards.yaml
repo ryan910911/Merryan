@@ -42,8 +42,9 @@ decision:
   min_roi: 0.25            # 基準 ROI 門檻（安全邊際）
 
 analysis:
-  # 照片分析器，依序執行；claude 只有在設定 ANTHROPIC_API_KEY 時才會啟用（會產生 API 費用）
-  analyzers: [heuristic, claude]
+  # 照片分析器。local = 本機 OpenCV 逐張檢查（不花錢，預設）
+  # 想加 Claude 看照片：改成 [local, claude] 並設定 ANTHROPIC_API_KEY（會產生 API 費用）
+  analyzers: [local]
   claude_model: claude-opus-5-5
   claude_effort: medium
   max_images: 6

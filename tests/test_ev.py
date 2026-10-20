@@ -7,10 +7,11 @@ import pytest
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from ev_calc import VERDICT_BUY, VERDICT_PASS, Costs, evaluate, normalize, parse_money  # noqa: E402
 from ev_check import evaluate_listing, format_message, load_ev_config  # noqa: E402
-from grade_estimator import cap_at, condition_id, estimate, shift_down  # noqa: E402
+from grade_estimator import Estimate, cap_at, condition_id, estimate, shift_down  # noqa: E402
 from image_analysis import HeuristicAnalyzer, Observation  # noqa: E402
 from listing import item_id, parse_condition, parse_price, photo_urls  # noqa: E402
 
@@ -221,7 +222,7 @@ def test_vision_grade_probs_blend_into_scenarios():
 
 def test_front_photo_not_counted_as_back():
     obs = HeuristicAnalyzer().analyze([make_front(30, 30)], {})
-    assert [a["kind"] for a in obs.annotations] == ["front"]
+    assert [a["scan"].side for a in obs.annotations if a["kind"] == "scan"] == ["front"]
     assert obs.has_back is None
 
 
@@ -237,3 +238,83 @@ def test_render_report_png():
     assert img.format == "PNG" and img.width == 1400
     skip_est, skip_ev = evaluate_listing(cfg, "lugia-e-p-047", dict(listing, condition="全体的に状態が悪い"), [], analyzers=[])
     assert render_report("x", listing, skip_est, skip_ev, [])[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+
+# ---- 本機逐張瑕疵檢查（defect_scan）----
+import synth  # noqa: E402
+from defect_scan import scan_photo  # noqa: E402
+
+
+def _rng():
+    return np.random.default_rng(7)
+
+
+def test_scan_clean_back_and_front_have_no_findings():
+    for img in (synth.photo(synth.back_card(_rng())), synth.photo(synth.back_card(_rng()), angle=4),
+                synth.photo(synth.front_card(_rng()))):
+        s = scan_photo(synth.jpeg(img))
+        assert s.edge_severity == "none" and s.corner_severity == "none" and not s.lines
+
+
+def test_scan_classifies_front_with_blue_art():
+    s = scan_photo(synth.jpeg(synth.photo(synth.front_card(_rng()))))
+    assert s.side == "front"
+    assert scan_photo(synth.jpeg(synth.photo(synth.back_card(_rng())))).side == "back"
+
+
+def test_scan_edge_chips_corner_and_crease():
+    rng = _rng()
+    chipped = synth.back_card(rng)
+    synth.chip_edges(chipped, rng)
+    assert scan_photo(synth.jpeg(synth.photo(chipped))).edge_severity == "heavy"
+    corner = synth.back_card(rng)
+    synth.white_corner(corner)
+    assert scan_photo(synth.jpeg(synth.photo(corner))).corner_severity == "heavy"
+    creased = synth.back_card(rng)
+    synth.crease(creased)
+    s = scan_photo(synth.jpeg(synth.photo(creased)))
+    assert s.crease_suspect  # 被寶可夢球切成兩段，仍合併成一條摺痕
+    scratched = synth.back_card(rng)
+    synth.scratch(scratched)
+    s = scan_photo(synth.jpeg(synth.photo(scratched)))
+    assert [l["kind"] for l in s.lines] == ["scratch"]
+
+
+def test_scan_closeups():
+    rng = _rng()
+    corner = synth.back_card(rng)
+    synth.white_corner(corner)
+    clean = synth.photo(synth.back_card(rng))
+    for c in ("tl", "br"):
+        assert scan_photo(synth.jpeg(synth.closeup(synth.photo(corner), c))).corner_severity == "heavy"
+        s = scan_photo(synth.jpeg(synth.closeup(clean, c)))
+        assert s.edge_severity == "none" and s.corner_severity == "none"
+        # 正面特寫：L 形黃框旁的白色圖面不能被當成白邊
+        f = scan_photo(synth.jpeg(synth.closeup(synth.photo(synth.front_card(rng)), c)))
+        assert f.side == "front" and f.edge_severity == "none"
+
+
+def test_white_background_disables_corner_tip_check():
+    s = scan_photo(synth.jpeg(synth.photo(synth.back_card(_rng()), bg=(235, 235, 235))))
+    assert s.corner_severity == "none"
+    assert any("背景偏白" in n for n in s.notes)
+
+
+def test_local_analyzer_over_full_listing():
+    rng = _rng()
+    f, b = synth.front_card(rng, left=34, right=46), synth.back_card(rng)
+    synth.crease(b)
+    fp, bp = synth.photo(f, seed=1), synth.photo(b, seed=2)
+    photos = [synth.jpeg(fp), synth.jpeg(bp)] + [synth.jpeg(synth.closeup(bp, c)) for c in ("tl", "tr", "bl", "br")]
+    obs = HeuristicAnalyzer().analyze(photos, {})
+    assert obs.has_front and obs.has_back
+    assert obs.centering_lr == pytest.approx(57.5, abs=2)  # 特寫不拿來量置中
+    assert obs.crease is True  # 全圖和特寫都看到同一條線
+    assert obs.confidence >= 0.5
+    est = estimate(SETS, 3, observations=[obs], photo_count=len(photos))
+    assert est.scenarios["optimistic"][7] == 0 and est.scenarios["optimistic"][6] == 0  # 摺痕 -> 上限 PSA 5
+
+    from ev_report import annotated_photos
+    album = annotated_photos(photos, Estimate(est.scenarios, 3, observations=[obs]))
+    assert 1 <= len(album) <= len(photos)

@@ -61,6 +61,28 @@ def notify_photo(png: bytes, caption: str) -> None:
         notify(caption)
 
 
+def notify_album(images: list[bytes], caption: str = "") -> None:
+    """一次送多張標註照片（Telegram 相簿最多 10 張）"""
+    if not images:
+        return
+    if not (TG_TOKEN and TG_CHAT):
+        print(f"[DRY-RUN album] {len(images)} 張", caption)
+        return
+    images = images[:10]
+    if len(images) == 1:
+        r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
+                          data={"chat_id": TG_CHAT, "caption": caption},
+                          files={"photo": ("p0.jpg", images[0], "image/jpeg")}, timeout=30)
+    else:
+        media = [{"type": "photo", "media": f"attach://p{i}"} for i in range(len(images))]
+        media[0]["caption"] = caption
+        r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMediaGroup",
+                          data={"chat_id": TG_CHAT, "media": json.dumps(media)},
+                          files={f"p{i}": (f"p{i}.jpg", b, "image/jpeg") for i, b in enumerate(images)}, timeout=60)
+    if not r.ok:
+        print("Telegram 相簿發送失敗:", r.status_code, r.text)
+
+
 def build_url(item: dict, defaults: dict) -> str:
     conditions = item.get("conditions", defaults["conditions"])
     params = {
@@ -104,11 +126,11 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
-def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool, bytes | None]:
-    """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖)；失敗就退回原本的簡單通知"""
+def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
+    """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
     from ev_calc import VERDICT_BUY, VERDICT_RISKY
     from ev_check import card_profile, evaluate_listing, format_message
-    from ev_report import render_report
+    from ev_report import annotated_photos, render_report
     from listing import download_photos, fetch_listing
 
     page = ctx.new_page()
@@ -122,13 +144,14 @@ def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[s
         jpy = ev_cfg["fx"]["JPY"]
         try:
             png = render_report(name, listing, est, ev, photos, jpy_rate=jpy)
+            album = annotated_photos(photos, est)
         except Exception as e:
             print(f"[{item['name']}] 報告圖產生失敗: {e}")
-            png = None
-        return format_message(name, listing, est, ev, jpy_rate=jpy), worth, png
+            png, album = None, []
+        return format_message(name, listing, est, ev, jpy_rate=jpy), worth, png, album
     except Exception as e:
         print(f"[{item['name']}] EV 評估失敗: {e}")
-        return fallback + "\n（EV 評估失敗）", True, None
+        return fallback + "\n（EV 評估失敗）", True, None, []
     finally:
         page.close()
 
@@ -184,10 +207,10 @@ def main() -> None:
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
                     msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
-                    png = None
+                    png, album = None, []
                     if item.get("card") and ev_cfg and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
-                        msg, worth, png = ev_message(ctx, ev_cfg, item, r, msg)
+                        msg, worth, png, album = ev_message(ctx, ev_cfg, item, r, msg)
                         if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
                             print(f"[{key}] {r['id']} EV 不划算，略過通知")
                             continue
@@ -195,6 +218,7 @@ def main() -> None:
                         notify_photo(png, msg)
                     else:
                         notify(msg)
+                    notify_album(album, f"偵測到瑕疵的照片（紅圈＝白點／白邊，線框＝刮痕或疑似摺痕）\n{r['url']}")
                     shown += 1
                     new_count += 1
 

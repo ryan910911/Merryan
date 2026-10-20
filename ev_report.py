@@ -1,6 +1,7 @@
 """把照片判讀與 EV 結果畫成一張 PNG（推到 Telegram 用）
 
-左邊：刊登照片，標出量到的卡片外框、正面黃框內緣（置中）、背面四角白點比例。
+左邊：所有判讀過的刊登照片（含特寫）排成格狀，標出卡片範圍、白邊／白點（紅圈）、
+刮痕與疑似摺痕（線框）、正面黃框內緣與置中比例。
 右邊：PSA 各級機率長條圖（樂觀／基準／悲觀三組，同一色系由淺到深）＋ EV 摘要。
 
 圖上文字用英文與數字；有 CJK 字型（GitHub Actions 會裝 fonts-noto-cjk）時才顯示日文標題。
@@ -70,39 +71,100 @@ def _center_color(worse_side: float) -> str:
     return CRIT
 
 
-def _corner_color(score: float) -> str:
-    return GOOD if score < 0.02 else WARN if score < 0.08 else CRIT
+SEV_COLOR = {"none": GOOD, "light": WARN, "heavy": CRIT}
 
 
-def annotate_photo(raw: bytes, annotations: list, height: int) -> Image.Image:
+def _worst(*levels) -> str:
+    order = ["none", "light", "heavy"]
+    return max((l for l in levels if l), key=order.index, default="none")
+
+
+def _scan_level(scan) -> str:
+    surface = "heavy" if scan.crease_suspect else "light" if scan.lines or scan.specks >= 3 else "none"
+    return _worst(scan.edge_severity, scan.corner_severity, surface)
+
+
+def has_findings(scan) -> bool:
+    return _scan_level(scan) != "none"
+
+
+def annotate_photo(raw: bytes, annotations: list, height: int | None = None, max_size: tuple | None = None,
+                   index: int | None = None) -> Image.Image:
+    """把量測結果畫在照片上：綠框 = 偵測到的卡片範圍，紅圈 = 白邊／白點，線框 = 刮痕或疑似摺痕"""
     img = Image.open(io.BytesIO(raw)).convert("RGB")
-    scale = height / img.height
-    img = img.resize((max(1, int(img.width * scale)), height))
+    if max_size:
+        scale = min(max_size[0] / img.width, max_size[1] / img.height)
+    else:
+        scale = height / img.height
+    img = img.resize((max(1, int(img.width * scale)), max(1, int(img.height * scale))))
     d = ImageDraw.Draw(img)
-    f = font(16)
+    fsize = 22 if img.width >= 900 else 16 if img.width >= 400 else 13
+    f = font(fsize)
+    lw = 2 if img.width >= 400 else 1
+    tag_y = 4
     for a in annotations:
-        x0, y0, x1, y1 = (v * scale for v in a["box"])
-        d.rectangle([x0, y0, x1, y1], outline=GOOD, width=2)
         if a["kind"] == "front":
+            x0, y0, x1, y1 = (v * scale for v in a["box"])
             l, r, t, b = (v * scale for v in a["borders"])
-            worse = max(a["lr"], a["tb"])
-            col = _center_color(worse)
-            d.rectangle([x0 + l, y0 + t, x1 - r, y1 - b], outline=INK, width=5)  # 深色底線，黃框上也看得到
-            d.rectangle([x0 + l, y0 + t, x1 - r, y1 - b], outline=col, width=2)
+            col = _center_color(max(a["lr"], a["tb"]))
+            d.rectangle([x0 + l, y0 + t, x1 - r, y1 - b], outline=INK, width=lw + 3)  # 深色底線，黃框上也看得到
+            d.rectangle([x0 + l, y0 + t, x1 - r, y1 - b], outline=col, width=lw)
             label = f"L/R {a['lr']:.0f}/{100 - a['lr']:.0f}  T/B {a['tb']:.0f}/{100 - a['tb']:.0f}"
             if a.get("confidence", 1) < 0.5:
-                label += "  (low confidence)"
-            _tag(d, (x0, min(y1 + 6, img.height - 22)), label, col, f)
-        elif a["kind"] == "back":
-            c = a["corner_size"] * scale
-            spots = {"tl": (x0, y0), "tr": (x1 - c, y0), "bl": (x0, y1 - c), "br": (x1 - c, y1 - c)}
-            for k, (cx, cy) in spots.items():
-                score = a["corners"][k]
-                col = _corner_color(score)
-                d.rectangle([cx, cy, cx + c, cy + c], outline=col, width=3)
-                _tag(d, (cx + 2, cy + c + 2 if k.startswith("t") else cy - 22), f"{score:.0%}", col, f)
-            _tag(d, (x0 + 4, y0 + c + 26), f"corner whitening: {a['severity']}", INK, f)
+                label += " (low conf.)"
+            _tag(d, (4, img.height - fsize - 10), label, col, f)
+        elif a["kind"] == "scan":
+            sc = a["scan"]
+            if sc.hull is not None:
+                pts = [(float(x) * scale, float(y) * scale) for x, y in sc.hull.reshape(-1, 2)]
+                d.line(pts + pts[:1], fill=GOOD, width=lw)
+            if sc.defect_mask is not None and sc.defect_mask.any():
+                import cv2
+                import numpy as np
+
+                k = max(3, int(min(sc.defect_mask.shape) * 0.01))
+                blobs = cv2.dilate(sc.defect_mask, np.ones((k, k), np.uint8))
+                contours, _ = cv2.findContours(blobs, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                m = sc.scale * scale
+                for c in contours:
+                    (cx, cy), rad = cv2.minEnclosingCircle(c)
+                    rad = rad * m + 6
+                    d.ellipse([cx * m - rad, cy * m - rad, cx * m + rad, cy * m + rad], outline=CRIT, width=lw + 1)
+            for line in sc.lines:
+                col = CRIT if line["kind"] == "crease" else SERIOUS
+                for box in line.get("parts", [line["box"]]):
+                    pts = [(float(x) * scale, float(y) * scale) for x, y in box]
+                    d.line(pts + pts[:1], fill=col, width=lw + 1)
+                x, y = (float(v) * scale for v in line["box"][0])
+                _tag(d, (min(x, img.width - 120), min(max(y - 24, 0), img.height - 22)),
+                     "crease?" if line["kind"] == "crease" else "scratch", col, f)
+            side = "F" if sc.side == "front" else "B"
+            num = f"#{(index if index is not None else sc.index) + 1} "
+            label = f"{num}{side} E{sc.edge_ratio:.0%} C{sc.corner_ratio:.0%}"
+            if sc.specks:
+                label += f" D{sc.specks}"
+            _tag(d, (4, tag_y), label, SEV_COLOR[_scan_level(sc)], f)
+            tag_y += fsize + 10
     return img
+
+
+def annotated_photos(photos: list[bytes], est, max_side: int = 1280, only_findings: bool = True) -> list[bytes]:
+    """逐張輸出標註後的大圖（Telegram 相簿用）；預設只輸出有偵測到瑕疵的"""
+    ann = [a for o in (est.observations if est else []) for a in o.annotations]
+    out = []
+    for i, raw in enumerate(photos):
+        mine = [a for a in ann if a["image"] == i]
+        scans = [a["scan"] for a in mine if a["kind"] == "scan"]
+        if not scans or (only_findings and not any(has_findings(s) for s in scans)):
+            continue
+        try:
+            im = annotate_photo(raw, mine, max_size=(max_side, max_side))
+        except Exception:
+            continue
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=88)
+        out.append(buf.getvalue())
+    return out
 
 
 def _tag(d: ImageDraw.ImageDraw, xy, text: str, color: str, f) -> None:
@@ -152,7 +214,7 @@ def _bar_chart(d: ImageDraw.ImageDraw, x: int, y: int, w: int, scenarios: dict) 
 
 
 def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], jpy_rate: float | None = None) -> bytes:
-    W, H = 1400, 780
+    W, H = 1400, 840
     img = Image.new("RGB", (W, H), SURFACE)
     d = ImageDraw.Draw(img)
     f, fb, fh, fs = font(18), font(22), font(28), font(15)
@@ -170,39 +232,33 @@ def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], j
         sub += f" (NT${price * jpy_rate:,.0f})"
     d.text((52 + d.textlength(vtext, font=fh) + 30, 20), sub, fill=INK_2, font=fb)
 
-    # 左：照片
+    # 左：所有判讀過的照片排成格狀（最多 12 張）
     obs_list = est.observations if est else []
     ann = [a for o in obs_list for a in o.annotations]
-    picked = []
-    for kind in ("front", "back"):
-        a = next((a for a in ann if a["kind"] == kind), None)
-        if a and a["image"] not in [p for p, _ in picked]:
-            picked.append((a["image"], [b for b in ann if b["image"] == a["image"]]))
-    for i in range(len(photos)):
-        if len(picked) >= 2:
-            break
-        if i not in [p for p, _ in picked]:
-            picked.append((i, []))
-    picked = picked[:2]
-    ratios = []
-    for idx, _ in picked:
-        try:
-            with Image.open(io.BytesIO(photos[idx])) as im:
-                ratios.append(im.width / im.height)
-        except Exception:
-            ratios.append(None)
-    usable = [r for r in ratios if r]
-    # 兩張照片並排塞進 740px 寬、最高 560px
-    height = int(min(560, (740 - 16 * (len(usable) - 1)) / sum(usable))) if usable else 560
-    px = 20
-    for (idx, anns), r in zip(picked, ratios):
-        if not r:
-            continue
-        ph = annotate_photo(photos[idx], anns, height)
-        img.paste(ph, (px, 84))
-        px += ph.width + 16
-    if not picked:
+    scanned = sorted({a["image"] for a in ann})
+    show = (scanned or list(range(len(photos))))[:12]
+    grid_bottom = 84
+    if show:
+        n = len(show)
+        cols = 1 if n == 1 else 2 if n <= 4 else 3 if n <= 9 else 4
+        rows = -(-n // cols)
+        gap = 10
+        cw = (750 - gap * (cols - 1)) // cols
+        ch = min(560, (620 - gap * (rows - 1)) // rows)
+        for k, idx in enumerate(show):
+            r, c = divmod(k, cols)
+            try:
+                ph = annotate_photo(photos[idx], [a for a in ann if a["image"] == idx], max_size=(cw, ch), index=idx)
+            except Exception:
+                continue
+            x = 20 + c * (cw + gap) + (cw - ph.width) // 2
+            y0 = 84 + r * (ch + gap)
+            img.paste(ph, (x, y0))
+            grid_bottom = max(grid_bottom, y0 + ph.height)
+    else:
         d.text((20, 100), "no photos", fill=INK_2, font=f)
+    height = grid_bottom - 84
+    picked = show
 
     # 左下：細項與照片判讀來源
     y = 84 + height + 20 if picked else 140
@@ -213,6 +269,10 @@ def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], j
         y += 30
     if est and est.vision_weight:
         d.text((20, y), f"Vision estimate weight in probabilities: {est.vision_weight:.0%}", fill=INK_2, font=fs)
+        y += 24
+    if ann:
+        d.text((20, y), "F/B = front/back   E = edge whitening   C = corner whitening   D = white dots   "
+                        "red circle = white spot   box = scratch / crease?", fill=INK_2, font=fs)
         y += 24
     srcs = ", ".join(sorted({o.source for o in obs_list})) or "none"
     conf = f"{merged.confidence:.0%}" if merged else "-"
