@@ -76,6 +76,26 @@ items:
   - name: ポケモンカードe プロモ 全般
     keyword: ポケモンカードe プロモ
 
+  # ---- 寶可夢 舊版卡（旧裏，1996~2001）----
+  - name: 旧裏 ゲンガー
+    keyword: 旧裏 ゲンガー
+  - name: 旧裏 ミュウ
+    keyword: 旧裏 ミュウ
+  - name: 旧裏 ミュウツー
+    keyword: 旧裏 ミュウツー
+  - name: 旧裏 ルギア
+    keyword: 旧裏 ルギア
+  - name: 旧裏 リザードン
+    keyword: 旧裏 リザードン
+  - name: 旧裏 カメックス
+    keyword: 旧裏 カメックス
+  - name: 旧裏 フシギバナ
+    keyword: 旧裏 フシギバナ
+
+  # ---- 寶可夢 金星卡（☆，ADV／PCG 時期）----
+  - name: ゴールドスター
+    keyword: ポケモンカード ゴールドスター
+
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版
     keyword: ロルカナ エルサ 氷をつくりし者 英語版
