@@ -56,6 +56,28 @@ items:
     keyword: ルギア 047/P
     card: lugia-e-p-047
 
+  # ---- 寶可夢 e 卡促銷卡（P 編號，2001~2002）----
+  # 編號依 Serebii／TCGCollector 的 P Promos 清單；要附 EV 評估，先在 cards.yaml 補行情再加 card:
+  - name: リザードン e-P 014
+    keyword: リザードン 014/P
+  - name: ホウオウ e-P 010
+    keyword: ホウオウ 010/P
+  - name: ミュウ e-P 033
+    keyword: ミュウ 033/P
+  - name: セレビィ e-P 006
+    keyword: セレビィ 006/P
+  - name: セレビィ e-P 007
+    keyword: セレビィ 007/P
+  - name: セレビィ e-P 042
+    keyword: セレビィ 042/P
+  - name: ピカチュウ e-P 004（004/P 寫法）
+    keyword: ピカチュウ 004/P
+  - name: ピカチュウ e-P 021（021/P 寫法）
+    keyword: ピカチュウ 021/P
+  # 全部 e 卡促銷卡的新刊登（量可能較多，嫌吵可刪掉或加 max_price）
+  - name: ポケモンカードe プロモ 全般
+    keyword: ポケモンカードe プロモ
+
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版
     keyword: ロルカナ エルサ 氷をつくりし者 英語版
