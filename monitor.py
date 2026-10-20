@@ -3,6 +3,8 @@
 
 流程：每個品項用「最新上架」排序搜尋 -> 與 seen.json 比對 -> 新商品推送。
 第一次看到某品項時只記錄、不通知，避免一次洗版。
+品項有設定 card（對應 cards.yaml）時，會打開商品頁估鑑定分數機率與期望值，
+把判斷附在通知裡（見 ev_check.py）。
 """
 import json
 import os
@@ -21,6 +23,7 @@ BASE = "https://jp.mercari.com"
 SEEN_PATH = ROOT / "seen.json"
 MAX_SEEN_PER_ITEM = 500
 MAX_NOTIFY_PER_ITEM = 10
+MAX_EV_PER_RUN = 15  # 每輪最多深入評估幾件（每件要開商品頁、下載照片）
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TG_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -37,6 +40,47 @@ def notify(text: str) -> None:
     )
     if not r.ok:
         print("Telegram 發送失敗:", r.status_code, r.text)
+
+
+def notify_photo(png: bytes, caption: str) -> None:
+    """送圖片＋說明；說明超過 Telegram 上限（1024 字）時另外補送全文"""
+    if not (TG_TOKEN and TG_CHAT):
+        print("[DRY-RUN photo]", caption)
+        return
+    short = caption if len(caption) <= 1000 else caption[:990] + "…"
+    r = requests.post(
+        f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
+        data={"chat_id": TG_CHAT, "caption": short},
+        files={"photo": ("ev.png", png, "image/png")},
+        timeout=30,
+    )
+    if not r.ok:
+        print("Telegram 圖片發送失敗:", r.status_code, r.text)
+        notify(caption)
+    elif short != caption:
+        notify(caption)
+
+
+def notify_album(images: list[bytes], caption: str = "") -> None:
+    """一次送多張標註照片（Telegram 相簿最多 10 張）"""
+    if not images:
+        return
+    if not (TG_TOKEN and TG_CHAT):
+        print(f"[DRY-RUN album] {len(images)} 張", caption)
+        return
+    images = images[:10]
+    if len(images) == 1:
+        r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
+                          data={"chat_id": TG_CHAT, "caption": caption},
+                          files={"photo": ("p0.jpg", images[0], "image/jpeg")}, timeout=30)
+    else:
+        media = [{"type": "photo", "media": f"attach://p{i}"} for i in range(len(images))]
+        media[0]["caption"] = caption
+        r = requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMediaGroup",
+                          data={"chat_id": TG_CHAT, "media": json.dumps(media)},
+                          files={f"p{i}": (f"p{i}.jpg", b, "image/jpeg") for i, b in enumerate(images)}, timeout=60)
+    if not r.ok:
+        print("Telegram 相簿發送失敗:", r.status_code, r.text)
 
 
 def build_url(item: dict, defaults: dict) -> str:
@@ -82,6 +126,36 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
+def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
+    """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
+    from ev_calc import VERDICT_BUY, VERDICT_RISKY
+    from ev_check import card_profile, evaluate_listing, format_message
+    from ev_report import annotated_photos, render_report
+    from listing import download_photos, fetch_listing
+
+    page = ctx.new_page()
+    try:
+        listing = fetch_listing(page, r["id"])
+        listing["price"] = listing.get("price") or int(re.sub(r"\D", "", r["price"]) or 0) or None
+        photos = download_photos(listing["photos"])
+        est, ev = evaluate_listing(ev_cfg, item["card"], listing, photos)
+        name = card_profile(ev_cfg, item["card"]).get("name", item["name"])
+        worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
+        jpy = ev_cfg["fx"]["JPY"]
+        try:
+            png = render_report(name, listing, est, ev, photos, jpy_rate=jpy)
+            album = annotated_photos(photos, est)
+        except Exception as e:
+            print(f"[{item['name']}] 報告圖產生失敗: {e}")
+            png, album = None, []
+        return format_message(name, listing, est, ev, jpy_rate=jpy), worth, png, album
+    except Exception as e:
+        print(f"[{item['name']}] EV 評估失敗: {e}")
+        return fallback + "\n（EV 評估失敗）", True, None, []
+    finally:
+        page.close()
+
+
 def main() -> None:
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
     defaults = cfg["defaults"]
@@ -92,6 +166,12 @@ def main() -> None:
 
     total_results = 0
     new_count = 0
+    ev_count = 0
+    ev_cfg = None
+    if any(item.get("card") for item in cfg["items"]):
+        from ev_check import load_ev_config
+
+        ev_cfg = load_ev_config()
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -126,7 +206,19 @@ def main() -> None:
                         continue
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
-                    notify(f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}")
+                    msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
+                    png, album = None, []
+                    if item.get("card") and ev_cfg and ev_count < MAX_EV_PER_RUN:
+                        ev_count += 1
+                        msg, worth, png, album = ev_message(ctx, ev_cfg, item, r, msg)
+                        if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
+                            print(f"[{key}] {r['id']} EV 不划算，略過通知")
+                            continue
+                    if png:
+                        notify_photo(png, msg)
+                    else:
+                        notify(msg)
+                    notify_album(album, f"偵測到瑕疵的照片（紅圈＝白點／白邊，線框＝刮痕或疑似摺痕）\n{r['url']}")
                     shown += 1
                     new_count += 1
 

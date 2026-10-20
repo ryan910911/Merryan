@@ -8,6 +8,9 @@ defaults:
   conditions: [1, 2, 3, 4, 5]
   # 價格上限（日圓），留空 = 不限；單一品項也可自己設 max_price
   max_price:
+  # 品項有 card（對應 cards.yaml）時，通知會附鑑定期望值判斷
+  # annotate = 全部通知並附判斷；worth_only = 只通知「建議買進／可考慮」
+  ev_notify: annotate
   # 標題含這些字的商品一律略過（嚴重損傷、破損、零件用）
   exclude_words:
     - ジャンク
@@ -45,8 +48,33 @@ items:
     keyword: ピカチュウ フレンドリィショップ
   - name: スイクンex 027
     keyword: スイクンex 027
-  - name: メガフェスタ
-    keyword: メガフェスタ
+
+  # ---- 寶可夢 鑑定候選（附 EV 評估）----
+  - name: ルギア e-P 047
+    keyword: ルギア 047/P
+    card: lugia-e-p-047
+
+  # ---- 寶可夢 e 卡促銷卡（P 編號，2001~2002）----
+  # 編號依 Serebii／TCGCollector 的 P Promos 清單；要附 EV 評估，先在 cards.yaml 補行情再加 card:
+  - name: リザードン e-P 014
+    keyword: リザードン 014/P
+  - name: ホウオウ e-P 010
+    keyword: ホウオウ 010/P
+  - name: ミュウ e-P 033
+    keyword: ミュウ 033/P
+  - name: セレビィ e-P 006
+    keyword: セレビィ 006/P
+  - name: セレビィ e-P 007
+    keyword: セレビィ 007/P
+  - name: セレビィ e-P 042
+    keyword: セレビィ 042/P
+  - name: ピカチュウ e-P 004（004/P 寫法）
+    keyword: ピカチュウ 004/P
+  - name: ピカチュウ e-P 021（021/P 寫法）
+    keyword: ピカチュウ 021/P
+  # 全部 e 卡促銷卡的新刊登（量可能較多，嫌吵可刪掉或加 max_price）
+  - name: ポケモンカードe プロモ 全般
+    keyword: ポケモンカードe プロモ
 
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版

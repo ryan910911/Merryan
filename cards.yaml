@@ -1,0 +1,78 @@
+# 鑑定期望值（EV）設定
+#
+# 計價幣別：新台幣。金額寫法：數字 = 台幣；或 "2861 USD"、"500 JPY"，依下面 fx 換算成台幣。
+# Mercari 刊登價一律當日圓處理。
+# ⚠️ 標「範例」的數字是假設值，請換成自己查到的當期數字再當真。
+
+# 匯率：1 單位外幣 = 多少台幣
+# 臺灣銀行即期賣出牌告，2026-10-20 09:47（https://rate.bot.com.tw/xrt）
+fx:
+  TWD: 1
+  USD: 32.61
+  JPY: 0.2074
+
+costs:
+  buy:                     # 從 Mercari 買到手
+    proxy_fee_pct: 0.0     # 代購手續費（比例，0.05 = 5%）（暫不計）
+    proxy_fee_fixed: 0     # 代購每件固定費（暫不計）
+    domestic_shipping: 0   # 日本國內運費（暫不計）
+    intl_shipping: 0       # 國際運費（暫不計）
+    import_duty_pct: 0.0   # 關稅／進口稅（比例）
+    fx_loss_pct: 0.02      # 刷卡海外手續費或換匯損耗（比例）
+  grading:
+    # PSA 鑑定費依「申報價值」選級距（申報價值 = 基準情境的預期鑑定後市價，程式自動算）
+    # PSA 官網價格（2026-09-14 起：Standard／Priority／Express／Premier；Value 系列暫停收件）再加 20% 緩衝
+    #   Standard $59.99（≤$1,000）、Priority $79.99（≤$1,500）、Express $199（≤$2,500）、
+    #   Premier $599（≤$10,000）、下一級 $999（≤$25,000）
+    # 來源：https://www.psacard.com/info/submission-updates、
+    #       https://www.psacard.com/articles/articleview/15763/psa-new-standard-service-level
+    # 申報價值超過 $25,000 的級距請再查官網
+    tiers:
+      - {max_value: "1000 USD", fee: "71.99 USD"}
+      - {max_value: "1500 USD", fee: "95.99 USD"}
+      - {max_value: "2500 USD", fee: "238.80 USD"}
+      - {max_value: "10000 USD", fee: "718.80 USD"}
+      - {max_value: "25000 USD", fee: "1198.80 USD"}
+    shipping_insurance: 0  # 寄 PSA 與寄回的運費＋保險（暫不計）
+  sell:                    # 鑑定後或裸卡賣出
+    fee_pct: 0.13          # 平台手續費（eBay 約 13%）（範例）
+    shipping: 0            # 賣出運費（暫不計）
+
+decision:
+  min_roi: 0.25            # 基準 ROI 門檻（安全邊際）
+
+analysis:
+  # 照片分析器。local = 本機 OpenCV 逐張檢查（不花錢，預設）
+  # 想加 Claude 看照片：改成 [local, claude] 並設定 ANTHROPIC_API_KEY（會產生 API 費用）
+  analyzers: [local]
+  claude_model: claude-opus-5-5
+  claude_effort: medium
+  max_images: 6
+  min_confidence: 0.5      # 信心低於此值的照片觀察不採用
+
+# 通用機率組（假設值；累積 20~30 張實際鑑定結果後請用 ev_log.csv 校準）
+# low = PSA 4 以下
+probability_sets:
+  default:
+    optimistic:  {10: 0.25, 9: 0.40, 8: 0.20, 7: 0.10, 6: 0.05}
+    base:        {10: 0.10, 9: 0.35, 8: 0.30, 7: 0.15, 6: 0.07, low: 0.03}
+    pessimistic: {10: 0.02, 9: 0.15, 8: 0.30, 7: 0.25, 6: 0.15, low: 0.13}
+
+cards:
+  lugia-e-p-047:
+    name: ルギア e-P 047
+    # 「不鑑定直接賣裸卡」的比較基準：
+    # 商品狀態 1~2 用 raw_price（A 品相），3~5 用 raw_price_played（有使用痕跡）
+    # 裸卡 A 品相賣價：SNKRDUNK 近 30 天中位數（2026-10-20，僅 2 筆）
+    raw_price: "285000 JPY"
+    # 有使用痕跡的裸卡賣價：PriceCharting 未鑑定 $419（2026-09-16）
+    raw_price_played: "419 USD"
+    # 各級成交價：PriceCharting eBay 成交（2026-09-16）；PSA 6 取 $520、$698 平均
+    prices:
+      10: "2861 USD"
+      9: "910 USD"
+      8: "729 USD"
+      7: "583 USD"
+      6: "609 USD"
+    low_grade_price: "400 USD"   # PSA 5 以下（範例）
+    probability_set: default     # 或直接寫 probabilities: {optimistic: …, base: …, pessimistic: …}

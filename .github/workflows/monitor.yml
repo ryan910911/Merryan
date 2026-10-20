@@ -26,11 +26,15 @@ jobs:
 
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps chromium
+      # 報告圖顯示日文卡名用
+      - run: sudo apt-get install -y --no-install-recommends fonts-noto-cjk
 
       - name: Run monitor
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 選用：設定後會用 Claude 看照片判讀卡況（會產生 API 費用）
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python monitor.py
 
       - name: Save seen.json
