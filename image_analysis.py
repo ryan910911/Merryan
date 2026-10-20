@@ -39,13 +39,21 @@ class Observation:
     has_front: bool | None = None
     has_back: bool | None = None
     authenticity_concern: bool | None = None
+    # 直接由照片估出的 PSA 各級機率 {10: p, 9: p, ..., "low": p}（視覺模型才有）
+    grade_probs: dict | None = None
+    # 細項分數 1~10：centering / corners / edges / surface（視覺模型才有）
+    subgrades: dict | None = None
     notes: list = field(default_factory=list)
+    # 畫報告用的量測位置：[{"image": i, "kind": "front"/"back", "box": (x0,y0,x1,y1), ...}]，座標為原圖像素
+    annotations: list = field(default_factory=list)
 
 
-def _load(img_bytes: bytes) -> np.ndarray:
+def _load(img_bytes: bytes) -> tuple[np.ndarray, float]:
+    """回傳 (0~1 RGB 陣列, 縮圖比例)；比例用來把量測座標換回原圖"""
     img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+    w = img.width
     img.thumbnail((1200, 1200))
-    return np.asarray(img).astype(np.float32) / 255.0
+    return np.asarray(img).astype(np.float32) / 255.0, w / img.width
 
 
 def _hsv(rgb: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -96,8 +104,8 @@ def _run_length(line: np.ndarray) -> int:
     return n
 
 
-def measure_centering(card: np.ndarray) -> tuple[float, float, float] | None:
-    """量正面黃框：回傳 (左右較寬側%, 上下較寬側%, 信心)"""
+def measure_centering(card: np.ndarray) -> tuple[float, float, float, tuple] | None:
+    """量正面黃框：回傳 (左右較寬側%, 上下較寬側%, 信心, (左, 右, 上, 下) 框寬像素)"""
     yellow = _yellow_mask(card)
     if yellow.mean() < 0.05:
         return None  # 沒有黃框（可能是背面或非寶可夢卡）
@@ -128,11 +136,12 @@ def measure_centering(card: np.ndarray) -> tuple[float, float, float] | None:
     if not 0.03 < border_frac < 0.25:
         return None
     confidence = float(np.clip(1 - (s1 + s2) * 2, 0, 1))
-    return lr, tb, confidence
+    borders = tuple(float(np.median(x)) for x in (left, right, top, bottom))
+    return lr, tb, confidence, borders
 
 
-def measure_whitening(card: np.ndarray) -> tuple[str, float] | None:
-    """量背面藍底邊緣與四角的白點比例"""
+def measure_whitening(card: np.ndarray) -> tuple[str, float, dict] | None:
+    """量背面藍底邊緣與四角的白點比例：回傳 (嚴重度, 分數, 各角比例 {"tl": .., "tr": .., "bl": .., "br": ..})"""
     if _blue_ratio(card) < 0.3:
         return None
     h, w, _ = card.shape
@@ -141,15 +150,18 @@ def measure_whitening(card: np.ndarray) -> tuple[str, float] | None:
     white = (s < 0.18) & (v > 0.8)
     edge = np.concatenate([white[:band].ravel(), white[-band:].ravel(), white[:, :band].ravel(), white[:, -band:].ravel()])
     c = band * 3
-    corners = np.concatenate([white[:c, :c].ravel(), white[:c, -c:].ravel(), white[-c:, :c].ravel(), white[-c:, -c:].ravel()])
-    score = max(float(edge.mean()), float(corners.mean()))
+    per_corner = {
+        "tl": float(white[:c, :c].mean()), "tr": float(white[:c, -c:].mean()),
+        "bl": float(white[-c:, :c].mean()), "br": float(white[-c:, -c:].mean()),
+    }
+    score = max(float(edge.mean()), float(np.mean(list(per_corner.values()))))
     if score < 0.02:
         sev = "none"
     elif score < 0.08:
         sev = "light"
     else:
         sev = "heavy"
-    return sev, score
+    return sev, score, per_corner
 
 
 class HeuristicAnalyzer:
@@ -159,9 +171,9 @@ class HeuristicAnalyzer:
         obs = Observation(source=self.name)
         best_center = None
         whitening = []
-        for raw in images:
+        for i, raw in enumerate(images):
             try:
-                rgb = _load(raw)
+                rgb, scale = _load(raw)
             except Exception:
                 continue
             box = find_card_box(rgb)
@@ -171,18 +183,23 @@ class HeuristicAnalyzer:
             aspect = (x1 - x0) / max(1, (y1 - y0))
             aspect_ok = abs(aspect - CARD_ASPECT) / CARD_ASPECT < 0.06
             card = rgb[y0:y1, x0:x1]
+            full_box = tuple(v * scale for v in box)
             c = measure_centering(card)
             if c:
                 obs.has_front = True
-                lr, tb, conf = c
+                lr, tb, conf, borders = c
                 if not aspect_ok:
                     conf *= 0.3  # 斜拍或沒裁到整張卡
                 if best_center is None or conf > best_center[2]:
                     best_center = (lr, tb, conf)
-            wtn = measure_whitening(card)
+                obs.annotations.append({"image": i, "kind": "front", "box": full_box, "confidence": conf,
+                                        "borders": tuple(b * scale for b in borders), "lr": lr, "tb": tb})
+            wtn = None if c else measure_whitening(card)  # 有黃框就是正面，不量背面白邊
             if wtn:
                 obs.has_back = True
-                whitening.append((wtn, 1.0 if aspect_ok else 0.3))
+                whitening.append((wtn[:2], 1.0 if aspect_ok else 0.3))
+                obs.annotations.append({"image": i, "kind": "back", "box": full_box, "severity": wtn[0],
+                                        "corners": wtn[2], "corner_size": max(2, int(min(card.shape[:2]) * 0.02)) * 3 * scale})
         confs = []
         if best_center:
             obs.centering_lr, obs.centering_tb, conf = best_center
@@ -205,6 +222,9 @@ VISION_PROMPT = """你是寶可夢卡 PSA 鑑定前的驗卡員。以下是一�
 - crease：是否看得到折痕。
 - has_front / has_back：照片是否包含正面、背面。
 - authenticity_concern：印刷、字體、顏色、光澤是否有仿品疑慮。
+- subgrades：centering / corners / edges / surface 各給 1 到 10 的預估細項分數（看不出來填 null）。
+- grade_probs：綜合以上，估這張卡送 PSA 拿到各級的機率（"10"、"9"、"8"、"7"、"6"、"5"、"low" = 4 以下，總和為 1）。
+  手機照片看不到細微白點、表面細刮和壓痕，所以給 10 要保守；照片越模糊、張數越少，機率要分散得越開。
 - confidence：照片清晰度與角度足以支撐你判讀的程度，0 到 1。
 - notes：用繁體中文寫 1 到 3 句重點。
 
@@ -217,6 +237,8 @@ VISION_PROMPT = """你是寶可夢卡 PSA 鑑定前的驗卡員。以下是一�
 _SEV = {"anyOf": [{"type": "string", "enum": list(SEVERITY)}, {"type": "null"}]}
 _NUM = {"anyOf": [{"type": "number"}, {"type": "null"}]}
 _BOOL = {"anyOf": [{"type": "boolean"}, {"type": "null"}]}
+_GRADE_KEYS = ["10", "9", "8", "7", "6", "5", "low"]
+_SUB_KEYS = ["centering", "corners", "edges", "surface"]
 VISION_SCHEMA = {
     "type": "object",
     "properties": {
@@ -229,10 +251,23 @@ VISION_SCHEMA = {
         "has_front": _BOOL,
         "has_back": _BOOL,
         "authenticity_concern": _BOOL,
+        "subgrades": {
+            "type": "object",
+            "properties": {k: _NUM for k in _SUB_KEYS},
+            "required": _SUB_KEYS,
+            "additionalProperties": False,
+        },
+        "grade_probs": {
+            "type": "object",
+            "properties": {k: {"type": "number"} for k in _GRADE_KEYS},
+            "required": _GRADE_KEYS,
+            "additionalProperties": False,
+        },
         "confidence": {"type": "number"},
         "notes": {"type": "string"},
     },
-    "required": list(["centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back", "authenticity_concern", "confidence", "notes"]),
+    "required": ["centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back",
+                 "authenticity_concern", "subgrades", "grade_probs", "confidence", "notes"],
     "additionalProperties": False,
 }
 

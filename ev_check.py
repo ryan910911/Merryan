@@ -4,6 +4,7 @@
   python ev_check.py https://jp.mercari.com/item/m12345678901 --card lugia-e-p-047
   python ev_check.py --card lugia-e-p-047 --price 80000 --condition 3 --photos front.jpg back.jpg
   python ev_check.py --card lugia-e-p-047 --listing listing.json --log ev_log.csv
+  python ev_check.py <網址> --card lugia-e-p-047 --report report.png   # 輸出視覺化報告
 
 monitor.py 也會呼叫 evaluate_listing() / format_message()，讓有設定 card 的品項
 在 Telegram 通知裡直接附上 EV 判斷。
@@ -164,6 +165,7 @@ def main(argv=None) -> int:
     ap.add_argument("--photos", nargs="*", default=[], help="本機照片檔")
     ap.add_argument("--config", default=str(CARDS_PATH))
     ap.add_argument("--log", help="把結果附加到 CSV")
+    ap.add_argument("--report", help="輸出視覺化報告 PNG 的路徑")
     args = ap.parse_args(argv)
 
     cfg = load_ev_config(Path(args.config))
@@ -193,6 +195,11 @@ def main(argv=None) -> int:
     est, ev = evaluate_listing(cfg, args.card, listing, photos)
     name = card_profile(cfg, args.card).get("name", args.card)
     print(format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"]))
+    if args.report:
+        from ev_report import render_report
+
+        Path(args.report).write_bytes(render_report(name, listing, est, ev, photos, jpy_rate=cfg["fx"]["JPY"]))
+        print("報告圖：", args.report)
     if args.log:
         append_log(Path(args.log), args.card, listing, est, ev)
     return 0

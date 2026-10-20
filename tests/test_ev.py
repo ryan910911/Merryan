@@ -206,3 +206,34 @@ def test_white_chip_is_not_corner_damage():
     assert any("白邊" in n for n in est.notes)
     assert not any("角損" in n for n in est.notes)
     assert not any("刮痕" in n for n in est.notes)
+
+
+def test_vision_grade_probs_blend_into_scenarios():
+    vision = Observation(source="claude", confidence=0.8, has_back=True,
+                         grade_probs={"10": 0.6, "9": 0.3, "8": 0.1, "7": 0, "6": 0, "5": 0, "low": 0})
+    est = estimate(SETS, 3, observations=[vision], photo_count=4)
+    assert est.vision_weight == pytest.approx(0.8)
+    # 基準 PSA10 = 0.2*0.10 + 0.8*0.60
+    assert est.scenarios["base"][10] == pytest.approx(0.2 * 0.10 + 0.8 * 0.60)
+    weak = Observation(source="claude", confidence=0.3, grade_probs={"10": 1})
+    assert estimate(SETS, 3, observations=[weak], photo_count=4).vision_weight == 0
+
+
+def test_front_photo_not_counted_as_back():
+    obs = HeuristicAnalyzer().analyze([make_front(30, 30)], {})
+    assert [a["kind"] for a in obs.annotations] == ["front"]
+    assert obs.has_back is None
+
+
+def test_render_report_png():
+    from ev_report import render_report
+
+    cfg = load_ev_config()
+    listing = {"id": "m1", "price": 60000, "condition": "目立った傷や汚れなし", "title": "t"}
+    photos = [make_front(20, 40), make_back(True)]
+    est, ev = evaluate_listing(cfg, "lugia-e-p-047", listing, photos, analyzers=[HeuristicAnalyzer()])
+    png = render_report("ルギア e-P 047", listing, est, ev, photos, jpy_rate=cfg["fx"]["JPY"])
+    img = Image.open(io.BytesIO(png))
+    assert img.format == "PNG" and img.width == 1400
+    skip_est, skip_ev = evaluate_listing(cfg, "lugia-e-p-047", dict(listing, condition="全体的に状態が悪い"), [], analyzers=[])
+    assert render_report("x", listing, skip_est, skip_ev, [])[:8] == b"\x89PNG\r\n\x1a\n"

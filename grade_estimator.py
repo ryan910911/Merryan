@@ -4,8 +4,9 @@
 1. 依 Mercari 商品狀態選起點：未使用〜目立った傷なし 用「基準」為中心，
    やや傷〜傷や汚れあり 用「悲觀」為中心，全体的に状態が悪い 直接跳過。
 2. 讀賣家描述的瑕疵字眼（會排除「傷なし」這類否定句）。
-3. 套用照片觀察（置中、邊角白邊、表面、折痕），依 PSA 標準給上限或往下移。
-4. 照片不足（少於 2 張、沒有背面）時往悲觀方向混合，代表不確定性。
+3. 視覺模型直接估出各級機率時，依它的信心把三組情境往它的估計混合（最多 85%）。
+4. 套用照片觀察（置中、邊角白邊、表面、折痕），依 PSA 標準給上限或往下移。
+5. 照片不足（少於 2 張、沒有背面）時往悲觀方向混合，代表不確定性。
 
 賣家的正面字眼（美品、完美品）一律不加分：日版描述常偏寬鬆，以照片為準。
 """
@@ -88,6 +89,8 @@ class Estimate:
     condition: int | None
     notes: list = field(default_factory=list)
     observations: list = field(default_factory=list)
+    merged: Observation | None = None  # 合併後實際採用的照片觀察
+    vision_weight: float = 0.0
 
 
 def _desc_findings(text: str) -> list:
@@ -107,7 +110,8 @@ def _merge_observations(observations: list, min_conf: float) -> Observation:
     for obs in sorted(observations, key=lambda o: o.confidence):
         if obs.confidence < min_conf:
             continue
-        for f in ("centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back", "authenticity_concern"):
+        for f in ("centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back",
+                  "authenticity_concern", "grade_probs", "subgrades"):
             v = getattr(obs, f)
             if v is not None:
                 setattr(merged, f, v)
@@ -148,16 +152,27 @@ def estimate(
         for k in scen:
             scen[k] = fn(scen[k], *args)
 
+    observations = observations or []
+    obs = _merge_observations(observations, min_confidence) if observations else None
+    vision_weight = 0.0
+    if obs and obs.grade_probs:
+        try:
+            vp = normalize(obs.grade_probs)
+            vision_weight = min(0.85, obs.confidence)
+            notes.append(f"照片判讀估計：PSA10 {vp[10]:.0%}、9 {vp[9]:.0%}、8 {vp[8]:.0%}（混合權重 {vision_weight:.0%}）")
+            for k in scen:
+                scen[k] = blend(scen[k], vp, vision_weight)
+        except ValueError:
+            pass
+
     # 描述瑕疵
     for (kind, n), label in _desc_findings(f"{title}\n{description}"):
         notes.append(f"{label} → {'上限 PSA ' + str(n) if kind == 'cap' else '往下 ' + str(n) + ' 級'}")
         apply(cap_at if kind == "cap" else shift_down, n)
 
     # 照片觀察
-    observations = observations or []
     for o in observations:
         notes.extend(f"[{o.source}] {n}" for n in o.notes)
-    obs = _merge_observations(observations, min_confidence) if observations else None
     if obs:
         worst_center = max([c for c in (obs.centering_lr, obs.centering_tb) if c is not None], default=None)
         if worst_center is not None:
@@ -187,4 +202,4 @@ def estimate(
         for k in scen:
             scen[k] = blend(scen[k], shift_down(scen[k], 1), 0.5)
 
-    return Estimate(scen, cid, notes, observations)
+    return Estimate(scen, cid, notes, observations, merged=obs, vision_weight=vision_weight)

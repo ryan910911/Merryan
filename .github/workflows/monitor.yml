@@ -26,6 +26,8 @@ jobs:
 
       - run: pip install -r requirements.txt
       - run: playwright install --with-deps chromium
+      # 報告圖顯示日文卡名用
+      - run: sudo apt-get install -y --no-install-recommends fonts-noto-cjk
 
       - name: Run monitor
         env:

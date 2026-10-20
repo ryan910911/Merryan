@@ -42,6 +42,25 @@ def notify(text: str) -> None:
         print("Telegram 發送失敗:", r.status_code, r.text)
 
 
+def notify_photo(png: bytes, caption: str) -> None:
+    """送圖片＋說明；說明超過 Telegram 上限（1024 字）時另外補送全文"""
+    if not (TG_TOKEN and TG_CHAT):
+        print("[DRY-RUN photo]", caption)
+        return
+    short = caption if len(caption) <= 1000 else caption[:990] + "…"
+    r = requests.post(
+        f"https://api.telegram.org/bot{TG_TOKEN}/sendPhoto",
+        data={"chat_id": TG_CHAT, "caption": short},
+        files={"photo": ("ev.png", png, "image/png")},
+        timeout=30,
+    )
+    if not r.ok:
+        print("Telegram 圖片發送失敗:", r.status_code, r.text)
+        notify(caption)
+    elif short != caption:
+        notify(caption)
+
+
 def build_url(item: dict, defaults: dict) -> str:
     conditions = item.get("conditions", defaults["conditions"])
     params = {
@@ -85,10 +104,11 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
-def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool]:
-    """打開商品頁做 EV 評估；失敗就退回原本的簡單通知"""
+def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool, bytes | None]:
+    """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖)；失敗就退回原本的簡單通知"""
     from ev_calc import VERDICT_BUY, VERDICT_RISKY
     from ev_check import card_profile, evaluate_listing, format_message
+    from ev_report import render_report
     from listing import download_photos, fetch_listing
 
     page = ctx.new_page()
@@ -99,10 +119,16 @@ def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[s
         est, ev = evaluate_listing(ev_cfg, item["card"], listing, photos)
         name = card_profile(ev_cfg, item["card"]).get("name", item["name"])
         worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
-        return format_message(name, listing, est, ev, jpy_rate=ev_cfg["fx"]["JPY"]), worth
+        jpy = ev_cfg["fx"]["JPY"]
+        try:
+            png = render_report(name, listing, est, ev, photos, jpy_rate=jpy)
+        except Exception as e:
+            print(f"[{item['name']}] 報告圖產生失敗: {e}")
+            png = None
+        return format_message(name, listing, est, ev, jpy_rate=jpy), worth, png
     except Exception as e:
         print(f"[{item['name']}] EV 評估失敗: {e}")
-        return fallback + "\n（EV 評估失敗）", True
+        return fallback + "\n（EV 評估失敗）", True, None
     finally:
         page.close()
 
@@ -158,13 +184,17 @@ def main() -> None:
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
                     msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
+                    png = None
                     if item.get("card") and ev_cfg and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
-                        msg, worth = ev_message(ctx, ev_cfg, item, r, msg)
+                        msg, worth, png = ev_message(ctx, ev_cfg, item, r, msg)
                         if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
                             print(f"[{key}] {r['id']} EV 不划算，略過通知")
                             continue
-                    notify(msg)
+                    if png:
+                        notify_photo(png, msg)
+                    else:
+                        notify(msg)
                     shown += 1
                     new_count += 1
 
