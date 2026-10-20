@@ -115,7 +115,7 @@ def annotate_photo(raw: bytes, annotations: list, height: int | None = None, max
             _tag(d, (4, img.height - fsize - 10), label, col, f)
         elif a["kind"] == "scan":
             sc = a["scan"]
-            if sc.hull is not None:
+            if sc.hull is not None and sc.side == "back":  # 正面特寫的黃框是 L 形，凸包會斜切過圖面，不畫
                 pts = [(float(x) * scale, float(y) * scale) for x, y in sc.hull.reshape(-1, 2)]
                 d.line(pts + pts[:1], fill=GOOD, width=lw)
             if sc.defect_mask is not None and sc.defect_mask.any():
