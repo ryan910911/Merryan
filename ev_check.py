@@ -173,10 +173,24 @@ def append_log(path: Path, card_key: str, listing: dict, est: Estimate, ev: Eval
         ] + [round(base.probs[g], 3) if base else "" for g in GRADES] + [""])
 
 
+def watched_by(title: str, config_path: Path | None = None) -> list[str]:
+    """粗估標題會被 config.yaml 哪些品項搜到：關鍵字每個詞都出現在標題裡"""
+    import yaml
+
+    path = config_path or Path(__file__).with_name("config.yaml")
+    items = yaml.safe_load(path.read_text(encoding="utf-8")).get("items", [])
+    norm = unicodedata.normalize("NFKC", title).lower()
+    return [
+        it["name"]
+        for it in items
+        if all(unicodedata.normalize("NFKC", w).lower() in norm for w in it["keyword"].split())
+    ]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Mercari 裸卡鑑定期望值評估")
     ap.add_argument("url", nargs="?", help="Mercari 商品網址或編號（會用 Playwright 開頁面）")
-    ap.add_argument("--card", required=True, help="cards.yaml 裡的卡種 key")
+    ap.add_argument("--card", help="cards.yaml 裡的卡種 key；不給就依標題卡號自動挑")
     ap.add_argument("--listing", help="改用 JSON 檔提供刊登資料（title/price/condition/description）")
     ap.add_argument("--price", type=float, help="覆寫買入價（日圓）")
     ap.add_argument("--condition", help="覆寫商品狀態（1~6 或日文字樣）")
@@ -184,6 +198,7 @@ def main(argv=None) -> int:
     ap.add_argument("--config", default=str(CARDS_PATH))
     ap.add_argument("--log", help="把結果附加到 CSV")
     ap.add_argument("--report", help="輸出視覺化報告 PNG 的路徑")
+    ap.add_argument("--telegram", action="store_true", help="把結果、報告圖與瑕疵照片傳到 Telegram")
     args = ap.parse_args(argv)
 
     cfg = load_ev_config(Path(args.config))
@@ -210,16 +225,42 @@ def main(argv=None) -> int:
     if not listing.get("price"):
         ap.error("沒有價格：請給商品網址、--listing 或 --price")
 
-    est, ev = evaluate_listing(cfg, args.card, listing, photos)
-    name = card_profile(cfg, args.card).get("name", args.card)
-    print(format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"]))
-    if args.report:
+    title = listing.get("title", "")
+    if title:
+        print("標題：", title)
+        hits = watched_by(title)
+        print("會被哪些監控品項抓到（依關鍵字粗估）：", "、".join(hits) if hits else "沒有")
+    card_key = args.card or pick_card(cfg, list(cfg.get("cards") or {}), title)
+    if not card_key:
+        msg = f"⚠️ 標題對不到 cards.yaml 裡任何卡號，無法評估：{title}"
+        print(msg)
+        if args.telegram:
+            from monitor import notify
+
+            notify(f"{msg}\n{args.url or ''}")
+        return 1
+    print("使用行情：", card_key)
+    est, ev = evaluate_listing(cfg, card_key, listing, photos)
+    name = card_profile(cfg, card_key).get("name", card_key)
+    msg = format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"])
+    print(msg)
+    png = None
+    if args.report or args.telegram:
         from ev_report import render_report
 
-        Path(args.report).write_bytes(render_report(name, listing, est, ev, photos, jpy_rate=cfg["fx"]["JPY"]))
+        png = render_report(name, listing, est, ev, photos, jpy_rate=cfg["fx"]["JPY"])
+    if args.report:
+        Path(args.report).write_bytes(png)
         print("報告圖：", args.report)
+    if args.telegram:
+        from ev_report import annotated_photos
+        from monitor import notify_album, notify_photo
+
+        url = args.url if args.url and args.url.startswith("http") else f"https://jp.mercari.com/item/{args.url or ''}"
+        notify_photo(png, f"🔎 手動評估\n{msg}\n{url}")
+        notify_album(annotated_photos(photos, est), f"偵測到瑕疵的照片\n{url}")
     if args.log:
-        append_log(Path(args.log), args.card, listing, est, ev)
+        append_log(Path(args.log), card_key, listing, est, ev)
     return 0
 
 
