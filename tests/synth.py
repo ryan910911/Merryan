@@ -89,3 +89,22 @@ def closeup(img: np.ndarray, corner: str, frac: float = 0.4, zoom: float = 2.5) 
 
 def jpeg(img: np.ndarray, q: int = 85) -> bytes:
     return cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, q])[1].tobytes()
+
+
+def new_back_card(rng: np.random.Generator) -> np.ndarray:
+    """e 卡以後的背面：黃框、藍色漩渦、上下各一個黃色 POKEMON（下方倒過來）、中間寶可夢球"""
+    img = back_card(rng)
+    img[:] = (30, 175, 215)  # 黃框
+    inner = back_card(rng)[40:H - 40, 40:W - 40]
+    img[40:H - 40, 40:W - 40] = inner
+    img[90:230, 70:W - 70] = img[90:230, 70:W - 70] // 3 + np.array([110, 40, 15], np.uint8)
+    for y0 in (110, H - 230):
+        cv2.rectangle(img, (90, y0), (W - 90, y0 + 110), (40, 210, 245), -1)  # 黃色字樣
+        for x in range(110, W - 110, 60):
+            cv2.line(img, (x, y0 + 20), (x + 25, y0 + 30), (150, 235, 250), 3)  # 字樣上的淡黃亮部
+    return img
+
+
+def white_bottom_edge(img: np.ndarray, width: int = 4) -> None:
+    """下緣一整段白邊"""
+    img[H - width:, 80:W - 80] = (225, 230, 235)

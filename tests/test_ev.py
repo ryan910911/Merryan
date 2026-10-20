@@ -367,3 +367,23 @@ def test_live_prices_override_profile():
                                  live={"prices": {10: 1}, "raw": None, "notes": ["Mercari 近期成交中位數：PSA10 ¥1（2筆）"]})
     assert live.scenarios["base"].ev_net < base.scenarios["base"].ev_net
     assert est.notes[0].startswith("Mercari 近期成交")
+
+
+def test_new_back_is_back_and_logo_highlights_are_not_specks():
+    s = scan_photo(synth.jpeg(synth.photo(synth.new_back_card(_rng()))))
+    assert s.side == "back"
+    assert s.specks == 0 and not s.lines
+    assert s.edge_severity == "none"
+
+
+def test_new_back_white_bottom_edge_detected():
+    card = synth.new_back_card(_rng())
+    synth.white_bottom_edge(card)
+    s = scan_photo(synth.jpeg(synth.photo(card)))
+    assert s.edge_severity == "heavy"
+
+
+def test_cased_card_edges_are_not_flagged():
+    s = scan_photo(synth.jpeg(synth.photo(synth.new_back_card(_rng()), bg=(120, 120, 120))))
+    assert s.edge_severity == "none" and s.corner_severity == "none"
+    assert any("卡套" in n for n in s.notes)

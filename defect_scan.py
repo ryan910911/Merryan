@@ -2,12 +2,15 @@
 
 賣家通常會拍正反面全圖再加四角、邊緣的放大特寫。這裡每張照片都跑一次：
 
-1. 判斷是正面（黃框）還是背面（藍底）；兩者都不是的照片（包裝、說明圖）略過。
-2. 用黃框／藍底的顏色區塊取凸包，當成「卡片應該有顏色的範圍」。
-   凸包會跨過邊緣上的小缺口，所以邊緣白掉的地方會落在凸包內、卻不是卡片顏色。
-3. 白邊／白點：凸包內緣一圈（band）裡偏白的像素比例；靠近凸包轉角的另外算「四角」。
-   被照片邊界切掉的那一側（特寫照常見）不算。
-4. 刮痕／摺痕：在藍底或黃框內，用形態學 closing 找「被顏色包圍的細白線」：
+1. 判斷正面（黃框＋圖）、新版背面（黃框＋藍底，上下各一個黃色 POKéMON）、
+   旧裏背面（藍底為主）；都不是的照片（包裝、說明圖）略過。
+2. 用卡框（黃框或藍底）的顏色區塊取凸包，當成卡片的輪廓。
+3. 白邊：沿凸包外緣每 2 px 取一條垂直邊緣的短線，線上有「白」就算這一點白掉。
+   「白」= 絕對偏白，或比同一點內側的卡框明顯更淡更亮（照片壓縮後的細白邊）。
+   卡片外圍也偏白（白桌面、卡套、硬殼）時分不出來，只看內側並註記。
+   靠近四角的點另外算「轉角」；被照片邊界切掉的那一側不算。
+4. 白點：黃框卡只在卡框那一圈算（圖面、logo 亮部太容易誤判）；旧裏背面看整面。
+5. 刮痕／摺痕：在卡面顏色內，用形態學 closing 找「被顏色包圍的細白線」：
    大面積的白色圖案（寶可夢球、文字底）不會被 closing 填滿，所以不會誤判。
    夠長的細線當刮痕；橫跨卡片一大段的直線當疑似摺痕。
 
@@ -26,11 +29,14 @@ MAX_SIDE = 1600
 # OpenCV HSV：H 0~180、S/V 0~255
 BLUE = ((95, 80, 50), (130, 255, 255))
 YELLOW = ((16, 90, 120), (36, 255, 255))
-WHITE_S, WHITE_V = 60, 170      # 白邊：低飽和、高亮度
-LINE_S, LINE_V = 90, 140        # 細線：比白邊寬鬆一點
+WHITE_S, WHITE_V = 60, 170      # 白：低飽和、高亮度
+REL_S, REL_V = 40, 35           # 或比卡框中位色淡 40、亮 35 以上（照片壓縮後的白邊）
+LIGHT_V = 140                   # 卡片外圍中位亮度高於此（且低飽和）= 白背景／卡套
+LOC_S, LOC_V = 50, 25           # 跟同一點內側卡框比：淡 50、亮 25 以上（一般邊緣反光只會淡一點、不會更亮）
+FRAME = 0.08                    # 黃框卡的卡框寬約短邊 6~8%，白點只在這圈裡算
 
-SEV_EDGE = (0.01, 0.04)         # band 白像素比例：< 1% 無、< 4% 輕微、以上明顯
-SEV_CORNER = (0.03, 0.10)       # 轉角本來就容易被反光干擾，門檻放寬
+SEV_EDGE = (0.02, 0.06)         # 邊緣取樣點白掉比例：< 2% 無、< 6% 輕微、以上明顯
+SEV_CORNER = (0.06, 0.20)       # 轉角本來就容易被反光干擾，門檻放寬
 SCRATCH_LEN = 0.06              # 細線長度 ≥ 可見卡片短邊 6% 算刮痕
 CREASE_LEN = 0.30               # ≥ 30% 且夠直，算疑似摺痕
 
@@ -79,18 +85,36 @@ def _hull_area(mask: np.ndarray) -> float:
 
 
 def classify(hsv: np.ndarray) -> str | None:
-    """黃色包住整張卡（黃色凸包跟藍色一樣大）= 正面；藍色為主、黃色只是小塊（背面 logo）= 背面"""
+    """黃色包住整張卡 = 黃框；框內藍色為主 = 新版背面（e 卡以後），否則正面。
+    藍色為主、黃色只是小塊（旧裏背面）= 背面"""
     blue_m, yellow_m = cv2.inRange(hsv, *BLUE), cv2.inRange(hsv, *YELLOW)
     blue, yellow = blue_m.mean() / 255, yellow_m.mean() / 255
     if yellow > 0.02:
         ya, ba = _hull_area(yellow_m), _hull_area(blue_m)
         if ya >= 0.6 * max(ya, ba):
-            return "front"
+            return "back" if _framed_blue(yellow_m, blue_m) else "front"
     if blue > 0.15:
         return "back"
     if yellow > 0.04:
         return "front"
     return None
+
+
+def _framed_blue(yellow_m: np.ndarray, blue_m: np.ndarray) -> bool:
+    """新版背面：黃框裡上下各有一個黃色 POKéMON 字樣、中間（寶可夢球）沒有黃色、四周是藍色漩渦。
+    正面的圖或文字框會讓中間那段也有黃色，或上下沒有黃色。"""
+    pts = cv2.findNonZero(_main_region(yellow_m))
+    if pts is None:
+        return False
+    x, y, w, h = cv2.boundingRect(cv2.convexHull(pts))
+    x0, x1 = x + int(w * 0.12), x + w - int(w * 0.12)
+
+    def frac(m, t0, t1):
+        sub = m[y + int(h * t0): y + int(h * t1), x0:x1]
+        return sub.mean() / 255 if sub.size else 0.0
+
+    return (frac(yellow_m, 0.15, 0.35) > 0.12 and frac(yellow_m, 0.65, 0.85) > 0.12
+            and frac(yellow_m, 0.42, 0.58) < 0.08 and frac(blue_m, 0.1, 0.9) > 0.1)
 
 
 def _main_region(mask: np.ndarray) -> np.ndarray:
@@ -116,7 +140,11 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     if side is None:
         return res
 
-    color = _main_region(cv2.inRange(hsv, *(BLUE if side == "back" else YELLOW)))
+    blue_m, yellow_m = cv2.inRange(hsv, *BLUE), cv2.inRange(hsv, *YELLOW)
+    framed = side == "front" or _framed_blue(yellow_m, blue_m)  # 黃框卡（正面或新版背面）
+    color = _main_region(yellow_m if framed else blue_m)
+    # 卡面圖案的顏色（找刮痕用）：新版背面 = 黃框＋藍底
+    surface = _main_region(cv2.bitwise_or(yellow_m, blue_m)) if side == "back" and framed else color
     pts = cv2.findNonZero(color)
     if pts is None or len(pts) < 100:
         res.side = None
@@ -130,58 +158,114 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     res.card_px = int(cv2.countNonZero(hull_mask) * scale * scale)
 
     k = int(np.clip(short * 0.012, 3, 25))
-    inner = cv2.erode(hull_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * k + 1, 2 * k + 1)))
-    band = cv2.subtract(hull_mask, inner)
     # 被照片邊界切掉的那幾側不算邊緣
     border = np.zeros((h, w), np.uint8)
     border[: k * 2, :] = border[-k * 2:, :] = 255
     border[:, : k * 2] = border[:, -k * 2:] = 255
-    band = cv2.bitwise_and(band, cv2.bitwise_not(border))
-    # 只看貼著卡片顏色的那段凸包邊緣：正面特寫的黃框是 L 形，凸包會斜切過圖面，那段不是卡片邊
-    band = cv2.bitwise_and(band, cv2.dilate(color, np.ones((k * 3 + 1, k * 3 + 1), np.uint8)))
 
     s, v = hsv[..., 1], hsv[..., 2]
-    whiteish = ((s < WHITE_S) & (v > WHITE_V)).astype(np.uint8) * 255
-    edge_white = cv2.bitwise_and(cv2.bitwise_and(band, whiteish), cv2.bitwise_not(color))
+    whiteish = (s < WHITE_S) & (v > WHITE_V)
+    # 白邊常常只是比卡框亮、淡一截（照片壓縮後不會是純白），所以也用卡框本身的顏色當基準比
+    inner = cv2.erode(hull_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * k + 1, 2 * k + 1)))
+    band = cv2.bitwise_and(cv2.subtract(hull_mask, inner), cv2.bitwise_not(border))
+    ref = hsv[(band > 0) & (color > 0)]
+    if len(ref) > 50:
+        ref_s, ref_v = float(np.median(ref[:, 1])), float(np.median(ref[:, 2]))
+        relwhite = (v >= ref_v + REL_V) & (s <= ref_s - REL_S)
+    else:
+        relwhite = np.zeros_like(whiteish)
+    whitening = whiteish | relwhite
 
-    # 轉角：用色塊的最小外接矩形取四個角（沒碰到照片邊界的才算）。
-    # 角尖整個白掉時凸包會把它切掉，所以另外看「矩形角落、凸包外」那一小塊：
-    # 背景不是白色時，那裡出現白色就是角尖白掉；背景偏白時無法分辨，略過並記下。
+    # 只看卡片外面緊鄰的一圈：卡套、硬殼、白桌面都會讓這圈偏白
+    ring = cv2.subtract(cv2.dilate(hull_mask, np.ones((k * 8 + 1, k * 8 + 1), np.uint8)),
+                        cv2.dilate(hull_mask, np.ones((k * 3 + 1, k * 3 + 1), np.uint8)))
+    bg = hsv[(ring > 0) & (border == 0)]
+    bg_white = len(bg) > 50 and np.median(bg[:, 1]) < WHITE_S and np.median(bg[:, 2]) > LIGHT_V
+    # 卡套／硬殼：外圍是低飽和的灰（壓克力、塑膠），卡邊會被打亮，也只看內側
+    cased = not bg_white and len(bg) > 50 and np.median(bg[:, 1]) < 35 and np.median(bg[:, 2]) > 85
+    if cased:
+        res.notes.append(f"#{index + 1}：卡片可能在卡套或硬殼裡，邊緣只看內側")
+    bg_white = bg_white or cased
+    if bg_white and not cased:
+        res.notes.append(f"#{index + 1}：背景偏白，邊緣外側白掉可能看不出來")
+
+    # 轉角：色塊最小外接矩形的四個角（沒碰到照片邊界的才算）
     rect = cv2.boxPoints(cv2.minAreaRect(pts))
     corner_zone = np.zeros((h, w), np.uint8)
     zone_r = max(k * 5, int(short * 0.1))  # 卡片圓角約占寬度 5%，特寫時圓角更大
     for cx, cy in rect:
-        if k * 3 < cx < w - k * 3 and k * 3 < cy < h - k * 3:
+        if k < cx < w - k and k < cy < h - k:
             cv2.circle(corner_zone, (int(cx), int(cy)), zone_r, 255, -1)
-    outside = cv2.dilate(hull_mask, np.ones((k * 4 + 1, k * 4 + 1), np.uint8))
-    bg = hsv[(outside == 0) & (border == 0)]
-    bg_white = len(bg) > 50 and np.median(bg[:, 1]) < WHITE_S and np.median(bg[:, 2]) > WHITE_V
+
+    # 沿凸包外緣每 2 px 取一條垂直邊緣的短線（往內 r_in、往外 r_out），線上有白就算這一點白掉。
+    # 邊緣白掉時卡片顏色會缺一塊，凸包仍沿著原本的邊走，所以白掉的部分會落在這條短線上。
+    near_color = cv2.dilate(color, np.ones((k * 3 + 1, k * 3 + 1), np.uint8))
+    r_in = max(2, int(short * 0.006))
+    r_out = 0 if bg_white else max(3, int(short * 0.012))
+    # 白背景時只看內側，且避開凸包邊上那一格（圓角處凸包弦線會稍微切到背景）
+    offs = np.arange(-r_in, (r_out if r_out else -2) + 1, dtype=np.float32)
+    poly = hull.reshape(-1, 2).astype(np.float32)
+    center = poly.mean(axis=0)
+    edge_white = np.zeros((h, w), np.uint8)
+    flags = {"edge": [], "corner": []}
+    for i in range(len(poly)):
+        a, b = poly[i], poly[(i + 1) % len(poly)]
+        seg = float(np.linalg.norm(b - a))
+        if seg < 1:
+            continue
+        d = (b - a) / seg
+        nrm = np.array([d[1], -d[0]], np.float32)
+        if np.dot(nrm, (a + b) / 2 - center) < 0:
+            nrm = -nrm
+        for t in np.arange(0, seg, 2.0, dtype=np.float32):
+            p = a + d * t
+            px, py = int(p[0]), int(p[1])
+            if not (k <= px < w - k and k <= py < h - k) or not near_color[py, px]:
+                continue  # 卡片被照片邊界切到，或這段凸包斜切過圖面（正面特寫的 L 形黃框）
+            xs = np.rint(p[0] + nrm[0] * offs).astype(int)
+            ys = np.rint(p[1] + nrm[1] * offs).astype(int)
+            keep = (xs >= 0) & (ys >= 0) & (xs < w) & (ys < h)
+            xs, ys = xs[keep], ys[keep]
+            fx, fy = int(p[0] + nrm[0] * (r_out + 2 * k)), int(p[1] + nrm[1] * (r_out + 2 * k))
+            if r_out and 0 <= fx < w and 0 <= fy < h and whitening[fy, fx]:
+                continue  # 外面也是白的（卡套、壓克力殼、亮背景），分不出是不是白邊
+            hit = whitening[ys, xs].copy()
+            # 跟同一點往內一點的卡框比：明顯更淡、更亮也算（壓縮過的細白邊）
+            ix = np.rint(p[0] - nrm[0] * np.arange(r_in + k, r_in + 2 * k)).astype(int)
+            iy = np.rint(p[1] - nrm[1] * np.arange(r_in + k, r_in + 2 * k)).astype(int)
+            if ix.min() >= 0 and iy.min() >= 0 and ix.max() < w and iy.max() < h and color[iy, ix].all():
+                ls, lv = np.median(s[iy, ix]), np.median(v[iy, ix])
+                seg_s, seg_v = s[ys, xs].astype(int), v[ys, xs].astype(int)
+                hit |= (seg_s <= ls - LOC_S) & (seg_v >= lv + LOC_V) & (seg_v > 90)
+            if hit.any():
+                edge_white[ys[hit], xs[hit]] = 255
+            flags["corner" if corner_zone[py, px] else "edge"].append(bool(hit.any()))
+
+    # 角尖整個白掉時，那一大塊白會讓上面的「外面也是白」判斷跳過，所以另外看
+    # 「最小外接矩形的角落、凸包外」那一小塊：背景不是白色時，那裡出現白色就是角尖白掉
     rect_mask = np.zeros((h, w), np.uint8)
     cv2.fillPoly(rect_mask, [rect.astype(np.int32)], 255)
     tip = cv2.bitwise_and(cv2.bitwise_and(rect_mask, cv2.bitwise_not(hull_mask)), corner_zone)
     tip = cv2.bitwise_and(tip, cv2.bitwise_not(border))
-    if bg_white:
-        res.notes.append(f"#{index + 1}：背景偏白，角尖白掉可能看不出來")
-        tip[:] = 0
-    tip_white = cv2.bitwise_and(tip, whiteish)
-    edge_white = cv2.bitwise_or(edge_white, tip_white)
+    tip_ratio = 0.0
+    if not bg_white and cv2.countNonZero(tip):
+        tip_white = cv2.bitwise_and(tip, whiteish.astype(np.uint8) * 255)
+        tip_ratio = cv2.countNonZero(tip_white) / cv2.countNonZero(tip)
+        edge_white = cv2.bitwise_or(edge_white, tip_white)
 
-    corner_band = cv2.bitwise_and(band, corner_zone)
-    edge_band = cv2.bitwise_and(band, cv2.bitwise_not(corner_zone))
-    if cv2.countNonZero(edge_band):
-        res.edge_ratio = cv2.countNonZero(cv2.bitwise_and(edge_white, edge_band)) / cv2.countNonZero(edge_band)
-    corner_total = cv2.countNonZero(corner_band) + cv2.countNonZero(tip)
-    if corner_total:
-        res.corner_ratio = (cv2.countNonZero(cv2.bitwise_and(edge_white, corner_band)) + cv2.countNonZero(tip_white)) / corner_total
+    res.edge_ratio = float(np.mean(flags["edge"])) if flags["edge"] else 0.0
+    res.corner_ratio = max(float(np.mean(flags["corner"])) if flags["corner"] else 0.0, tip_ratio)
     res.edge_severity = _severity(res.edge_ratio, SEV_EDGE)
     res.corner_severity = _severity(res.corner_ratio, SEV_CORNER)
+    whiteish = whiteish.astype(np.uint8) * 255
 
     # 細白線（刮痕、摺痕）與白點：被卡片顏色包圍的細小非色塊
     kk = int(np.clip(short * 0.015, 5, 31)) | 1
-    closed = cv2.morphologyEx(color, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kk, kk)))
-    lightish = ((s < LINE_S) & (v > LINE_V)).astype(np.uint8) * 255
+    closed = cv2.morphologyEx(surface, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kk, kk)))
     interior = cv2.erode(hull_mask, np.ones((4 * k + 1, 4 * k + 1), np.uint8))
-    thin = cv2.bitwise_and(cv2.bitwise_and(cv2.subtract(closed, color), lightish), interior)
+    thin = cv2.bitwise_and(cv2.bitwise_and(cv2.subtract(closed, surface), whiteish), interior)
+    # 黃框卡的白點只算卡框那一圈：圖面、logo 的亮部太容易誤判
+    frame = cv2.subtract(hull_mask, cv2.erode(hull_mask, np.ones((int(short * FRAME) | 1,) * 2, np.uint8))) if framed else hull_mask
     n, labels, stats, _ = cv2.connectedComponentsWithStats(thin, 8)
     defect = edge_white.copy()
     for i in range(1, n):
@@ -193,8 +277,11 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
         (cx, cy), (rw, rh), ang = cv2.minAreaRect(cpts)
         length = max(rw, rh)
         width = max(1.0, min(rw, rh))
+        is_line = length >= short * SCRATCH_LEN and length / width >= 4
+        if not is_line and not frame[int(cy), int(cx)]:
+            continue
         defect[comp > 0] = 255
-        if length >= short * SCRATCH_LEN and length / width >= 4:
+        if is_line:
             kind = "crease" if length >= short * CREASE_LEN and length / width >= 12 else "scratch"
             box = cv2.boxPoints(((cx, cy), (rw, rh), ang)) * scale
             res.lines.append({"len": length / short, "box": box.astype(np.int32), "kind": kind})
