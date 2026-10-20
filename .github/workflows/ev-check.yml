@@ -37,8 +37,13 @@ jobs:
           CARD: ${{ inputs.card }}
         run: |
           set -o pipefail
-          python ev_check.py "$URL" ${CARD:+--card "$CARD"} --report report.png --telegram | tee out.txt
-          { echo '```'; cat out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          python ev_check.py "$URL" ${CARD:+--card "$CARD"} --report report.png --telegram 2>&1 | tee out.txt
+      - name: Summary
+        if: always()
+        run: |
+          { echo '```'; tail -c 60000 out.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          # 也輸出成 annotation，方便從 API 讀結果
+          python -c "import sys;t=open('out.txt',encoding='utf-8').read()[-3500:];print('::notice title=EV Check::'+t.replace('%','%25').replace('\r','').replace('\n','%0A'))"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
