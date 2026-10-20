@@ -103,7 +103,12 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
         for g, jpy in (live.get("prices") or {}).items():
             prices[g] = parse_money(f"{jpy} JPY", fx)
         if live.get("raw"):
-            raw_price = parse_money(f"{live['raw']} JPY", fx)
+            live_raw = parse_money(f"{live['raw']} JPY", fx)
+            top = max((prices[g] for g in (10, 9) if g in prices), default=None)
+            if top is not None and live_raw >= top:  # 裸卡比 PSA 9/10 還貴，八成混到別的商品
+                est.notes.append("近期裸卡成交高於 PSA 9/10 行情，判定樣本有誤，沿用 cards.yaml 裸卡價")
+            else:
+                raw_price = live_raw
         est.notes[:0] = live.get("notes") or []
     low = parse_money(card["low_grade_price"], fx) if card.get("low_grade_price") else None
     ev = evaluate(
