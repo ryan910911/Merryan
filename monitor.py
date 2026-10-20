@@ -3,6 +3,8 @@
 
 流程：每個品項用「最新上架」排序搜尋 -> 與 seen.json 比對 -> 新商品推送。
 第一次看到某品項時只記錄、不通知，避免一次洗版。
+品項有設定 card（對應 cards.yaml）時，會打開商品頁估鑑定分數機率與期望值，
+把判斷附在通知裡（見 ev_check.py）。
 """
 import json
 import os
@@ -21,6 +23,7 @@ BASE = "https://jp.mercari.com"
 SEEN_PATH = ROOT / "seen.json"
 MAX_SEEN_PER_ITEM = 500
 MAX_NOTIFY_PER_ITEM = 10
+MAX_EV_PER_RUN = 15  # 每輪最多深入評估幾件（每件要開商品頁、下載照片）
 
 TG_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TG_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "")
@@ -82,6 +85,28 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
+def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[str, bool]:
+    """打開商品頁做 EV 評估；失敗就退回原本的簡單通知"""
+    from ev_calc import VERDICT_BUY, VERDICT_RISKY
+    from ev_check import card_profile, evaluate_listing, format_message
+    from listing import download_photos, fetch_listing
+
+    page = ctx.new_page()
+    try:
+        listing = fetch_listing(page, r["id"])
+        listing["price"] = listing.get("price") or int(re.sub(r"\D", "", r["price"]) or 0) or None
+        photos = download_photos(listing["photos"])
+        est, ev = evaluate_listing(ev_cfg, item["card"], listing, photos)
+        name = card_profile(ev_cfg, item["card"]).get("name", item["name"])
+        worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
+        return format_message(name, listing, est, ev), worth
+    except Exception as e:
+        print(f"[{item['name']}] EV 評估失敗: {e}")
+        return fallback + "\n（EV 評估失敗）", True
+    finally:
+        page.close()
+
+
 def main() -> None:
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
     defaults = cfg["defaults"]
@@ -92,6 +117,12 @@ def main() -> None:
 
     total_results = 0
     new_count = 0
+    ev_count = 0
+    ev_cfg = None
+    if any(item.get("card") for item in cfg["items"]):
+        from ev_check import load_ev_config
+
+        ev_cfg = load_ev_config()
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -126,7 +157,14 @@ def main() -> None:
                         continue
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
-                    notify(f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}")
+                    msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
+                    if item.get("card") and ev_cfg and ev_count < MAX_EV_PER_RUN:
+                        ev_count += 1
+                        msg, worth = ev_message(ctx, ev_cfg, item, r, msg)
+                        if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
+                            print(f"[{key}] {r['id']} EV 不划算，略過通知")
+                            continue
+                    notify(msg)
                     shown += 1
                     new_count += 1
 

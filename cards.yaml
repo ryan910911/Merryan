@@ -1,0 +1,72 @@
+# 鑑定期望值（EV）設定
+#
+# 金額寫法：數字 = 日圓；或 "2861 USD"、"500 TWD"，依下面 fx 換算成日圓。
+# ⚠️ 標「範例」的數字是假設值，請換成自己查到的當期數字再當真。
+
+# 匯率：1 單位外幣 = 多少日圓（範例，請用當天匯率）
+fx:
+  JPY: 1
+  USD: 150
+  TWD: 4.7
+
+costs:
+  buy:                     # 從 Mercari 買到手
+    proxy_fee_pct: 0.0     # 代購手續費（比例，0.05 = 5%）（範例）
+    proxy_fee_fixed: 500   # 代購每件固定費（範例）
+    domestic_shipping: 0   # 日本國內運費（賣家多半包郵）
+    intl_shipping: 2000    # 國際運費（範例）
+    import_duty_pct: 0.0   # 關稅／進口稅（比例）
+    fx_loss_pct: 0.02      # 刷卡或換匯損耗（比例）
+  grading:
+    # PSA 鑑定費依「申報價值」分級。以下是範例級距，一律以 PSA 官網當期為準。
+    # 申報價值 = 基準情境的預期鑑定後市價（程式自動算）
+    tiers:
+      - {max_value: "499 USD", fee: "25 USD"}
+      - {max_value: "999 USD", fee: "75 USD"}
+      - {max_value: "1499 USD", fee: "150 USD"}
+      - {max_value: "2499 USD", fee: "200 USD"}
+      - {max_value: "4999 USD", fee: "300 USD"}
+      - {max_value: "9999 USD", fee: "600 USD"}
+      - {fee: "1000 USD"}
+    shipping_insurance: "80 USD"   # 寄 PSA 與寄回的運費＋保險（往返合計）（範例）
+  sell:                    # 鑑定後或裸卡賣出
+    fee_pct: 0.13          # 平台手續費（eBay 約 13%）（範例）
+    shipping: "10 USD"     # 賣出運費
+
+decision:
+  min_roi: 0.25            # 基準 ROI 門檻（安全邊際）
+
+analysis:
+  # 照片分析器，依序執行；claude 只有在設定 ANTHROPIC_API_KEY 時才會啟用（會產生 API 費用）
+  analyzers: [heuristic, claude]
+  claude_model: claude-opus-5-5
+  claude_effort: medium
+  max_images: 6
+  min_confidence: 0.5      # 信心低於此值的照片觀察不採用
+
+# 通用機率組（假設值；累積 20~30 張實際鑑定結果後請用 ev_log.csv 校準）
+# low = PSA 4 以下
+probability_sets:
+  default:
+    optimistic:  {10: 0.25, 9: 0.40, 8: 0.20, 7: 0.10, 6: 0.05}
+    base:        {10: 0.10, 9: 0.35, 8: 0.30, 7: 0.15, 6: 0.07, low: 0.03}
+    pessimistic: {10: 0.02, 9: 0.15, 8: 0.30, 7: 0.25, 6: 0.15, low: 0.13}
+
+cards:
+  lugia-e-p-047:
+    name: ルギア e-P 047
+    # 「不鑑定直接賣裸卡」的比較基準：
+    # 商品狀態 1~2 用 raw_price（A 品相），3~5 用 raw_price_played（有使用痕跡）
+    # 裸卡 A 品相賣價：SNKRDUNK 近 30 天中位數（2026-10-20，僅 2 筆）
+    raw_price: 285000
+    # 有使用痕跡的裸卡賣價：PriceCharting 未鑑定 $419（2026-09-16）
+    raw_price_played: "419 USD"
+    # 各級成交價：PriceCharting eBay 成交（2026-09-16）；PSA 6 取 $520、$698 平均
+    prices:
+      10: "2861 USD"
+      9: "910 USD"
+      8: "729 USD"
+      7: "583 USD"
+      6: "609 USD"
+    low_grade_price: "400 USD"   # PSA 5 以下（範例）
+    probability_set: default     # 或直接寫 probabilities: {optimistic: …, base: …, pessimistic: …}

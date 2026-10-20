@@ -8,6 +8,9 @@ defaults:
   conditions: [1, 2, 3, 4, 5]
   # 價格上限（日圓），留空 = 不限；單一品項也可自己設 max_price
   max_price:
+  # 品項有 card（對應 cards.yaml）時，通知會附鑑定期望值判斷
+  # annotate = 全部通知並附判斷；worth_only = 只通知「建議買進／可考慮」
+  ev_notify: annotate
   # 標題含這些字的商品一律略過（嚴重損傷、破損、零件用）
   exclude_words:
     - ジャンク
@@ -47,6 +50,11 @@ items:
     keyword: スイクンex 027
   - name: メガフェスタ
     keyword: メガフェスタ
+
+  # ---- 寶可夢 鑑定候選（附 EV 評估）----
+  - name: ルギア e-P 047
+    keyword: ルギア 047/P
+    card: lugia-e-p-047
 
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版

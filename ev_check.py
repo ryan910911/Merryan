@@ -1,0 +1,191 @@
+"""單張刊登的鑑定期望值評估
+
+用法：
+  python ev_check.py https://jp.mercari.com/item/m12345678901 --card lugia-e-p-047
+  python ev_check.py --card lugia-e-p-047 --price 80000 --condition 3 --photos front.jpg back.jpg
+  python ev_check.py --card lugia-e-p-047 --listing listing.json --log ev_log.csv
+
+monitor.py 也會呼叫 evaluate_listing() / format_message()，讓有設定 card 的品項
+在 Telegram 通知裡直接附上 EV 判斷。
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import yaml
+
+from ev_calc import GRADES, VERDICT_BUY, VERDICT_RISKY, VERDICT_SKIP, Costs, Evaluation, evaluate, parse_money
+from grade_estimator import CONDITION_LABELS, Estimate, estimate
+from image_analysis import build_analyzers
+
+ROOT = Path(__file__).parent
+CARDS_PATH = ROOT / "cards.yaml"
+SCEN_ZH = {"optimistic": "樂觀", "base": "基準", "pessimistic": "悲觀"}
+VERDICT_ICON = {VERDICT_BUY: "💰", VERDICT_RISKY: "🤔", VERDICT_SKIP: "⏭️"}
+
+
+def load_ev_config(path: Path = CARDS_PATH) -> dict:
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
+def card_profile(cfg: dict, key: str) -> dict:
+    cards = cfg.get("cards", {}) or {}
+    if key not in cards:
+        raise KeyError(f"cards.yaml 找不到卡種 {key!r}（可用：{', '.join(cards)}）")
+    return cards[key]
+
+
+def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None):
+    """回傳 (Estimate, Evaluation 或 None)"""
+    fx = cfg["fx"]
+    card = card_profile(cfg, card_key)
+    sets = card.get("probabilities") or cfg["probability_sets"][card.get("probability_set", "default")]
+    photos = photos or []
+    if analyzers is None:
+        analyzers = build_analyzers(cfg.get("analysis"))
+    observations = []
+    if photos:
+        for a in analyzers:
+            try:
+                observations.append(a.analyze(photos, listing))
+            except Exception as e:  # 單一 analyzer 壞掉不影響評估
+                print(f"[{a.name}] 照片分析失敗: {e}")
+    photo_count = len(photos) if photos else len(listing.get("photos") or []) or None
+    est = estimate(
+        sets,
+        listing.get("condition"),
+        description=listing.get("description", ""),
+        title=listing.get("title", ""),
+        observations=observations,
+        photo_count=photo_count,
+        min_confidence=float((cfg.get("analysis") or {}).get("min_confidence", 0.5)),
+    )
+    if est.scenarios is None or not listing.get("price"):
+        return est, None
+
+    # 「不鑑定、直接賣裸卡」的比較基準：新品〜未使用に近い 用 A 品相價，其餘用有使用痕跡的裸卡價
+    raw_key = "raw_price" if est.condition in (1, 2) or not card.get("raw_price_played") else "raw_price_played"
+    raw_price = parse_money(card[raw_key], fx)
+    prices = {g: parse_money(v, fx) for g, v in (card.get("prices") or {}).items() if v not in (None, "")}
+    low = parse_money(card["low_grade_price"], fx) if card.get("low_grade_price") else None
+    ev = evaluate(
+        price=float(listing["price"]),
+        scenario_probs=est.scenarios,
+        prices=prices,
+        raw_price=raw_price,
+        costs=Costs.from_config(cfg.get("costs", {}), fx),
+        min_roi=float((cfg.get("decision") or {}).get("min_roi", 0.25)),
+        low_price=low,
+    )
+    return est, ev
+
+
+def yen(v: float | None) -> str:
+    if v is None:
+        return "—"
+    return f"{'-' if v < 0 else ''}¥{abs(v):,.0f}"
+
+
+def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False) -> str:
+    cond = CONDITION_LABELS.get(est.condition, listing.get("condition") or "狀態不明")
+    head = f"{listing.get('title') or card_name}\n{yen(listing.get('price'))} · {cond}"
+    if ev is None:
+        reason = est.notes[0] if est.scenarios is None else "抓不到價格"
+        return f"⏭️ {VERDICT_SKIP} | {card_name}\n{head}\n{reason}\n{listing.get('url', '')}".strip()
+
+    s = ev.scenarios
+    lines = [
+        f"{VERDICT_ICON.get(ev.verdict, '🙅')} {ev.verdict} | {card_name}",
+        head,
+        f"期望淨利 基準 {yen(s['base'].ev_net)}（ROI {s['base'].roi:.0%}）/ 悲觀 {yen(s['pessimistic'].ev_net)} / 樂觀 {yen(s['optimistic'].ev_net)}",
+        f"鑑定增量 {yen(ev.uplift)} · PSA10 機率 {s['base'].probs[10]:.0%}"
+        + (f"（打平需 {ev.breakeven_p10:.0%}）" if ev.breakeven_p10 is not None else "（PSA10 也無法打平）"),
+        "最高出價 " + (yen(ev.max_bid) if ev.max_bid is not None
+                      else "—（鑑定不如直接賣裸卡）" if ev.uplift <= 0 else "—（任何價格都達不到門檻）"),
+    ]
+    if ev.reasons:
+        lines.append("原因：" + "；".join(ev.reasons))
+    shown = est.notes if detail else est.notes[:6]
+    if shown:
+        lines.append("依據：\n- " + "\n- ".join(shown))
+    if detail:
+        lines.append(f"\n成本：到手 {yen(ev.acquisition)} + 鑑定費 {yen(ev.grading_fee)} + 往返運保 {yen(s['base'].total_cost - ev.acquisition - ev.grading_fee)}")
+        lines.append(f"裸卡直接賣淨利 {yen(ev.raw_net)}")
+        header = "等級    " + "  ".join(f"{SCEN_ZH[k]:>4}" for k in ("optimistic", "base", "pessimistic"))
+        lines.append(header)
+        for g in GRADES:
+            label = f"PSA {g}" if g != "low" else "PSA ≤4"
+            lines.append(f"{label:<7} " + "  ".join(f"{s[k].probs[g]:>5.0%}" for k in ("optimistic", "base", "pessimistic")))
+    lines.append(listing.get("url", ""))
+    return "\n".join(lines).strip()
+
+
+def append_log(path: Path, card_key: str, listing: dict, est: Estimate, ev: Evaluation | None) -> None:
+    """記錄預估，鑑定回來後自己補 actual_grade 欄位，用來校準機率"""
+    new = not path.exists()
+    with path.open("a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if new:
+            w.writerow(["time", "card", "item", "price", "condition", "verdict", "base_ev_net", "base_roi", "pess_ev_net", "uplift", "max_bid"]
+                       + [f"p_{g}" for g in GRADES] + ["actual_grade"])
+        base = ev.scenarios["base"] if ev else None
+        w.writerow([
+            datetime.now(timezone.utc).isoformat(timespec="seconds"), card_key, listing.get("id") or listing.get("url"),
+            listing.get("price"), est.condition, ev.verdict if ev else VERDICT_SKIP,
+            round(base.ev_net) if base else "", round(base.roi, 3) if base else "",
+            round(ev.scenarios["pessimistic"].ev_net) if ev else "", round(ev.uplift) if ev else "",
+            round(ev.max_bid) if ev and ev.max_bid is not None else "",
+        ] + [round(base.probs[g], 3) if base else "" for g in GRADES] + [""])
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description="Mercari 裸卡鑑定期望值評估")
+    ap.add_argument("url", nargs="?", help="Mercari 商品網址或編號（會用 Playwright 開頁面）")
+    ap.add_argument("--card", required=True, help="cards.yaml 裡的卡種 key")
+    ap.add_argument("--listing", help="改用 JSON 檔提供刊登資料（title/price/condition/description）")
+    ap.add_argument("--price", type=float, help="覆寫買入價（日圓）")
+    ap.add_argument("--condition", help="覆寫商品狀態（1~6 或日文字樣）")
+    ap.add_argument("--photos", nargs="*", default=[], help="本機照片檔")
+    ap.add_argument("--config", default=str(CARDS_PATH))
+    ap.add_argument("--log", help="把結果附加到 CSV")
+    args = ap.parse_args(argv)
+
+    cfg = load_ev_config(Path(args.config))
+    listing: dict = {}
+    photos = [Path(p).read_bytes() for p in args.photos]
+    if args.listing:
+        listing = json.loads(Path(args.listing).read_text(encoding="utf-8"))
+    elif args.url:
+        from playwright.sync_api import sync_playwright
+
+        from listing import UA, download_photos, fetch_listing
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_context(locale="ja-JP", timezone_id="Asia/Tokyo", user_agent=UA).new_page()
+            listing = fetch_listing(page, args.url)
+            browser.close()
+        if not photos:
+            photos = download_photos(listing["photos"])
+    if args.price is not None:
+        listing["price"] = args.price
+    if args.condition:
+        listing["condition"] = int(args.condition) if args.condition.isdigit() else args.condition
+    if not listing.get("price"):
+        ap.error("沒有價格：請給商品網址、--listing 或 --price")
+
+    est, ev = evaluate_listing(cfg, args.card, listing, photos)
+    name = card_profile(cfg, args.card).get("name", args.card)
+    print(format_message(name, listing, est, ev, detail=True))
+    if args.log:
+        append_log(Path(args.log), args.card, listing, est, ev)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
