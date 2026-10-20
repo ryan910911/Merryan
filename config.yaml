@@ -85,6 +85,20 @@ items:
     keyword: 旧裏 ミュウツー
   - name: 旧裏 ルギア
     keyword: 旧裏 ルギア
+  # 同四隻的舊版變體（旧裏時期的別名卡，標題常不寫「旧裏」）
+  - name: わるいゲンガー（ロケット団）
+    keyword: わるいゲンガー
+  - name: ひかるミュウ（neo）
+    keyword: ひかるミュウ
+  - name: 旧裏 ミュウ プロモ
+    keyword: 旧裏 ミュウ プロモ
+  - name: 旧裏 ミュウツー プロモ
+    keyword: 旧裏 ミュウツー プロモ
+  # e 卡時期（2001~2002，旧裏之後的第一代新背）
+  - name: ゲンガー カードe
+    keyword: ゲンガー ポケモンカードe
+  - name: ミュウツー カードe
+    keyword: ミュウツー ポケモンカードe
   - name: 旧裏 リザードン
     keyword: 旧裏 リザードン
   - name: 旧裏 カメックス
