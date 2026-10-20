@@ -99,7 +99,7 @@ def ev_message(ctx, ev_cfg: dict, item: dict, r: dict, fallback: str) -> tuple[s
         est, ev = evaluate_listing(ev_cfg, item["card"], listing, photos)
         name = card_profile(ev_cfg, item["card"]).get("name", item["name"])
         worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
-        return format_message(name, listing, est, ev), worth
+        return format_message(name, listing, est, ev, jpy_rate=ev_cfg["fx"]["JPY"]), worth
     except Exception as e:
         print(f"[{item['name']}] EV 評估失敗: {e}")
         return fallback + "\n（EV 評估失敗）", True

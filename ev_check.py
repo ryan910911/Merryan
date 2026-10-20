@@ -74,7 +74,7 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
     prices = {g: parse_money(v, fx) for g, v in (card.get("prices") or {}).items() if v not in (None, "")}
     low = parse_money(card["low_grade_price"], fx) if card.get("low_grade_price") else None
     ev = evaluate(
-        price=float(listing["price"]),
+        price=parse_money(f"{listing['price']} JPY", fx),  # Mercari 價格是日圓
         scenario_probs=est.scenarios,
         prices=prices,
         raw_price=raw_price,
@@ -85,15 +85,26 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
     return est, ev
 
 
+def money(v: float | None) -> str:
+    """計價幣別（cards.yaml 的 fx 裡匯率為 1 的那個，目前是台幣）"""
+    if v is None:
+        return "—"
+    return f"{'-' if v < 0 else ''}NT${abs(v):,.0f}"
+
+
 def yen(v: float | None) -> str:
     if v is None:
         return "—"
     return f"{'-' if v < 0 else ''}¥{abs(v):,.0f}"
 
 
-def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False) -> str:
+def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False,
+                   jpy_rate: float | None = None) -> str:
+    """jpy_rate：1 日圓 = 多少計價幣別，用來把最高出價換回日圓"""
     cond = CONDITION_LABELS.get(est.condition, listing.get("condition") or "狀態不明")
-    head = f"{listing.get('title') or card_name}\n{yen(listing.get('price'))} · {cond}"
+    price_jpy = listing.get("price")
+    price_txt = yen(price_jpy) + (f"（{money(price_jpy * jpy_rate)}）" if price_jpy and jpy_rate else "")
+    head = f"{listing.get('title') or card_name}\n{price_txt} · {cond}"
     if ev is None:
         reason = est.notes[0] if est.scenarios is None else "抓不到價格"
         return f"⏭️ {VERDICT_SKIP} | {card_name}\n{head}\n{reason}\n{listing.get('url', '')}".strip()
@@ -102,10 +113,10 @@ def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation 
     lines = [
         f"{VERDICT_ICON.get(ev.verdict, '🙅')} {ev.verdict} | {card_name}",
         head,
-        f"期望淨利 基準 {yen(s['base'].ev_net)}（ROI {s['base'].roi:.0%}）/ 悲觀 {yen(s['pessimistic'].ev_net)} / 樂觀 {yen(s['optimistic'].ev_net)}",
-        f"鑑定增量 {yen(ev.uplift)} · PSA10 機率 {s['base'].probs[10]:.0%}"
+        f"期望淨利 基準 {money(s['base'].ev_net)}（ROI {s['base'].roi:.0%}）/ 悲觀 {money(s['pessimistic'].ev_net)} / 樂觀 {money(s['optimistic'].ev_net)}",
+        f"鑑定增量 {money(ev.uplift)} · PSA10 機率 {s['base'].probs[10]:.0%}"
         + (f"（打平需 {ev.breakeven_p10:.0%}）" if ev.breakeven_p10 is not None else "（PSA10 也無法打平）"),
-        "最高出價 " + (yen(ev.max_bid) if ev.max_bid is not None
+        "最高出價 " + ((yen(ev.max_bid / jpy_rate) if jpy_rate else money(ev.max_bid)) if ev.max_bid is not None
                       else "—（鑑定不如直接賣裸卡）" if ev.uplift <= 0 else "—（任何價格都達不到門檻）"),
     ]
     if ev.reasons:
@@ -114,8 +125,8 @@ def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation 
     if shown:
         lines.append("依據：\n- " + "\n- ".join(shown))
     if detail:
-        lines.append(f"\n成本：到手 {yen(ev.acquisition)} + 鑑定費 {yen(ev.grading_fee)} + 往返運保 {yen(s['base'].total_cost - ev.acquisition - ev.grading_fee)}")
-        lines.append(f"裸卡直接賣淨利 {yen(ev.raw_net)}")
+        lines.append(f"\n成本：到手 {money(ev.acquisition)} + 鑑定費 {money(ev.grading_fee)} + 往返運保 {money(s['base'].total_cost - ev.acquisition - ev.grading_fee)}")
+        lines.append(f"裸卡直接賣淨利 {money(ev.raw_net)}")
         header = "等級    " + "  ".join(f"{SCEN_ZH[k]:>4}" for k in ("optimistic", "base", "pessimistic"))
         lines.append(header)
         for g in GRADES:
@@ -139,7 +150,7 @@ def append_log(path: Path, card_key: str, listing: dict, est: Estimate, ev: Eval
             listing.get("price"), est.condition, ev.verdict if ev else VERDICT_SKIP,
             round(base.ev_net) if base else "", round(base.roi, 3) if base else "",
             round(ev.scenarios["pessimistic"].ev_net) if ev else "", round(ev.uplift) if ev else "",
-            round(ev.max_bid) if ev and ev.max_bid is not None else "",
+            round(ev.max_bid) if ev and ev.max_bid is not None else "",  # 計價幣別
         ] + [round(base.probs[g], 3) if base else "" for g in GRADES] + [""])
 
 
@@ -181,7 +192,7 @@ def main(argv=None) -> int:
 
     est, ev = evaluate_listing(cfg, args.card, listing, photos)
     name = card_profile(cfg, args.card).get("name", args.card)
-    print(format_message(name, listing, est, ev, detail=True))
+    print(format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"]))
     if args.log:
         append_log(Path(args.log), args.card, listing, est, ev)
     return 0

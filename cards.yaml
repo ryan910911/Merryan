@@ -1,37 +1,42 @@
 # 鑑定期望值（EV）設定
 #
-# 金額寫法：數字 = 日圓；或 "2861 USD"、"500 TWD"，依下面 fx 換算成日圓。
+# 計價幣別：新台幣。金額寫法：數字 = 台幣；或 "2861 USD"、"500 JPY"，依下面 fx 換算成台幣。
+# Mercari 刊登價一律當日圓處理。
 # ⚠️ 標「範例」的數字是假設值，請換成自己查到的當期數字再當真。
 
-# 匯率：1 單位外幣 = 多少日圓（範例，請用當天匯率）
+# 匯率：1 單位外幣 = 多少台幣
+# 臺灣銀行即期賣出牌告，2026-10-20 09:47（https://rate.bot.com.tw/xrt）
 fx:
-  JPY: 1
-  USD: 150
-  TWD: 4.7
+  TWD: 1
+  USD: 32.61
+  JPY: 0.2074
 
 costs:
   buy:                     # 從 Mercari 買到手
     proxy_fee_pct: 0.0     # 代購手續費（比例，0.05 = 5%）（範例）
-    proxy_fee_fixed: 500   # 代購每件固定費（範例）
-    domestic_shipping: 0   # 日本國內運費（賣家多半包郵）
-    intl_shipping: 2000    # 國際運費（範例）
+    proxy_fee_fixed: "500 JPY"  # 代購每件固定費（範例）
+    domestic_shipping: 0   # 日本國內運費（暫不計）
+    intl_shipping: 0       # 國際運費（暫不計）
     import_duty_pct: 0.0   # 關稅／進口稅（比例）
-    fx_loss_pct: 0.02      # 刷卡或換匯損耗（比例）
+    fx_loss_pct: 0.02      # 刷卡海外手續費或換匯損耗（比例）
   grading:
-    # PSA 鑑定費依「申報價值」分級。以下是範例級距，一律以 PSA 官網當期為準。
-    # 申報價值 = 基準情境的預期鑑定後市價（程式自動算）
+    # PSA 鑑定費依「申報價值」選級距（申報價值 = 基準情境的預期鑑定後市價，程式自動算）
+    # PSA 官網價格（2026-09-14 起：Standard／Priority／Express／Premier；Value 系列暫停收件）再加 20% 緩衝
+    #   Standard $59.99（≤$1,000）、Priority $79.99（≤$1,500）、Express $199（≤$2,500）、
+    #   Premier $599（≤$10,000）、下一級 $999（≤$25,000）
+    # 來源：https://www.psacard.com/info/submission-updates、
+    #       https://www.psacard.com/articles/articleview/15763/psa-new-standard-service-level
+    # 申報價值超過 $25,000 的級距請再查官網
     tiers:
-      - {max_value: "499 USD", fee: "25 USD"}
-      - {max_value: "999 USD", fee: "75 USD"}
-      - {max_value: "1499 USD", fee: "150 USD"}
-      - {max_value: "2499 USD", fee: "200 USD"}
-      - {max_value: "4999 USD", fee: "300 USD"}
-      - {max_value: "9999 USD", fee: "600 USD"}
-      - {fee: "1000 USD"}
-    shipping_insurance: "80 USD"   # 寄 PSA 與寄回的運費＋保險（往返合計）（範例）
+      - {max_value: "1000 USD", fee: "71.99 USD"}
+      - {max_value: "1500 USD", fee: "95.99 USD"}
+      - {max_value: "2500 USD", fee: "238.80 USD"}
+      - {max_value: "10000 USD", fee: "718.80 USD"}
+      - {max_value: "25000 USD", fee: "1198.80 USD"}
+    shipping_insurance: 0  # 寄 PSA 與寄回的運費＋保險（暫不計）
   sell:                    # 鑑定後或裸卡賣出
     fee_pct: 0.13          # 平台手續費（eBay 約 13%）（範例）
-    shipping: "10 USD"     # 賣出運費
+    shipping: 0            # 賣出運費（暫不計）
 
 decision:
   min_roi: 0.25            # 基準 ROI 門檻（安全邊際）
@@ -58,7 +63,7 @@ cards:
     # 「不鑑定直接賣裸卡」的比較基準：
     # 商品狀態 1~2 用 raw_price（A 品相），3~5 用 raw_price_played（有使用痕跡）
     # 裸卡 A 品相賣價：SNKRDUNK 近 30 天中位數（2026-10-20，僅 2 筆）
-    raw_price: 285000
+    raw_price: "285000 JPY"
     # 有使用痕跡的裸卡賣價：PriceCharting 未鑑定 $419（2026-09-16）
     raw_price_played: "419 USD"
     # 各級成交價：PriceCharting eBay 成交（2026-09-16）；PSA 6 取 $520、$698 平均
