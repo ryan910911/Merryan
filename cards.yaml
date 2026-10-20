@@ -233,6 +233,771 @@ cards:
     prices: {10: "3677.36 USD", 9: "270 USD", 8: "295 USD", 7: "150 USD"}
     probability_set: default
 
+  # ===== 第二輪補缺（2026-10-20）：放在第一輪前面，卡號較明確的先比對 =====
+
+  # ---- 御三家進化線（e 卡、web、ADV/PCG、旧裏補充） ----
+  # Round 2 - Charizard / Blastoise / Venusaur lines, gap fill. Researched 2026-10-20.
+  # All PriceCharting (PC) figures are web-search snippets of pricecharting.com pages (fetch is blocked), Oct 2026.
+  # JPY->USD at ~150 where converted.
+  #
+  # Mercari search keywords (together they surface all priced cards below):
+  #   リザード 011/T
+  #   リザードン 1ED          (e第1弾 103/128, 071/128, e-starter 012/029)
+  #   カメックス 108/128
+  #   フシギバナ 097/128
+  #   スターターデッキ 029     (e-starter 1ED: all 11 starters)
+  #   ヒトカゲ 1ED
+  #   ゼニガメ 1ED
+  #   フシギダネ 1ED
+  #   リザード web
+  #   わるいリザードン web     (also surfaces わるいリザード web)
+  #   わるいカメックス web
+  #   リザードン クリスタル
+  #   リザードン δ
+  #   リザードンex 012/052
+  #   リザードン ADV-P         (also リザード 053/ADV-P)
+  #   リザードン PCG-P
+  #   ヒトカゲ 拡張シート
+  #   エリカのフシギダネ
+  #   エリカのフシギソウ
+  #   ゼニガメ ロケット団
+  #   フシギバナ CD
+  #
+  # ORDER NOTE: several profiles here must sit BEFORE existing cards.yaml profiles whose regexes
+  # also match them (see the report): web わるいリザードン/わるいリザード vs charizard-dark-rocket-1997 /
+  # charmeleon-dark-rocket-1997; e-starter / e1 "初版" titles (xxx/029, xxx/128) vs the existing
+  # *-base-nomark / *-no-rarity profiles; "リザードン 071/128 基本拡張パック" vs charizard-base-1996.
+  # Better fix: add  /029|/128|/048|web  to those existing profiles' exclusion lists.
+  # ======================= T promo =======================
+  charmeleon-trainers-t-promo-2002:
+    name: リザード 011/T トレーナーズプロモ（Vol.17）
+    match: '^(?=.*リザード(?!ン))(?!.*(わるい|カツラ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|/029|ADV))(?=.*((?<!\d)0?11\s*/\s*T(?![a-z])|トレーナーズ|トレマガ))'
+    # PC japanese-trainers-magazine/charmeleon-11t: ungraded $155.76, G9 $212.50 (other snapshot $308), PSA10 $852.08 (other $872.54);
+    # PSA10 eBay early Oct 2026 $711-$1,000; PSA8 $395 (late Sep 2026).
+    raw_price_played: "155.76 USD"
+    prices: {10: "852.08 USD", 9: "212.50 USD", 8: "395 USD"}
+    probability_set: default
+
+  # ======================= e第1弾 基本拡張パック (2001) =======================
+  charizard-e1-holo-1st-2001:
+    name: リザードン e第1弾 103/128 キラ 1ED
+    match: '^(?=.*リザードン)(?!.*(δ|☆|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR))(?=.*(?<!\d)103\s*/\s*128)(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC japanese-expedition-expansion-pack/charizard-1st-edition-103: ungraded $490.28 (other snapshot $687.55), G9 $1,465.42, PSA10 $5,799.18 (other snapshot $6,866);
+    # PSA9 sales $1,200-2,000; PSA7 $899.50 (Jun 2026); PSA6 $385-580.
+    raw_price_played: "490.28 USD"
+    prices: {10: "5799.18 USD", 9: "1465.42 USD", 7: "899.50 USD", 6: "480 USD"}
+    probability_set: default
+
+  charizard-e1-holo-2001:
+    name: リザードン e第1弾 103/128 キラ（アンリミ）
+    match: '^(?=.*リザードン)(?!.*(δ|☆|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)103\s*/\s*128)'
+    # PC .../charizard-103: ungraded $183.50 (other $176.40), G9 $880, PSA10 $2,220.18; PSA10 sale $1,600 (Oct 2025).
+    raw_price_played: "183.50 USD"
+    prices: {10: "2220.18 USD", 9: "880 USD"}
+    probability_set: default
+
+  charizard-e1-nonholo-1st-2001:
+    name: リザードン e第1弾 071/128 ノーマル 1ED
+    match: '^(?=.*リザードン)(?!.*(δ|☆|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR))(?=.*(?<!\d)0?71\s*/\s*128)(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../charizard-1st-edition-71: ungraded $119.42, G9 $328.47, PSA10 $1,660 (other $1,776); mid-2026 PSA10 sales $1,550-2,350.
+    raw_price_played: "119.42 USD"
+    prices: {10: "1660 USD", 9: "328.47 USD"}
+    probability_set: default
+
+  charizard-e1-nonholo-2001:
+    name: リザードン e第1弾 071/128 ノーマル（アンリミ）
+    match: '^(?=.*リザードン)(?!.*(δ|☆|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?71\s*/\s*128)'
+    # PC .../charizard-71: ungraded $100, G9 $280, PSA10 $399.99 (sales $200-500).
+    raw_price_played: "100 USD"
+    prices: {10: "399.99 USD", 9: "280 USD"}
+    probability_set: default
+
+  blastoise-e1-holo-2001:
+    name: カメックス e第1弾 108/128 キラ（アンリミ）
+    match: '^(?=.*カメックス)(?!.*(わるい|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)108\s*/\s*128)'
+    # PC .../blastoise-108: ungraded ~$179, G9 $413, PSA10 $496. (1ED 108/128 already in cards.yaml.)
+    raw_price_played: "179 USD"
+    prices: {10: "496 USD", 9: "413 USD"}
+    probability_set: default
+
+  blastoise-e1-nonholo-1st-2001:
+    name: カメックス e第1弾 076/128 ノーマル 1ED
+    match: '^(?=.*カメックス)(?!.*(わるい|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<!\d)0?76\s*/\s*128)(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../blastoise-1st-edition-76: ungraded $54.77, G9 $155.50, PSA10 $1,375.51 (thin - looks high vs sales; LOW confidence).
+    raw_price_played: "54.77 USD"
+    prices: {10: "1375.51 USD", 9: "155.50 USD"}
+    probability_set: default
+
+  blastoise-e1-nonholo-2001:
+    name: カメックス e第1弾 076/128 ノーマル（アンリミ）
+    match: '^(?=.*カメックス)(?!.*(わるい|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?76\s*/\s*128)'
+    # PC .../blastoise-76: ungraded $44.17, G9 $79.99, PSA10 $249.53.
+    raw_price_played: "44.17 USD"
+    prices: {10: "249.53 USD", 9: "79.99 USD"}
+    probability_set: default
+
+  venusaur-e1-holo-1st-2001:
+    name: フシギバナ e第1弾 097/128 キラ 1ED
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<!\d)0?97\s*/\s*128)(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../venusaur-1st-edition-97: ungraded $71.74 (other $120.46), G9 $276.79, PSA10 $1,187.71 (estimate); PSA10 sales $1,094-1,351 mid-2026.
+    raw_price_played: "71.74 USD"
+    prices: {10: "1187.71 USD", 9: "276.79 USD"}
+    probability_set: default
+
+  venusaur-e1-holo-2001:
+    name: フシギバナ e第1弾 097/128 キラ（アンリミ）
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?97\s*/\s*128)'
+    # PC .../venusaur-97: PSA10 $1,094 (sales $1,094 2026-06-29, $1,351 2026-07-14; Jan 2026 $450-490). Volatile.
+    # No unlimited ungraded figure seen; raw uses the 1ED page's $71.74 as a proxy (LOW confidence).
+    raw_price_played: "71.74 USD"
+    prices: {10: "1094 USD"}
+    probability_set: default
+
+  venusaur-e1-nonholo-1st-2001:
+    name: フシギバナ e第1弾 065/128 ノーマル 1ED
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<!\d)0?65\s*/\s*128)(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../venusaur-1st-edition-65: ungraded $24.63, PSA10 $266.01 (sales $250-365), PSA9 sales $59-86.
+    raw_price_played: "24.63 USD"
+    prices: {10: "266.01 USD", 9: "86 USD"}
+    probability_set: default
+
+  venusaur-e1-nonholo-2001:
+    name: フシギバナ e第1弾 065/128 ノーマル（アンリミ）
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?65\s*/\s*128)'
+    # PC .../venusaur-65: PSA10 $151.36 (sale $169 Feb 2026). Marginal. Raw = 1ED page $24.63 as proxy (LOW confidence).
+    raw_price_played: "24.63 USD"
+    prices: {10: "151.36 USD"}
+    probability_set: default
+
+  # ======================= ポケモンカードe スターターデッキ (2001), xxx/029, 1ED only =======================
+  # Unlimited copies exist; only 1ED is profiled (title must say 1ED/1st/初版) except Charmander, whose unlimited prices are known.
+  charizard-e-starter-1st-2001:
+    name: リザードン eスターターデッキ 012/029 1ED
+    match: '^(?=.*リザードン)(?!.*(δ|☆|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR))(?=.*(?<!\d)0?12\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC japanese-e-starter-deck/charizard-1st-edition-12: ungraded $157.56 (other $171.50), G9 $663, PSA10 $2,833.60 (other $2,776.18); PSA8 sale $361.
+    raw_price_played: "157.56 USD"
+    prices: {10: "2776.18 USD", 9: "663 USD", 8: "361 USD"}
+    probability_set: default
+
+  charmeleon-e-starter-1st-2001:
+    name: リザード eスターターデッキ 011/029 1ED
+    match: '^(?=.*リザード(?!ン))(?!.*(わるい|カツラ|(?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?11\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../charmeleon-1st-edition-11: ungraded $50.20, G9 $152.50, PSA10 $418.04 (Sep 2026 sales $442-699).
+    raw_price_played: "50.20 USD"
+    prices: {10: "418.04 USD", 9: "152.50 USD"}
+    probability_set: default
+
+  charmander-e-starter-010-1st-2001:
+    name: ヒトカゲ eスターターデッキ 010/029 1ED
+    match: '^(?=.*ヒトカゲ)(?!.*((?<![a-z])ex(?![a-z])|GX|カツラ))(?=.*(?<!\d)0?10\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../charmander-1st-edition-10: ungraded $84 (other $89.14), G9 $192.50, PSA10 $825.56; but 2026 PSA10 sales only $150-300 -> LOW confidence.
+    raw_price_played: "84 USD"
+    prices: {10: "825.56 USD", 9: "192.50 USD"}
+    probability_set: default
+
+  charmander-e-starter-010-2001:
+    name: ヒトカゲ eスターターデッキ 010/029（アンリミ）
+    match: '^(?=.*ヒトカゲ)(?!.*((?<![a-z])ex(?![a-z])|GX|カツラ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?10\s*/\s*029(?!\d))'
+    # PC .../charmander-10: index ungraded $53.69, G9 $367.34, PSA10 $1,276.25 (checklist snapshot $2,691.59 - using the lower one).
+    raw_price_played: "53.69 USD"
+    prices: {10: "1276.25 USD", 9: "367.34 USD"}
+    probability_set: default
+
+  charmander-e-starter-009-1st-2001:
+    name: ヒトカゲ eスターターデッキ 009/029 1ED
+    match: '^(?=.*ヒトカゲ)(?!.*((?<![a-z])ex(?![a-z])|GX|カツラ))(?=.*(?<!\d)0?0?9\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../charmander-1st-edition-9: ungraded $27.29, G9 $154.64, PSA10 $695.
+    raw_price_played: "27.29 USD"
+    prices: {10: "695 USD", 9: "154.64 USD"}
+    probability_set: default
+
+  charmander-e-starter-009-2001:
+    name: ヒトカゲ eスターターデッキ 009/029（アンリミ）
+    match: '^(?=.*ヒトカゲ)(?!.*((?<![a-z])ex(?![a-z])|GX|カツラ|1\s*ED|1st|ファースト|エディション|初版))(?=.*(?<!\d)0?0?9\s*/\s*029(?!\d))'
+    # PC .../charmander-9 (checklist): ungraded $31.20, G9 $363.65, PSA10 $436.
+    raw_price_played: "31.20 USD"
+    prices: {10: "436 USD", 9: "363.65 USD"}
+    probability_set: default
+
+  blastoise-e-starter-1st-2001:
+    name: カメックス eスターターデッキ 020/029 1ED
+    match: '^(?=.*カメックス)(?!.*(わるい|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<!\d)0?20\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../blastoise-1st-edition-20: ungraded $38.20, G9 $234.75, PSA10 $1,125 (Apr 2026 sales $1,075-1,125; 2024-25 only $100-200). Unlimited PSA10 $112.25 (not profiled).
+    raw_price_played: "38.20 USD"
+    prices: {10: "1125 USD", 9: "234.75 USD"}
+    probability_set: default
+
+  wartortle-e-starter-1st-2001:
+    name: カメール eスターターデッキ 019/029 1ED
+    match: '^(?=.*カメール)(?!.*(わるい|(?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?19\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../wartortle-1st-edition-19: PSA10 $404.10 (sales $271-510). No ungraded figure seen; raw = deck siblings' PC ungraded (~$32) - EST.
+    raw_price_played: "32 USD"
+    prices: {10: "404.10 USD"}
+    probability_set: default
+
+  squirtle-e-starter-018-1st-2001:
+    name: ゼニガメ eスターターデッキ 018/029 1ED
+    match: '^(?=.*ゼニガメ(?!デッキ))(?!.*((?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?18\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../squirtle-1st-edition-18: PSA10 $1,475 (sales $62-2,000, very volatile; CGC10 $499.99). Raw EST ~$32 (deck siblings).
+    raw_price_played: "32 USD"
+    prices: {10: "1475 USD"}
+    probability_set: default
+
+  squirtle-e-starter-017-1st-2001:
+    name: ゼニガメ eスターターデッキ 017/029 1ED
+    match: '^(?=.*ゼニガメ(?!デッキ))(?!.*((?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?17\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../squirtle-1st-edition-17: PSA10 $500. Raw EST ~$30 (deck siblings).
+    raw_price_played: "30 USD"
+    prices: {10: "500 USD"}
+    probability_set: default
+
+  venusaur-e-starter-1st-2001:
+    name: フシギバナ eスターターデッキ 004/029 1ED
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|δ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<!\d)0?0?4\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../venusaur-1st-edition-4: ungraded $32.53, PSA10 $780 (checklist $734.49; sales $740-811 Apr-May 2026; 2024 $130-160).
+    raw_price_played: "32.53 USD"
+    prices: {10: "734.49 USD"}
+    probability_set: default
+
+  ivysaur-e-starter-1st-2001:
+    name: フシギソウ eスターターデッキ 003/029 1ED
+    match: '^(?=.*フシギソウ)(?!.*(わるい|エリカ|(?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?0?3\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../ivysaur-1st-edition-3: ungraded $32, G9 $99.65, PSA10 $213.25.
+    raw_price_played: "32 USD"
+    prices: {10: "213.25 USD", 9: "99.65 USD"}
+    probability_set: default
+
+  bulbasaur-e-starter-001-1st-2001:
+    name: フシギダネ eスターターデッキ 001/029 1ED
+    match: '^(?=.*フシギダネ(?!デッキ))(?!.*(エリカ|(?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?0?1\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../bulbasaur-1st-edition-1: PSA10 $931 (checklist $910; CGC10 $559). Raw EST ~$30 (deck siblings).
+    raw_price_played: "30 USD"
+    prices: {10: "910 USD"}
+    probability_set: default
+
+  bulbasaur-e-starter-002-1st-2001:
+    name: フシギダネ eスターターデッキ 002/029 1ED
+    match: '^(?=.*フシギダネ(?!デッキ))(?!.*(エリカ|(?<![a-z])ex(?![a-z])|GX))(?=.*(?<!\d)0?0?2\s*/\s*029(?!\d))(?=.*(1\s*ED|1st|ファースト|エディション|初版))'
+    # PC .../bulbasaur-1st-edition-2: PSA10 $271.57 (checklist $680 - using the lower). Raw EST ~$30.
+    raw_price_played: "30 USD"
+    prices: {10: "271.57 USD"}
+    probability_set: default
+
+  # ======================= web (2001) =======================
+  dark-charizard-web-042-2001:
+    name: わるいリザードン web 042/048
+    match: '^(?!.*(ADV|PCG|逆襲|δ))(?=.*わるい\s*リザードン)(?=.*((?<![a-z])web|ウェブ|(?<!\d)0?42\s*/\s*048))'
+    # PC japanese-web/dark-charizard-42: ungraded $582.72-636.60 (index $115.55 looks stale), PSA10 guide $9,601;
+    # 2026 PSA10 sales $3,160-13,000 (latest $10,743 2026-10-02). 1ED page PSA10 $6,670.92 -> using that (conservative, editions share profile).
+    raw_price_played: "582.72 USD"
+    prices: {10: "6670.92 USD"}
+    probability_set: default
+
+  dark-charmeleon-web-022-2001:
+    name: わるいリザード web 022/048
+    match: '^(?!.*(ADV|PCG|逆襲|δ))(?=.*わるい\s*リザード(?!ン))(?=.*((?<![a-z])web|ウェブ|(?<!\d)0?22\s*/\s*048))'
+    # PC japanese-web/dark-charmeleon-22: PSA10 ~$499 (1ED $474); PSA10 sales $425-650 in 2026. Ungraded: checklist $56.55 (1ED index $102.50).
+    raw_price_played: "56.55 USD"
+    prices: {10: "474 USD"}
+    probability_set: default
+
+  charmeleon-web-007-2001:
+    name: リザード web 007/048
+    match: '^(?=.*リザード(?!ン))(?!.*(わるい|カツラ|(?<![a-z])ex(?![a-z])|GX))(?=.*((?<![a-z])web|ウェブ|(?<!\d)0?0?7\s*/\s*048))'
+    # PC japanese-web/charmeleon-7: ungraded $24.78, G9 $57, PSA10 $229.42 (early 2026 sales $124-165); 1ED PSA10 $282.98 - shares profile.
+    raw_price_played: "24.78 USD"
+    prices: {10: "229.42 USD", 9: "57 USD"}
+    probability_set: default
+
+  dark-blastoise-web-044-2001:
+    name: わるいカメックス web 044/048
+    match: '^(?=.*わるい\s*カメックス)(?=.*((?<![a-z])web|ウェブ|(?<!\d)0?44\s*/\s*048))'
+    # PC japanese-web/dark-blastoise-44: ungraded $498.12 (search $489.99); PSA10 guide $3,400; 2026 PSA9 sales $1,138.70 / $1,272.
+    # 1ED: ungraded $569.99, PSA9 $1,800, PSA10 $3,800 (sales $4,199-4,250). Shares profile with unlimited numbers.
+    raw_price_played: "489.99 USD"
+    prices: {10: "3400 USD", 9: "1138.70 USD"}
+    probability_set: default
+
+  dark-wartortle-web-024-2001:
+    name: わるいカメール web 024/048
+    match: '^(?=.*わるい\s*カメール)(?=.*((?<![a-z])web|ウェブ|(?<!\d)0?24\s*/\s*048))'
+    # PC japanese-web/dark-wartortle-24: ungraded $24, PSA10 $118.73 (sales $87-140). Marginal.
+    raw_price_played: "24 USD"
+    prices: {10: "118.73 USD"}
+    probability_set: default
+
+  # ======================= e5 / ADV / PCG =======================
+  charizard-crystal-e5-2002:
+    name: リザードン クリスタルタイプ e第5弾 神秘なる山 089/088
+    match: '^(?=.*リザードン)(?!.*(ミラクル|奇跡|δ|デルタ|☆|★|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR))(?=.*(クリスタル|(?<!\d)089\s*/\s*088|神秘なる山|(?<![a-z0-9])e\s*5(?!\d)|e\s*第\s*5\s*弾))'
+    # PC japanese-mysterious-mountains/charizard-89: ungraded ~$6,186-6,265, G9 $10,607 (BGS9 sale Jun 2026), PSA10 ~$55,000 (sales $50-60k);
+    # 1ED #89: ungraded $4,250, G9 $10,850, PSA10 $51,500 (Goldin Aug 2026). Editions share profile - using the lower 1ED numbers.
+    raw_price_played: "4250 USD"
+    prices: {10: "51500 USD", 9: "10607 USD"}
+    probability_set: default
+
+  charizard-delta-miracle-crystal-2006:
+    name: リザードンδ 032/075 奇跡の結晶（ミラクルクリスタル）
+    match: '^(?=.*リザードン)(?!.*(☆|★|スター|ゴールド|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR))(?=.*(δ|デルタ|(?<!\d)0?32\s*/\s*075|ミラクルクリスタル|奇跡の結晶))'
+    # PC japanese-miracle-crystal/charizard-32: ungraded $194.39, G8 $781.29, G9 $1,655, PSA10 $3,749.97 (sales Jan 2026 $2,899-3,750);
+    # 1ED: ungraded $148, G9 $1,206.81, PSA10 $3,500. Shared profile uses the 1ED (lower) numbers.
+    raw_price_played: "148 USD"
+    prices: {10: "3500 USD", 9: "1206.81 USD", 8: "781.29 USD"}
+    probability_set: default
+
+  charizard-ex-random-starter-2004:
+    name: リザードンex 012/052 ランダム構築スターター（2004）
+    match: '^(?=.*リザードン\s*ex(?![a-z]))(?!.*(δ|デルタ|メガ|SAR|(?<![a-z])SR(?![a-z])))(?=.*((?<!\d)0?12\s*/\s*052|ランダム構築|★炎|2004))'
+    # PC pokemon-2004-starter-deck/charizard-ex-holo-1st-edition-12: G9 $1,486.20, PSA10 $7,404.91 (2026 sales $7,000-7,500, $7,500 on 2026-08-03);
+    # unlimited holo page: ungraded $70.78, PSA10 $7,152 (one older snapshot $703.73 / G9 $327.83). PokeInvesting PSA10 $5,859 (pop 219).
+    # SportsCardPro PSA10 $850 (stale). Big 2026 jump -> using PokeInvesting $5,859 for PSA10. LOW confidence.
+    raw_price_played: "70.78 USD"
+    prices: {10: "5859 USD", 9: "1486.20 USD"}
+    probability_set: default
+
+  charizard-pcg-p-002-2004:
+    name: リザードン 002/PCG-P バトルロード スプリング 2004
+    match: '^(?=.*リザードン)(?!.*((?<![a-z])ex(?![a-z])|☆|δ|GX|VMAX|VSTAR))(?=.*((?<!\d)0?0?2\s*/\s*PCG|PCG\s*-?\s*P.*バトルロード|バトルロード.*PCG))'
+    # PC pokemon-promo/charizard-2pcg-p-japanese-battle-spring: PSA10 sale $9,150 (2026-05-07). magi PSA10 ask 998,000円 (sold out).
+    # Card Rush raw retail 178,000円 (condition not stated).
+    raw_price: "178000 JPY"
+    prices: {10: "9150 USD"}
+    probability_set: default
+
+  charizard-adv-p-054-meiji-2004:
+    name: リザードン 054/ADV-P 明治プロモ
+    match: '^(?=.*リザードン)(?!.*((?<![a-z])ex(?![a-z])|☆|δ|GX|VMAX|VSTAR))(?=.*((?<!\d)0?54\s*/\s*ADV|明治|meiji))'
+    # PC japanese-meiji-promo/charizard-54adv-p: ungraded $21.46, G9 $155.37, PSA10 $712.38 (sales $556-869 2025).
+    # PC japanese-promo/charizard-54adv-p: ungraded $62, PSA10 $1,961.54 (sale $2,500 2026-07-03). Using the lower page.
+    raw_price_played: "21.46 USD"
+    prices: {10: "712.38 USD", 9: "155.37 USD"}
+    probability_set: default
+
+  charmeleon-adv-p-053-meiji-2004:
+    name: リザード 053/ADV-P 明治プロモ
+    match: '^(?=.*リザード(?!ン))(?!.*(わるい|カツラ|(?<![a-z])ex(?![a-z])|GX))(?=.*((?<!\d)0?53\s*/\s*ADV|明治|meiji))'
+    # PC japanese-promo/charmeleon-53adv-p: ungraded $29.99, G9 $153.51 (sales $153.51 / $275, Oct 2026), PSA10 $607.35 (2026 sales $470-662).
+    raw_price_played: "29.99 USD"
+    prices: {10: "607.35 USD", 9: "153.51 USD"}
+    probability_set: default
+
+  # ======================= 旧裏 gaps =======================
+  charmander-vending-series1-1998:
+    name: ヒトカゲ 旧裏 拡張シート第1弾（自販機）
+    match: '^(?=.*ヒトカゲ)(?!.*((?<![a-z])ex(?![a-z])|GX|カツラ|ロケット))(?=.*(拡張シート|自販機|自動販売機|販売機))'
+    # PC japanese-vending/charmander-series-1-4: ungraded $62.90-88.62 (using $75.61), G8 $60.01, G9 $422.35 (sales $300-500 mid-2026),
+    # PSA10 $1,771.50 (Jun-Aug 2026 sales $1,500-2,000; early 2026 $550-670). Volatile, ~1 sale/month.
+    raw_price_played: "75.61 USD"
+    prices: {10: "1771.50 USD", 9: "422.35 USD", 8: "60.01 USD"}
+    probability_set: default
+
+  erika-bulbasaur-corocoro-promo:
+    name: エリカのフシギダネ 旧裏 コロコロ光沢プロモ
+    match: '^(?=.*エリカの\s*フシギダネ)(?=.*(コロコロ|光沢|グロッシー|glossy))'
+    # PC japanese-promo/erika's-bulbasaur-glossy-corocoro-1: PSA10 $9,750; G9 $1,775.94 (PSA9 sales $1,781 2026-09-04, $1,957 2026-08-23; Jan 2026 $245).
+    # Ungraded $38-46 per PC (suspicious - may include mislabelled regular copies).
+    raw_price_played: "39.04 USD"
+    prices: {10: "9750 USD", 9: "1775.94 USD"}
+    probability_set: default
+
+  erika-bulbasaur-gym1-1998:
+    name: エリカのフシギダネ 旧裏 ジム第1弾 リーダーズスタジアム
+    match: '^(?=.*エリカの\s*フシギダネ)(?!.*(コロコロ|光沢|グロッシー|glossy))'
+    # PC japanese-leaders'-stadium/erika's-bulbasaur-1: ungraded $7.24, G9 $37.28, PSA10 $469.91.
+    raw_price_played: "7.24 USD"
+    prices: {10: "469.91 USD", 9: "37.28 USD"}
+    probability_set: default
+
+  erika-ivysaur-gym2-1999:
+    name: エリカのフシギソウ 旧裏 ジム第2弾 闇からの挑戦
+    match: 'エリカの\s*フシギソウ'
+    # PC japanese-challenge-from-the-darkness/erika's-ivysaur-2: ungraded $9.36, G9 $55.81, PSA10 $320.88 (Jul 2026 sales $321-325; 2024-25 $46-138).
+    raw_price_played: "9.36 USD"
+    prices: {10: "320.88 USD", 9: "55.81 USD"}
+    probability_set: default
+
+  squirtle-rocket-1997:
+    name: ゼニガメ 旧裏 ロケット団
+    match: '^(?=.*ゼニガメ(?!デッキ))(?!.*((?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|逆襲|ADV|PCG|拡張シート|自販機|web|e\s*第))(?=.*ロケット)'
+    # PC japanese-rocket-gang/squirtle-7: ungraded $4.19, G9 $49, PSA10 $371.94 (2026 sales $197-750).
+    raw_price_played: "4.19 USD"
+    prices: {10: "371.94 USD", 9: "49 USD"}
+    probability_set: default
+
+  venusaur-cd-promo-1998:
+    name: フシギバナ 旧裏 CDプロモ（キラ）
+    match: '^(?=.*フシギバナ)(?!.*(わるい|エリカ|(?<![a-z])ex(?![a-z])|GX|VMAX|VSTAR|メガ))(?=.*(?<![a-z])CD(?![a-z]))'
+    # PC japanese-cd-promo/venusaur-holo-3: ungraded $150.75 (index $170.75), PSA10 $1,453.14 (index $1,493; Oct 2026 sales $1,120-1,750).
+    raw_price_played: "150.75 USD"
+    prices: {10: "1453.14 USD"}
+    probability_set: default
+
+  # ---- e 卡 T 促銷卡與 P 促銷卡補充 ----
+  # Round 2: e-card era promos (T promos 001/T-024/T minus done ones, and remaining P promos)
+  # Skipped as already priced in cards.yaml: 021/T バンギラスex, 010/T, 011/T, 012/T, 012/P フシギバナ, 013/P カメックス.
+  # Sources read via WebSearch snippets on 2026-10-20 (WebFetch blocked: pricecharting/packmagik DNS fails).
+  # Most T promo numbers come from one undated PackMagik set snapshot ("market" taken as raw NM) -> treat as medium-low confidence.
+  #
+  # Mercari search keywords:
+  #   トレーナーズ プロモ /T
+  #   トレーナーズマガジン プロモ
+  #   ポケモンカードe プロモ /P
+  #   マクドナルド ニューラ
+  #   ミュウツー 046/P
+  #   タッチ世代交代
+  #
+  # Checked but NOT priced (no graded data found, or below threshold):
+  #   019/T ヨーギラス, 020/T サナギラス: PackMagik shows $0 / no PSA 10; no sales found (likely < $100 PSA 10, unknown).
+  #   020/P ポケモンセンターオーサカ: only an LP raw ask ~$425 (eBay.de); no PSA data -> not profiled (gap).
+  #   026/P スイクン: no raw or graded data found (gap).
+  #   030/P ガーディ (マクドナルド): no data found (gap; sibling McD promos run PSA 10 ~$150-800).
+  #   031/P ランターン (マクドナルド): raw ~$13 (pokeinvesting); no graded data (gap).
+  #   041/P ワープエネルギー: no data found (gap; sister 040/P ブーストエネルギー PSA 10 ~$270).
+  dragonite-e-t-018-2002:
+    name: カイリュー 018/T（トレーナーズ Vol.19）
+    match: 'カイリュー.*(?<!\d)0?18\s*/\s*T(?![A-Za-z])|(?<!\d)0?18\s*/\s*T(?![A-Za-z]).*カイリュー'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $1,415, PSA 10 $4,600. Low confidence: no completed sale found;
+    # an eBay.de PSA 10 set of Dratini+Dragonair+Dragonite asks GBP 3,799.95 (2026), roughly consistent.
+    raw_price: "1415 USD"
+    prices: {10: "4600 USD"}
+    probability_set: default
+
+  flareon-e-t-001-2002:
+    name: ブースター 001/T（トレーナーズ Vol.14）
+    match: 'ブースター.*(?<!\d)0{0,2}1\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}1\s*/\s*T(?![A-Za-z]).*ブースター'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $195, PSA 10 $1,225. eBay.de PSA 10 ask $329.99 (2026) is far lower -> low confidence.
+    raw_price: "195 USD"
+    prices: {10: "1225 USD"}
+    probability_set: default
+
+  slowpoke-e-t-004-2002:
+    name: ヤドン 004/T（トレーナーズ Vol.15）
+    match: 'ヤドン.*(?<!\d)0{0,2}4\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}4\s*/\s*T(?![A-Za-z]).*ヤドン'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $243, PSA 10 $1,050. PokeInvesting lists raw $199.99.
+    raw_price: "243 USD"
+    prices: {10: "1050 USD"}
+    probability_set: default
+
+  slowbro-e-t-005-2002:
+    name: ヤドラン 005/T（トレーナーズ Vol.15）
+    match: 'ヤドラン.*(?<!\d)0{0,2}5\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}5\s*/\s*T(?![A-Za-z]).*ヤドラン'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $233, PSA 10 $975.
+    raw_price: "233 USD"
+    prices: {10: "975 USD"}
+    probability_set: default
+
+  vaporeon-e-t-002-2002:
+    name: シャワーズ 002/T（トレーナーズ Vol.14）
+    match: 'シャワーズ.*(?<!\d)0{0,2}2\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}2\s*/\s*T(?![A-Za-z]).*シャワーズ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $302, PSA 10 $940. PokeScreener lists $139.99 (grade unstated).
+    raw_price: "302 USD"
+    prices: {10: "940 USD"}
+    probability_set: default
+
+  moltres-e-t-013-2002:
+    name: ファイヤー 013/T（トレーナーズ Vol.18）
+    match: 'ファイヤー.*(?<!\d)0?13\s*/\s*T(?![A-Za-z])|(?<!\d)0?13\s*/\s*T(?![A-Za-z]).*ファイヤー'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $79.99, PSA 10 $784.
+    raw_price: "79.99 USD"
+    prices: {10: "784 USD"}
+    probability_set: default
+
+  dragonair-e-t-017-2002:
+    name: ハクリュー 017/T（トレーナーズ Vol.19）
+    match: 'ハクリュー.*(?<!\d)0?17\s*/\s*T(?![A-Za-z])|(?<!\d)0?17\s*/\s*T(?![A-Za-z]).*ハクリュー'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $441 (looks high vs PSA 10), PSA 10 $744. Low confidence on raw.
+    raw_price: "441 USD"
+    prices: {10: "744 USD"}
+    probability_set: default
+
+  dratini-e-t-016-2002:
+    name: ミニリュウ 016/T（トレーナーズ Vol.19）
+    match: 'ミニリュウ.*(?<!\d)0?16\s*/\s*T(?![A-Za-z])|(?<!\d)0?16\s*/\s*T(?![A-Za-z]).*ミニリュウ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $49.71, PSA 10 $736. eBay.de PSA 10 ask $350.98 (2026) -> PSA 10 may be overstated.
+    raw_price: "49.71 USD"
+    prices: {10: "736 USD"}
+    probability_set: default
+
+  slowking-e-t-006-2002:
+    name: ヤドキング 006/T（トレーナーズ Vol.15）
+    match: 'ヤドキング.*(?<!\d)0{0,2}6\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}6\s*/\s*T(?![A-Za-z]).*ヤドキング'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market ~$300, PSA 10 ~$620.
+    raw_price: "300 USD"
+    prices: {10: "620 USD"}
+    probability_set: default
+
+  quilava-e-t-008-2002:
+    name: マグマラシ 008/T（トレーナーズ Vol.16）
+    match: 'マグマラシ.*(?<!\d)0{0,2}8\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}8\s*/\s*T(?![A-Za-z]).*マグマラシ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $94.99, PSA 10 $431.
+    raw_price: "94.99 USD"
+    prices: {10: "431 USD"}
+    probability_set: default
+
+  articuno-e-t-014-2002:
+    name: フリーザー 014/T（トレーナーズ Vol.18）
+    match: 'フリーザー.*(?<!\d)0?14\s*/\s*T(?![A-Za-z])|(?<!\d)0?14\s*/\s*T(?![A-Za-z]).*フリーザー'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $159, PSA 10 $402. PokeScreener $189.95 (grade unstated).
+    raw_price: "159 USD"
+    prices: {10: "402 USD"}
+    probability_set: default
+
+  imakuni-loudred-e-t-023-2003:
+    name: イマクニ?のドゴーム 023/T（トレーナーズ Vol.21）
+    match: 'ドゴーム.*(?<!\d)0?23\s*/\s*T(?![A-Za-z])|(?<!\d)0?23\s*/\s*T(?![A-Za-z]).*ドゴーム'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $89.99, PSA 10 $363.
+    raw_price: "89.99 USD"
+    prices: {10: "363 USD"}
+    probability_set: default
+
+  zapdos-e-t-015-2002:
+    name: サンダー 015/T（トレーナーズ Vol.18）
+    match: 'サンダー(?!ス).*(?<!\d)0?15\s*/\s*T(?![A-Za-z])|(?<!\d)0?15\s*/\s*T(?![A-Za-z]).*サンダー(?!ス)'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $144, PSA 10 $354 (label on PSA 10 column not fully confirmed).
+    raw_price: "144 USD"
+    prices: {10: "354 USD"}
+    probability_set: default
+
+  bayleef-e-t-007-2002:
+    name: ベイリーフ 007/T（トレーナーズ Vol.16）
+    match: 'ベイリーフ.*(?<!\d)0{0,2}7\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}7\s*/\s*T(?![A-Za-z]).*ベイリーフ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $42.44, PSA 10 $328.
+    raw_price: "42.44 USD"
+    prices: {10: "328 USD"}
+    probability_set: default
+
+  croconaw-e-t-009-2002:
+    name: アリゲイツ 009/T（トレーナーズ Vol.16）
+    match: 'アリゲイツ.*(?<!\d)0{0,2}9\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}9\s*/\s*T(?![A-Za-z]).*アリゲイツ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot): market $69.80, PSA 10 $313.
+    raw_price: "69.80 USD"
+    prices: {10: "313 USD"}
+    probability_set: default
+
+  jolteon-e-t-003-2002:
+    name: サンダース 003/T（トレーナーズ Vol.14）
+    match: 'サンダース.*(?<!\d)0{0,2}3\s*/\s*T(?![A-Za-z])|(?<!\d)0{0,2}3\s*/\s*T(?![A-Za-z]).*サンダース'
+    # eBay.de: PSA 10 ask $285.11 (Japan seller, 2026), NM raw ask $132 (ended 2025-08-25). Asking prices only.
+    # PackMagik shows market $13.37 / PSA 10 $49.75, which contradicts these; a forum says PSA 10s are listed ~$700. Low confidence.
+    raw_price: "132 USD"
+    prices: {10: "285 USD"}
+    probability_set: default
+
+  imakuni-whismur-e-t-022-2003:
+    name: （イマクニ?の）ゴニョニョ 022/T（トレーナーズ Vol.21）
+    match: 'ゴニョニョ.*(?<!\d)0?22\s*/\s*T(?![A-Za-z])|(?<!\d)0?22\s*/\s*T(?![A-Za-z]).*ゴニョニョ'
+    # PackMagik T Promos set page via search snippet, 2026-10-20 (undated snapshot) (listed as "Imakuni?'s Whismur"): market $139, PSA 10 $236. Marginal.
+    raw_price: "139 USD"
+    prices: {10: "236 USD"}
+    probability_set: default
+
+  imakuni-exploud-ex-e-t-024-2003:
+    name: イマクニ?のバクオングex 024/T（トレーナーズ Vol.21）
+    match: 'バクオング.*(?<!\d)0?24\s*/\s*T(?![A-Za-z])|(?<!\d)0?24\s*/\s*T(?![A-Za-z]).*バクオング'
+    # eBay: PSA 10 sold $198.98 (Aug 30, year unclear); PSA 10 ask $699.99 (2025-12). PackMagik: market $198, PSA 10 $254.
+    # Raw: eBay MP ask $108. Marginal.
+    raw_price_played: "108 USD"
+    prices: {10: "198.98 USD"}
+    probability_set: default
+
+  mewtwo-e-p-046-2002:
+    name: ミュウツー 046/P（JR スタンプラリー 2002）
+    match: 'ミュウツー(?!\s*ex).*(?<!\d)0?46\s*/\s*P(?![A-Za-z])|(?<!\d)0?46\s*/\s*P(?![A-Za-z]).*ミュウツー(?!\s*ex)'
+    # pokeinvest.io (eBay-sold aggregate, 2026-10): PSA 10 $2,401 (down $599 in 30 days), PSA 9 $418.
+    # Raw: TheHobbyBin/TCGplayer market $550 (2026-10-08); eBay.de raw ask $499.99. Medium-low confidence.
+    raw_price: "550 USD"
+    prices: {10: "2401 USD", 9: "418 USD"}
+    probability_set: default
+
+  touch-generation-change-e-p-027-2002:
+    name: タッチ世代交代! 027/P（2002）
+    match: 'タッチ\s*世代\s*交代.*(?<!\d)0?27\s*/\s*P(?![A-Za-z])|(?<!\d)0?27\s*/\s*P(?![A-Za-z]).*タッチ\s*世代\s*交代'
+    # pokeinvest.io PSA 10 $860 (2026-10); PriceCharting PSA 10 $2,162.50 (rare sales, not used); eBay PSA 10 asks $490-500.
+    # Raw: PriceCharting recent ungraded/low-grade sales ~$300-550; lower end used.
+    raw_price_played: "300 USD"
+    prices: {10: "860 USD"}
+    probability_set: default
+
+  sneasel-e-p-036-mcdonalds-2002:
+    name: ニューラ 036/P（マクドナルド 2002）
+    match: '(?<!ロケット団の)(?<!ロケット団の\s)ニューラ.*(?<!\d)0?36\s*/\s*P(?![A-Za-z])|(?<!\d)0?36\s*/\s*P(?![A-Za-z]).*(?<!ロケット団の)(?<!ロケット団の\s)ニューラ'
+    # pokeinvest.io: PSA 10 $372, raw $31.49 (2026). But an eBay PSA 10 sold GBP 79.99 (2025-08). Low confidence.
+    raw_price: "31.49 USD"
+    prices: {10: "372 USD"}
+    probability_set: default
+
+  # ---- クリスタルルギア、ミュウ／ミュウツー／ゴース線補充 ----
+  # Round 2, psychic gaps: crystal Lugia, Mew (e1 / Fossil / ex), Gastly line, Gengar ex, Mewtwo promos, Lugia ex.
+  # Researched 2026-10-20 from WebSearch snippets only (WebFetch / PriceCharting are blocked here).
+  # Sources: PokeInvest / PokeInvesting / PackMagik (these mirror PriceCharting-style sold data),
+  #          SportsCardInvestor (SCI), Card Rush, magi, eBay. JPY to USD at about 150.
+  #
+  # Mercari search keywords (together they surface every priced card below):
+  #   ルギア クリスタル
+  #   ルギア 090/087
+  #   ルギアex 金の空
+  #   ミュウex まぼろしの森
+  #   ミュウ 119/128
+  #   ミュウ 化石の秘密
+  #   ゲンガーex 1ED
+  #   R団のミュウツーex
+  #   ミュウツー δ
+  #   GR団のミュウツー
+  #   ミュウツー LV.67
+  #   ミュウツー 自販機
+  #   旧裏 ゴースト
+  #   ゴース マークなし
+  #
+  # ORDER NOTE for the merge into cards.yaml:
+  #   mewtwo-gr-gb2-promo-2001 must sit BEFORE rockets-mewtwo-gym2-1999, because that existing regex
+  #   '(R団|ロケット団)のミュウツー' also matches 'GR団のミュウツー'. Or add (?<!G) before R団 there.
+  #   mewtwo-corocoro-lv67-1997 must sit BEFORE mewtwo-base-1996, because that existing regex matches
+  #   'ミュウツー LV.67 旧裏' (it excludes コロコロ but not LV.67).
+  #   Everything else here was tested not to overlap with existing profiles.
+  # ---------------------------------------------------------------- LUGIA (crystal, e-card 3)
+  lugia-crystal-e3-1st-2002:
+    name: ルギア クリスタルタイプ e第3弾 海からの風 090/087 1ED
+    match: '^(?=.*ルギア(?!\s*ex))(?=.*(090/087|クリスタル|海からの風))(?=.*(1ED|1st|初版|ファースト|1\s*edition))(?!.*(GX|VMAX|VSTAR|(?<!L)V\b|090/106|LEGEND))'
+    # Raw: PriceCharting-derived ungraded 4,184.65 USD (PokeInvest "Every Lugia card" ranking, 2026-09; PackMagik market 4,185).
+    #   Cross-check: Card Rush raw 1ED 状態C 498,000 JPY and 状態D 398,000 JPY (2026). Card Rush 状態S at 6,980,000 JPY
+    #   and the gamepedia "buyback 5,000,000 JPY" are not used: they are above every PSA 10 figure (placeholder prices).
+    raw_price: "4185 USD"
+    raw_price_played: "398000 JPY"       # Card Rush 状態D listing, 2026
+    prices: {10: "23016 USD"}
+    # 10: PackMagik PSA 10 23,016 (2026). PokeInvest gives 54,256 (2026-09) and magi PSA 10 asks run 758,000-2,250,000 JPY;
+    #     Card Rush PSA 10 (condition issue) 748,000 JPY. Low-medium confidence; no PSA 9 figure found.
+    probability_set: default
+
+  lugia-crystal-e3-2002:
+    name: ルギア クリスタルタイプ e第3弾 海からの風 090/087（アンリミ）
+    match: '^(?=.*ルギア(?!\s*ex))(?=.*(090/087|クリスタル|海からの風))(?!.*(1ED|1st|初版|ファースト|1\s*edition|GX|VMAX|VSTAR|(?<!L)V\b|090/106|LEGEND))'
+    # Raw: PriceCharting-derived ungraded 2,072.50 USD (PokeInvest card page "Lugia #90 PSA 10", 2026-09).
+    #   Card Rush unlimited raw 5,980,000 JPY is a placeholder (not used).
+    raw_price_played: "2072.50 USD"
+    prices: {10: "7479.36 USD"}
+    # 10: PokeInvest, 2026-09 (PSA pop 306 graded, 101 tens, 33% gem rate). Scrydex PSA 10 range 5,655-6,132.
+    probability_set: default
+
+  # ---------------------------------------------------------------- LUGIA ex (ADV)
+  lugia-ex-golden-sky-2005:
+    name: ルギアex 金の空、銀の海 090/106
+    # Edition not split: 1ED and unlimited PSA 10 values are about the same.
+    match: '^(?=.*ルギア\s*ex)(?=.*(090/106|金の空|銀の海))(?!.*(\bSR\b|SAR|\bUR\b|GX|VMAX|VSTAR))'
+    raw_price: "193.50 USD"            # PokeInvest 1ED raw, 2026 (unlimited raw shown as 300 on the 2026-09-05 set list)
+    prices: {10: "10300 USD", 9: "1547 USD"}
+    # 10: PokeInvest 1ED 10,342.86 and unlimited about 10,300 (2026-09). 1ED pop: 645 graded, 182 tens, 193 nines.
+    # 9: PokeInvest 1ED. SportsCardPro shows much lower (PSA 10 1,100-1,324), apparently stale; eBay unlimited PSA 10 ask 12,888.
+    probability_set: default
+
+  # ---------------------------------------------------------------- MEW
+  mew-ex-mirage-forest-2005:
+    name: ミュウex まぼろしの森 041/086
+    # Edition not split (1ED raw not found).
+    match: '^(?=.*ミュウ\s*ex)(?=.*(041/086|まぼろしの森|幻の森))(?!.*(\bSR\b|SAR|\bUR\b|GX|VMAX|VSTAR))'
+    raw_price: "124.49 USD"            # PokeInvest raw (eBay sold aggregate, 2026-10, probably unlimited); Hobbybin market 99.73 (2026-09-11)
+    prices: {10: "4000 USD"}
+    # 10: PokeInvesting card page 4,000 (pop 70, probably unlimited). PokeInvest pop report (2026-09-01) puts the 1ED PSA 10 at 6,300
+    #     (pop 217). SCI 2024 sales were 294-870 (old). The lower 4,000 is used for both editions.
+    probability_set: default
+
+  mew-e1-119-1st-2001:
+    name: ミュウ カードe 基本拡張パック 119/128 キラ 1ED
+    match: '^(?=.*ミュウ(?!ツー))(?=.*119/128)(?=.*(1ED|1st|初版|ファースト|1\s*edition))(?!.*(ex(?![a-z])|GX|VMAX|VSTAR|(?<!L)V\b))'
+    raw_price_played: "185 USD"        # eBay ungraded lightly-played asking price (Japanese seller), 2026
+    prices: {10: "2999 USD", 9: "575 USD"}
+    # 9: eBay PSA 9 sales 599.99 (2025-10) and 552.01. 10: one eBay PSA 10 asking price (not a sale), low confidence.
+    # The unlimited 119/128 was not priced (no data found); it is left unmatched on purpose.
+    probability_set: default
+
+  mew-fossil-1997:
+    name: ミュウ 旧裏 化石の秘密（LV.23 キラ）
+    match: '^(?=.*ミュウ(?!ツー))(?=.*(化石の秘密|化石|LV\.?\s*23(?![\d.])))(?!.*(ひかる|シャイニング|スタンプ|コロコロ|プロモ|ex(?![a-z])|GX|VMAX|VSTAR|(?<!L)V\b|LV\.?\s*(5|8|15|25)(?![\d.])))'
+    raw_price: "47.50 USD"             # SCI raw NM last sale, 2025-06-17
+    prices: {10: "795 USD", 9: "130 USD", 8: "64.39 USD"}
+    # SCI: PSA 10 last sale 795 (2025-05-20), PSA 9 130 (2025-12-05), PSA 8 64.39 (2025-04). About a year old.
+    probability_set: default
+
+  # ---------------------------------------------------------------- GENGAR ex (ADV)
+  gengar-ex-flight-of-legends-1st-2004:
+    name: ゲンガーex 伝説の飛翔 048/082 1ED
+    match: '^(?=.*ゲンガー\s*ex)(?=.*(048/082|伝説の飛翔))(?=.*(1ED|1st|初版|ファースト|1\s*edition))(?!.*(\bSR\b|SAR|\bUR\b|GX|VMAX|VSTAR|メガ|M\s*ゲンガー))'
+    raw_price: "380 USD"               # PokeInvest raw, 2026 (SportsCardPro ungraded 66.78 with eBay raw sales 26-92: older data)
+    prices: {10: "8600 USD", 9: "2300 USD"}
+    # PokeInvest 2026: PSA 10 8,600 (247 graded tens), PSA 9 2,300. SportsCardPro PSA 10 899.96 (older). eBay PSA 10 ask 2,899.99.
+    # Medium-low confidence. Unlimited 048/082 not priced (left unmatched).
+    probability_set: default
+
+  # ---------------------------------------------------------------- MEWTWO promos / ADV
+  mewtwo-gr-gb2-promo-2001:
+    name: GR団のミュウツー 旧裏 ポケモンカードGB2 プロモ
+    # MUST precede rockets-mewtwo-gym2-1999 in cards.yaml (see order note at top).
+    match: '^(?=.*ミュウツー)(?=.*(GR団|(?<![A-Za-z0-9])GB2?(?![A-Za-z0-9])|ゲームボーイ))(?!.*(ex(?![a-z])|GX|VMAX|VSTAR|ひかる))'
+    raw_price_played: "279 USD"        # eBay raw (condition MP stated in title) asking price, 2026
+    prices: {10: "750000 JPY", 9: "723 USD"}
+    # 10: magi PSA 10 listings about 750,000 and 850,000 JPY (sold out), 2026. 9: eBay.de PSA 9 asking price. Low confidence (asks only).
+    probability_set: default
+
+  mewtwo-corocoro-lv67-1997:
+    name: ミュウツー LV.67 旧裏 コロコロ 1997年6月号 プロモ
+    # MUST precede mewtwo-base-1996 in cards.yaml (see order note at top).
+    # Card Rush lists both "ミュウツー LV.67" and "LV.67(エラー修正版)" (the 1998 prize-draw reprint); priced together.
+    match: '^(?=.*ミュウツー)(?=.*(LV\.?\s*67(?!\d)|コロコロ.*旧裏|旧裏.*コロコロ))(?!.*(ジャンボ|逆襲|ファンブック|R団|ロケット団|ひかる|ex(?![a-z])|GX|VMAX|VSTAR|(?<!L)V\b))'
+    raw_price_played: "86.33 USD"      # eBay ungraded lightly-played (excellent) CoroCoro Mewtwo, ended listing, 2026
+    prices: {10: "398000 JPY"}
+    # 10: Card Rush PSA 10 (エラー修正版) 398,000 JPY; Card Rush PSA 10 with condition issue 548,000 JPY; magi 586,360 JPY. Asks, 2026.
+    probability_set: default
+
+  rockets-mewtwo-ex-rocket-gang-2004:
+    name: R団のミュウツーex ロケット団の逆襲 064/084
+    # Edition not split. Modern ロケット団のミュウツーex (SV 2025: 043/M-P, SAR, UR, CL) are excluded by requiring an ADV token.
+    match: '^(?=.*(R団|ロケット団)のミュウツー\s*ex)(?=.*(064/084|逆襲|ADV|PCG|2004|(?<![A-Za-z])R団))(?!.*(GR団|043/M-P|SAR|\bUR\b|\bSR\b|M2a|栄光|MEGA|メガ|081/182|2025|2026))'
+    raw_price: "400 USD"               # PackMagik 1ED market price, 2026
+    prices: {10: "118000 JPY"}
+    # 10: Card Rush PSA 10 listing 118,000 JPY (no 1ED in the name), 2026. PackMagik 1ED PSA 10 8,970 and eBay 1ED PSA 10 asks 730-2,400
+    #     disagree; the low Card Rush figure is used. eBay 1ED PSA 7 ask 430. Low confidence.
+    probability_set: default
+
+  mewtwo-delta-holon-research-2005:
+    name: ミュウツーδ ホロンの研究塔 019/086
+    match: '^(?=.*ミュウツー)(?=.*(δ|デルタ|019/086|ホロンの研究塔))(?!.*(☆|★|スター|ex(?![a-z])|GX|VMAX|VSTAR))'
+    raw_price_played: "64.99 USD"      # eBay ungraded MP 1ED asking price, 2026
+    prices: {10: "1500 USD"}
+    # 10: eBay completed sale of a Japanese PSA 10 (unlimited) at 1,500 (date not shown). PokeInvesting value 3,307 (pop 67), not used.
+    probability_set: default
+
+  mewtwo-vending-series1-1998:
+    name: ミュウツー 旧裏 自販機 拡張シート 第1弾（青）
+    match: '^(?=.*ミュウツー)(?=.*(自販機|拡張シート|vending))(?=.*(第?1弾|青|ブルー|blue|シート\s*1(?!\d)))(?!.*(第?[23]弾|緑|赤|ホビーフェア|特別限定|光沢|ex(?![a-z])|GX|VMAX|VSTAR))'
+    raw_price_played: "100 USD"        # Misprint listing, heavily played, asking price (2026)
+    prices: {10: "120.30 USD"}
+    # 10: SCI PSA 10 sales 120-175 (2024-04), last 120.30 on 2024-04-29. Old data, low confidence; near the grading threshold.
+    probability_set: default
+
+  # ---------------------------------------------------------------- GASTLY / HAUNTER (old back)
+  gastly-base-norarity-1996:
+    name: ゴース 旧裏 第1弾 初版（マークなし）
+    match: '^(?=.*ゴース(?!ト))(?=.*(マークなし|ノーマーク|初版|レアリティなし|no\s*rarity))(?=.*(旧裏|第1弾|拡張パック|1996))(?!.*(ゴースト|ゲンガー|ナツメ|まとめ|セット))'
+    raw_price_played: "420 USD"        # 估計：無裸卡行情，最低已知級數價 × 0.6
+    prices: {10: "700 USD"}
+    # 10: SCI PSA 10 last sale ~700 (2025-03-02); other sales 650-1,110 (2024-25).
+    probability_set: default
+
+  haunter-fossil-1997:
+    name: ゴースト 旧裏 化石の秘密（キラ LV.17）
+    match: '^(?=.*ゴースト)(?=.*(化石|LV\.?\s*17(?!\d)))(?!.*(わるい|ナツメ|ゲンガー|まとめ|セット|カードe|ex(?![a-z])|GX|VMAX|VSTAR))'
+    raw_price_played: "43 USD"         # 估計：無裸卡行情，最低已知級數價 × 0.6
+    prices: {10: "299 USD", 9: "71.56 USD"}
+    # SCI: PSA 10 last sale 299, PSA 9 71.56 (2025-05-05).
+    probability_set: default
+
+  haunter-base-1996:
+    name: ゴースト 旧裏 第1弾（LV.22）マークあり
+    match: '^(?=.*ゴースト)(?=.*(第1弾|LV\.?\s*22(?!\d)|拡張パック))(?!.*(マークなし|ノーマーク|初版|レアリティなし|わるい|ナツメ|ゲンガー|化石|まとめ|セット|カードe|ex(?![a-z])|GX|VMAX|VSTAR))'
+    raw_price_played: "4.75 USD"       # SCI raw lightly played last sale, 2025-11-05
+    prices: {10: "302 USD", 9: "42 USD"}
+    # SCI: PSA 10 last sale 302 (2025-11-23), PSA 9 42 (2025-11-30).
+    probability_set: default
+
   # ===== 舊版卡完整清單（2026-10-20 WebSearch 摘要整理，PriceCharting 為主）=====
   # 區間價取低值；沒有裸卡行情的，用「最低已知級數價 × 0.6」估裸卡價（標註 估計）
 

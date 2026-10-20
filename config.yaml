@@ -161,6 +161,35 @@ items:
   - {name: ギフトボックス スター, keyword: ギフトボックス ピカチュウ ミュウツー スター}
   - {name: PLAY プロモ スター, keyword: PLAY プロモ スター ポケモン}
 
+  # 第二輪補充
+  - {name: リザード 011/T, keyword: リザード 011/T}
+  - {name: 基本拡張パック 1ED 御三家, keyword: 基本拡張パック 1ED リザードン}
+  - {name: カメックス 108/128, keyword: カメックス 108/128}
+  - {name: フシギバナ 097/128, keyword: フシギバナ 097/128}
+  - {name: スターターデッキ e, keyword: スターターデッキ ポケモンカードe 1ED}
+  - {name: わるいリザードン web, keyword: わるいリザードン web}
+  - {name: リザードン クリスタル, keyword: リザードン クリスタルタイプ}
+  - {name: リザードン δ, keyword: リザードン δ 奇跡の結晶}
+  - {name: リザードンex 012/052, keyword: リザードンex 012/052}
+  - {name: リザードン ADV-P PCG-P, keyword: リザードン プロモ ADV-P}
+  - {name: リザードン PCG-P, keyword: リザードン PCG-P}
+  - {name: ヒトカゲ 拡張シート, keyword: ヒトカゲ 拡張シート}
+  - {name: エリカのフシギダネ, keyword: エリカのフシギダネ}
+  - {name: フシギバナ CD, keyword: フシギバナ CD プロモ}
+  - {name: トレーナーズマガジン プロモ, keyword: トレーナーズマガジン プロモ}
+  - {name: ミュウツー 046/P, keyword: ミュウツー 046/P}
+  - {name: タッチ世代交代, keyword: タッチ世代交代}
+  - {name: ルギア クリスタル, keyword: ルギア クリスタルタイプ}
+  - {name: ルギアex 金の空, keyword: ルギアex 金の空}
+  - {name: ミュウex まぼろしの森, keyword: ミュウex まぼろしの森}
+  - {name: ミュウ 119/128, keyword: ミュウ 119/128}
+  - {name: ゲンガーex 1ED, keyword: ゲンガーex 伝説の飛翔}
+  - {name: R団のミュウツーex, keyword: R団のミュウツーex}
+  - {name: GR団のミュウツー, keyword: GR団のミュウツー}
+  - {name: ミュウツー LV.67, keyword: ミュウツー LV.67}
+  - {name: 旧裏 ゴースト, keyword: 旧裏 ゴースト}
+  - {name: 旧裏 ゴース, keyword: 旧裏 ゴース}
+
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版
     keyword: ロルカナ エルサ 氷をつくりし者 英語版
