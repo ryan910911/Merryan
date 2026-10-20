@@ -238,7 +238,7 @@ def main(argv=None) -> int:
             from monitor import notify
 
             notify(f"{msg}\n{args.url or ''}")
-        return 1
+        return 0  # 對不到卡不算錯誤，避免 GitHub 寄失敗通知
     print("使用行情：", card_key)
     est, ev = evaluate_listing(cfg, card_key, listing, photos)
     name = card_profile(cfg, card_key).get("name", card_key)
