@@ -2373,3 +2373,16 @@ cards:
     # source: Dealer PSA10 ask 6499.99 only (PriceCharting checklist row not visible) -> very low confidence
     prices: {10: "6500 USD"}
     probability_set: default
+
+  # ---- 雜誌付錄 ----
+  shadow-lugia-eevee-xd-famitsu-cube-2005:
+    name: ポケモンXD 3Dカード（イーブイ／ダーク・ルギア）ファミ通キューブ+アドバンス 2005年7月号付録
+    # 無卡號，用標題關鍵字比對：要有 XD／ダークルギア，且要有 3D／ファミ通／付録／カード 之一；排除遊戲本體、攻略本
+    match: '^(?=.*(?:ポケモン\s*XD|ダーク\s*[・･]?\s*ルギア|闇の旋風))(?=.*(?:3D|レンチキュラー|ファミ通|キューブ|付録|カード|イーブイ))(?!.*(?:ソフト|ディスク|攻略|ゲームキューブ本体|GC本体|説明書のみ|ケースのみ)).*'
+    # source: eBay 成交 PSA 10 $2,045（2026-03-03，13 標）；PSA 9 只有刊登價 $400~1,250，無確認成交；PSA 總 pop 約 75（PSA 9 約 18）
+    # 保守取值：PSA 10 打 75 折、PSA 9 取刊登價低端；裸卡為估計（舊 PicClick 約 $25），Mercari 成交 ≥3 筆會自動覆蓋
+    raw_price: "6000 JPY"
+    raw_price_played: "25 USD"
+    prices: {10: "1500 USD", 9: "400 USD", 8: "200 USD", 7: "120 USD"}
+    low_grade_price: "60 USD"
+    probability_set: default
