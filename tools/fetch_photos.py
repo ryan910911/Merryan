@@ -55,7 +55,12 @@ def search_ids(page, keywords: list[str], per: int, seen: set[str]) -> list[str]
     for kw in keywords:
         # 3 目立った傷なし / 4 やや傷 / 5 傷や汚れあり：瑕疵樣本比較多
         for cond in ([3], [4, 5]):
-            rows = scrape(page, build_url({"keyword": kw, "conditions": cond}, {"conditions": cond}))
+            url = build_url({"keyword": kw, "conditions": cond}, {"conditions": cond})
+            rows = scrape(page, url)
+            if not rows:  # 連續搜尋常拿到空頁，等一下再試一次
+                page.wait_for_timeout(8000)
+                rows = scrape(page, url)
+            page.wait_for_timeout(3000)
             took = 0
             for r in rows:
                 if took >= per:
