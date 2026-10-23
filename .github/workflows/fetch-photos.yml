@@ -1,0 +1,43 @@
+name: Fetch Photos
+
+# 下載 Mercari 商品照片到 photo-queue 分支，給標註頁匯入（匯入後分支會刪掉）
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: Mercari 商品網址或編號（可多筆，空格分開）
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+      - name: Download
+        env:
+          URLS: ${{ inputs.urls }}
+        run: python tools/fetch_photos.py $URLS
+      - name: Push to photo-queue
+        run: |
+          mv queue /tmp/queue
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin photo-queue; then
+            git checkout -B photo-queue origin/photo-queue
+          else
+            git checkout --orphan photo-queue && git rm -rqf .
+          fi
+          mkdir -p queue && cp /tmp/queue/* queue/
+          git add queue
+          git commit -qm "Queue photos for labeling" || exit 0
+          for i in 1 2 3; do git push origin photo-queue && break; sleep 5; git pull --rebase origin photo-queue; done
