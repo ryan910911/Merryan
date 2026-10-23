@@ -47,6 +47,10 @@ SEARCH_DEFAULT = ["旧裏 ポケモンカード キラ", "ポケモンカードe
                   "ポケモンカード neo キラ", "ポケモンカード ADV キラ", "ポケモンカード 初版 キラ"]
 
 
+MIN_PHOTOS = 8       # 候選商品至少要有幾張照片
+MAX_CANDIDATES = 12  # 一批最多幾組
+
+
 def search_ids(page, keywords: list[str], per: int, seen: set[str]) -> list[str]:
     from ev_check import NOT_SINGLE_RAW
     from monitor import build_url, scrape
@@ -92,7 +96,10 @@ def main(text: str, out: Path) -> int:
         browser = p.chromium.launch()
         page = browser.new_page(user_agent=UA, locale="ja-JP")
         if search:
-            ids += search_ids(page, search, per=2, seen=set(ids))[:16]
+            done = Path(__file__).with_name("labeling_seen.txt")
+            skip = set(done.read_text().split()) if done.exists() else set()
+            ids += search_ids(page, search, per=6, seen=set(ids) | skip)
+        kept = 0
         for u in tw:
             try:
                 iid, n = resolve_tw(page, u, out)
@@ -108,7 +115,14 @@ def main(text: str, out: Path) -> int:
             except Exception as e:  # 單一商品失敗不影響其他
                 print("商品頁讀取失敗:", iid, e)
                 continue
-            photos = download_photos(lst["photos"], limit=8 if search else 20)
+            if search:
+                if kept >= MAX_CANDIDATES:
+                    break
+                if len(lst["photos"]) < MIN_PHOTOS:  # 照片太少看不出邊角，不收
+                    print(f"{iid}: 只有 {len(lst['photos'])} 張，略過")
+                    continue
+                kept += 1
+            photos = download_photos(lst["photos"], limit=10 if search else 20)
             for n, data in enumerate(photos, 1):
                 (out / f"{item_id(iid)}_{n}.jpg").write_bytes(data)
             (out / f"{iid}.json").write_text(json.dumps(
