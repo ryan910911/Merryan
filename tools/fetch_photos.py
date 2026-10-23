@@ -42,10 +42,43 @@ def resolve_tw(page, url: str, out: Path) -> tuple[str | None, int]:
     return None, len(photos)
 
 
+# 主動找訓練素材：卡況各級都要（含有傷的），只要單張裸卡
+SEARCH_DEFAULT = ["旧裏 ポケモンカード キラ", "ポケモンカードe キラ", "ポケモンカード プロモ 旧裏",
+                  "ポケモンカード neo キラ", "ポケモンカード ADV キラ", "ポケモンカード 初版 キラ"]
+
+
+def search_ids(page, keywords: list[str], per: int, seen: set[str]) -> list[str]:
+    from ev_check import NOT_SINGLE_RAW
+    from monitor import build_url, scrape
+    import unicodedata
+    out = []
+    for kw in keywords:
+        # 3 目立った傷なし / 4 やや傷 / 5 傷や汚れあり：瑕疵樣本比較多
+        for cond in ([3], [4, 5]):
+            rows = scrape(page, build_url({"keyword": kw, "conditions": cond}, {"conditions": cond}))
+            took = 0
+            for r in rows:
+                if took >= per:
+                    break
+                t = unicodedata.normalize("NFKC", r["title"])
+                if r["id"] in seen or NOT_SINGLE_RAW.search(t) or re.search(r"ジャンク|スリーブ|ファイル|ボックス|BOX|未開封|パック", t):
+                    continue
+                seen.add(r["id"])
+                out.append(r["id"])
+                took += 1
+            print(f"搜尋 {kw} 狀態{cond}: {len(rows)} 筆，取 {took}")
+    return out
+
+
 def main(text: str, out: Path) -> int:
+    search = None
+    m = re.match(r"\s*search(?::(.*))?$", text, re.S)
+    if m:
+        search = [k.strip() for k in (m.group(1) or "").split("|") if k.strip()] or SEARCH_DEFAULT
+        text = ""
     ids = list(dict.fromkeys(re.findall(r"(?<![0-9a-z-])m\d{8,}", text)))
     tw = [m.group(0) for m in TW_RE.finditer(text)]
-    if not ids and not tw:
+    if not ids and not tw and not search:
         print("沒有找到商品編號")
         return 1
     out.mkdir(parents=True, exist_ok=True)
@@ -53,6 +86,8 @@ def main(text: str, out: Path) -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(user_agent=UA, locale="ja-JP")
+        if search:
+            ids += search_ids(page, search, per=2, seen=set(ids))[:16]
         for u in tw:
             try:
                 iid, n = resolve_tw(page, u, out)
@@ -68,11 +103,12 @@ def main(text: str, out: Path) -> int:
             except Exception as e:  # 單一商品失敗不影響其他
                 print("商品頁讀取失敗:", iid, e)
                 continue
-            photos = download_photos(lst["photos"], limit=20)
+            photos = download_photos(lst["photos"], limit=8 if search else 20)
             for n, data in enumerate(photos, 1):
                 (out / f"{item_id(iid)}_{n}.jpg").write_bytes(data)
             (out / f"{iid}.json").write_text(json.dumps(
-                {"id": iid, "title": lst["title"], "price": lst["price"], "photos": len(photos)},
+                {"id": iid, "title": lst["title"], "price": lst["price"], "condition": lst["condition"],
+                 "url": lst["url"], "photos": len(photos), "candidate": bool(search)},
                 ensure_ascii=False), encoding="utf-8")
             print(f"{iid}: {len(photos)} 張 {lst['title']}")
             total += len(photos)

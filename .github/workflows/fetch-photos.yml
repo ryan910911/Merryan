@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       urls:
-        description: Mercari 商品網址或編號（可多筆，空格分開）；填 clear = 刪除 photo-queue 分支
+        description: Mercari 商品網址或編號（可多筆，空格分開）；search = 自動找候選（search:關鍵字1|關鍵字2）；clear = 刪除 photo-queue 分支
         required: true
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
         if: inputs.urls != 'clear'
         env:
           URLS: ${{ inputs.urls }}
-        run: python tools/fetch_photos.py $URLS
+        run: python tools/fetch_photos.py "$URLS"
       - name: Push to photo-queue
         if: inputs.urls != 'clear'
         run: |
