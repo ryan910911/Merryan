@@ -6,7 +6,7 @@ from PIL import Image
 src, out = Path(sys.argv[1]), Path(sys.argv[2])
 out.mkdir(parents=True, exist_ok=True)
 man = []
-for p in sorted(src.glob("m*_*.jpg"), key=lambda p: (p.stem.split("_")[0], int(p.stem.split("_")[1]))):
+for p in sorted([q for q in src.glob("*_*.jpg") if q.stem.split("_")[-1].isdigit()], key=lambda p: (p.stem.split("_")[0], int(p.stem.split("_")[1]))):
     im = Image.open(p).convert("RGB")
     sc = min(1, 1600 / max(im.size))
     im = im.resize((round(im.width * sc), round(im.height * sc)), Image.LANCZOS)
