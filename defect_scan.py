@@ -33,6 +33,10 @@ WHITE_S, WHITE_V = 60, 170      # 白：低飽和、高亮度
 REL_S, REL_V = 40, 35           # 或比卡框中位色淡 40、亮 35 以上（照片壓縮後的白邊）
 LIGHT_V = 140                   # 卡片外圍中位亮度高於此（且低飽和）= 白背景／卡套
 LOC_S, LOC_V = 50, 25           # 跟同一點內側卡框比：淡 50、亮 25 以上（一般邊緣反光只會淡一點、不會更亮）
+LOC_ON = True
+EDGE_RUN = 1                    # 沿輪廓連續 ≥ 這麼多取樣點白掉才算白邊（校準時 4 以上會把真白邊也濾掉，先關）
+EDGE_IN = 0.006                 # 白邊取樣線往卡內的深度（短邊比例）
+EDGE_MARGIN = 0.003             # 背景定位成功時，取樣線避開輪廓線這麼深（卡邊混色像素）
 FRAME = 0.08                    # 黃框卡的卡框寬約短邊 6~8%，白點只在這圈裡算
 
 SEV_EDGE = (0.02, 0.06)         # 邊緣取樣點白掉比例：< 2% 無、< 6% 輕微、以上明顯
@@ -128,6 +132,52 @@ def _main_region(mask: np.ndarray) -> np.ndarray:
     return np.isin(labels, keep).astype(np.uint8) * 255
 
 
+BG_AB, BG_L, BG_DARK = 14, 45, 80  # 跟背景色比：色度差 ≥ 14、亮 45 以上、或暗 80 以上才算不是背景（陰影只會暗一些）
+BG_FILL = 0.8                    # 前景面積 / 凸包面積 ≥ 0.8 才相信這個凸包是卡片
+
+
+def locate_card(bgr: np.ndarray) -> tuple[np.ndarray, np.ndarray] | None:
+    """用照片四邊估背景色（桌面可能不只一色，分 2 群），離背景色夠遠的最大色塊當卡片。
+    比只靠黃框／藍底的顏色穩：木桌跟黃框顏色很像、旧裏背面的淺色邊不在藍色裡，
+    特寫被切到邊的卡也只會取到看得見的部分。回傳 (卡片遮罩, 凸包)。"""
+    h, w = bgr.shape[:2]
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB).astype(np.int32)
+    b = max(4, int(min(h, w) * 0.03))
+    ring = np.zeros((h, w), bool)
+    ring[:b, :] = ring[-b:, :] = ring[:, :b] = ring[:, -b:] = True
+    data = lab[ring].astype(np.float32)
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    _, lbl, centers = cv2.kmeans(data, 2, None, crit, 3, cv2.KMEANS_PP_CENTERS)
+    counts = np.bincount(lbl.ravel(), minlength=2)
+    fg = np.ones((h, w), bool)
+    for c, n in zip(centers.astype(np.int32), counts):
+        if n < 0.15 * len(data):
+            continue  # 太少的那群大概是卡片本身被切到邊
+        dab = np.sqrt(((lab[..., 1:] - c[1:]) ** 2).sum(axis=2))
+        dl = lab[..., 0] - c[0]
+        fg &= (dab > BG_AB) | (dl > BG_L) | (dl < -BG_DARK)
+    fg = fg.astype(np.uint8) * 255
+    k = max(3, int(min(h, w) * 0.01)) | 1
+    fg = cv2.morphologyEx(fg, cv2.MORPH_OPEN, np.ones((k, k), np.uint8))
+    fg = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, np.ones((3 * k, 3 * k), np.uint8))
+    n, labels, stats, _ = cv2.connectedComponentsWithStats(fg, 8)
+    if n <= 1:
+        return None
+    i = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    if stats[i, cv2.CC_STAT_AREA] < 0.1 * h * w:
+        return None
+    m = (labels == i).astype(np.uint8) * 255
+    ff = m.copy()
+    cv2.floodFill(ff, np.zeros((h + 2, w + 2), np.uint8), (0, 0), 255)
+    m |= cv2.bitwise_not(ff)  # 填掉反光造成的洞
+    hull = cv2.convexHull(cv2.findNonZero(m))
+    if cv2.countNonZero(m) < BG_FILL * cv2.contourArea(hull):
+        return None  # 前景形狀跟凸包差太多：陰影、桌面雜物混進來了
+    hull_mask = np.zeros((h, w), np.uint8)
+    cv2.fillPoly(hull_mask, [hull], 255)
+    return hull_mask, hull
+
+
 def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     dec = decode(raw)
     if dec is None:
@@ -149,9 +199,15 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     if pts is None or len(pts) < 100:
         res.side = None
         return res
-    hull = cv2.convexHull(pts)
-    hull_mask = np.zeros((h, w), np.uint8)
-    cv2.fillPoly(hull_mask, [hull], 255)
+    loc = locate_card(bgr)
+    if loc is not None:
+        hull_mask, hull = loc
+        pts = cv2.findNonZero(hull_mask)
+    else:
+        hull = cv2.convexHull(pts)
+        hull_mask = np.zeros((h, w), np.uint8)
+        cv2.fillPoly(hull_mask, [hull], 255)
+        res.notes.append(f"#{index + 1}：背景分不出來，改用卡框顏色估卡片範圍")
     x, y, bw, bh = cv2.boundingRect(hull)
     short = min(bw, bh)
     res.hull = (hull.astype(np.float32) * scale).astype(np.int32)
@@ -168,7 +224,7 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
     # 白邊常常只是比卡框亮、淡一截（照片壓縮後不會是純白），所以也用卡框本身的顏色當基準比
     inner = cv2.erode(hull_mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * k + 1, 2 * k + 1)))
     band = cv2.bitwise_and(cv2.subtract(hull_mask, inner), cv2.bitwise_not(border))
-    ref = hsv[(band > 0) & (color > 0)]
+    ref = hsv[(band > 0) & ((color > 0) if loc is None else (hull_mask > 0))]
     if len(ref) > 50:
         ref_s, ref_v = float(np.median(ref[:, 1])), float(np.median(ref[:, 2]))
         relwhite = (v >= ref_v + REL_V) & (s <= ref_s - REL_S)
@@ -201,15 +257,17 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
 
     # 沿凸包外緣每 2 px 取一條垂直邊緣的短線（往內 r_in、往外 r_out），線上有白就算這一點白掉。
     # 邊緣白掉時卡片顏色會缺一塊，凸包仍沿著原本的邊走，所以白掉的部分會落在這條短線上。
-    near_color = cv2.dilate(color, np.ones((k * 3 + 1, k * 3 + 1), np.uint8))
-    r_in = max(2, int(short * 0.006))
-    r_out = 0 if bg_white else max(3, int(short * 0.012))
-    # 白背景時只看內側，且避開凸包邊上那一格（圓角處凸包弦線會稍微切到背景）
-    offs = np.arange(-r_in, (r_out if r_out else -2) + 1, dtype=np.float32)
+    near_color = cv2.dilate(color, np.ones((k * 3 + 1, k * 3 + 1), np.uint8)) if loc is None else hull_mask
+    r_in = max(3, int(short * EDGE_IN))
+    r_out = 0 if bg_white or loc is not None else max(3, int(short * 0.012))
+    # 只看內側時避開輪廓線上那幾格（卡邊跟背景混色的像素、圓角處凸包弦線會稍微切到背景）
+    margin = max(2, int(short * EDGE_MARGIN)) if loc is not None else 2
+    offs = np.arange(-r_in, (r_out if r_out else -margin) + 1, dtype=np.float32)
     poly = hull.reshape(-1, 2).astype(np.float32)
     center = poly.mean(axis=0)
     edge_white = np.zeros((h, w), np.uint8)
     flags = {"edge": [], "corner": []}
+    samples = []  # 沿輪廓依序：(白掉?, 區域, 白掉像素 y, x)
     for i in range(0 if white_bg_only else len(poly)):
         a, b = poly[i], poly[(i + 1) % len(poly)]
         seg = float(np.linalg.norm(b - a))
@@ -222,7 +280,7 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
         for t in np.arange(0, seg, 2.0, dtype=np.float32):
             p = a + d * t
             px, py = int(p[0]), int(p[1])
-            if not (k <= px < w - k and k <= py < h - k) or not near_color[py, px]:
+            if not (k <= px < w - k and k <= py < h - k) or not near_color[min(h - 1, max(0, py)), min(w - 1, max(0, px))]:
                 continue  # 卡片被照片邊界切到，或這段凸包斜切過圖面（正面特寫的 L 形黃框）
             xs = np.rint(p[0] + nrm[0] * offs).astype(int)
             ys = np.rint(p[1] + nrm[1] * offs).astype(int)
@@ -235,13 +293,31 @@ def scan_photo(raw: bytes, index: int = 0) -> PhotoScan:
             # 跟同一點往內一點的卡框比：明顯更淡、更亮也算（壓縮過的細白邊）
             ix = np.rint(p[0] - nrm[0] * np.arange(r_in + k, r_in + 2 * k)).astype(int)
             iy = np.rint(p[1] - nrm[1] * np.arange(r_in + k, r_in + 2 * k)).astype(int)
-            if ix.min() >= 0 and iy.min() >= 0 and ix.max() < w and iy.max() < h and color[iy, ix].all():
+            if ix.min() >= 0 and iy.min() >= 0 and ix.max() < w and iy.max() < h and hull_mask[iy, ix].all():
                 ls, lv = np.median(s[iy, ix]), np.median(v[iy, ix])
                 seg_s, seg_v = s[ys, xs].astype(int), v[ys, xs].astype(int)
-                hit |= (seg_s <= ls - LOC_S) & (seg_v >= lv + LOC_V) & (seg_v > 90)
-            if hit.any():
-                edge_white[ys[hit], xs[hit]] = 255
-            flags["corner" if corner_zone[py, px] else "edge"].append(bool(hit.any()))
+                if LOC_ON:
+                    hit |= (seg_s <= ls - LOC_S) & (seg_v >= lv + LOC_V) & (seg_v > 90)
+            samples.append((bool(hit.any()), "corner" if corner_zone[py, px] else "edge", ys[hit], xs[hit]))
+
+    # 白邊是連續一段，零星一兩個取樣點白掉多半是反光、圖案邊：只算連續 ≥ EDGE_RUN 點的段落
+    hits = np.array([sm[0] for sm in samples], bool)
+    keep = np.zeros_like(hits)
+    i = 0
+    while i < len(hits):
+        if hits[i]:
+            j = i
+            while j < len(hits) and hits[j]:
+                j += 1
+            if j - i >= EDGE_RUN:
+                keep[i:j] = True
+            i = j
+        else:
+            i += 1
+    for ok, (_, zone, hy, hx) in zip(keep, samples):
+        flags[zone].append(bool(ok))
+        if ok:
+            edge_white[hy, hx] = 255
 
     # 角尖整個白掉時，那一大塊白會讓上面的「外面也是白」判斷跳過，所以另外看
     # 「最小外接矩形的角落、凸包外」那一小塊：背景不是白色時，那裡出現白色就是角尖白掉
