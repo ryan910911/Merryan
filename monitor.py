@@ -143,12 +143,14 @@ def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: 
         listing = fetch_listing(page, r["id"])
         listing["price"] = listing.get("price") or int(re.sub(r"\D", "", r["price"]) or 0) or None
         photos = download_photos(listing["photos"])
-        cache_key = (item["keyword"], card_key)
+        # 卡種有 sold_keyword 就用它查成交（品項是「ADV-P」這類廣泛搜尋時，直接用品項關鍵字會撈不到這張卡）
+        keyword = card_profile(ev_cfg, card_key).get("sold_keyword") or item["keyword"]
+        cache_key = (keyword, card_key)
         if cache_key not in LIVE_CACHE:
             try:
                 from market import live_prices
 
-                LIVE_CACHE[cache_key] = live_prices(page, item["keyword"], card_profile(ev_cfg, card_key)["match"])
+                LIVE_CACHE[cache_key] = live_prices(page, keyword, card_profile(ev_cfg, card_key)["match"])
             except Exception as e:
                 print(f"[{item['name']}] 查近期成交失敗: {e}")
                 LIVE_CACHE[cache_key] = None
@@ -238,6 +240,8 @@ def main() -> None:
                     msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
                     png, album = None, []
                     card_key = pick_card(ev_cfg, item.get("card", defaults.get("card")), r["title"]) if ev_cfg else None
+                    if item.get("only_matched") and not card_key:  # 廣泛搜尋：對不到 cards.yaml 的卡就不通知
+                        continue
                     if card_key and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
                         msg, worth, png, album = ev_message(ctx, ev_cfg, item, card_key, r, msg)

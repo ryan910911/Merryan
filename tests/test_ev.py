@@ -387,3 +387,14 @@ def test_cased_card_edges_are_not_flagged():
     s = scan_photo(synth.jpeg(synth.photo(synth.new_back_card(_rng()), bg=(120, 120, 120))))
     assert s.edge_severity == "none" and s.corner_severity == "none"
     assert any("卡套" in n for n in s.notes)
+
+
+def test_old_promo_profiles_match_by_number():
+    from ev_check import load_ev_config, pick_card
+
+    cfg = load_ev_config()
+    assert pick_card(cfg, "auto", "ピカチュウM LV.X 043/DPt-P") == "pikachu-m-lvx-dpt-p-043"
+    assert pick_card(cfg, "auto", "ポケパークのピカチュウ 43/PCG-P") == "pokeparks-pikachu-pcg-p-043"
+    assert pick_card(cfg, "auto", "旧裏 ミュウ CDプロモ 光沢") == "mew-cd-promo"
+    assert pick_card(cfg, "auto", "ピカチュウ 004/P ANA") == "pikachu-e-p-004"  # 舊的 e 卡 profile 仍優先
+    assert pick_card(cfg, "auto", "アチャモ 052/ADV-P") is None

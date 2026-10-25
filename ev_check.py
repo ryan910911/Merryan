@@ -266,7 +266,9 @@ def main(argv=None) -> int:
     live = None
     if args.url and not args.no_live:
         hits = watched_by(title)
-        keyword = next(it["keyword"] for it in _items() if it["name"] == hits[0]) if hits else card_profile(cfg, card_key).get("name", "").split("（")[0]
+        keyword = card_profile(cfg, card_key).get("sold_keyword")
+        if not keyword:
+            keyword = next(it["keyword"] for it in _items() if it["name"] == hits[0]) if hits else card_profile(cfg, card_key).get("name", "").split("（")[0]
         try:
             from playwright.sync_api import sync_playwright
 

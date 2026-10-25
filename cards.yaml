@@ -2386,3 +2386,1124 @@ cards:
     prices: {10: "1500 USD", 9: "400 USD", 8: "200 USD", 7: "120 USD"}
     low_grade_price: "60 USD"
     probability_set: default
+
+  # ================================================================ OLD PROMOS（2026-10-25 加入）
+  # 舊世代日版促銷卡：ADV-P／PCG-P／DP-P／DPt-P／L-P 依卡號比對，旧裏／neo 無編號的用名稱＋配布來源比對。
+  # 行情：PriceCharting pokemon-japanese-promo（或 cd-promo）頁面摘要，2026-10-25；裸卡價 = Ungraded，
+  # 只有 PSA 9／10 兩級，PSA 8 以下沿用程式預設（裸卡價 × 0.8），偏保守。
+  # 這類卡 PSA 10 成交量少、單筆高價常見，買前請再看 PriceCharting 成交明細。
+  torchic-adv-p-004:
+    name: アチャモ 004/ADV-P
+    match: '^(?=.*アチャモ).*?(?:(?<!\d)0*4\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*4(?!\d))'
+    sold_keyword: アチャモ ADV-P
+    raw_price: "10.93 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "10.93 USD"
+    prices: {10: "2658.6 USD", 9: "88 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  latias-adv-p-006:
+    name: ラティアス 006/ADV-P（マクドナルド）
+    match: '^(?=.*ラティアス).*?(?:(?<!\d)0*6\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*6(?!\d))'
+    sold_keyword: ラティアス ADV-P
+    raw_price: "9.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "9.99 USD"
+    prices: {10: "808.71 USD", 9: "104.28 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  treecko-adv-p-003:
+    name: キモリ 003/ADV-P（マクドナルド）
+    match: '^(?=.*キモリ).*?(?:(?<!\d)0*3\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*3(?!\d))'
+    sold_keyword: キモリ ADV-P
+    raw_price: "7.98 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "7.98 USD"
+    prices: {10: "900 USD", 9: "100 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  jirachi-adv-p-014:
+    name: ジラーチ 014/ADV-P
+    match: '^(?=.*ジラーチ).*?(?:(?<!\d)0*14\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*14(?!\d))'
+    sold_keyword: ジラーチ ADV-P
+    raw_price: "14.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "14.99 USD"
+    prices: {10: "2147 USD", 9: "401.04 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  torchic-adv-p-018:
+    name: アチャモ 018/ADV-P
+    match: '^(?=.*アチャモ).*?(?:(?<!\d)0*18\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*18(?!\d))'
+    sold_keyword: アチャモ ADV-P
+    raw_price: "46.81 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "46.81 USD"
+    prices: {10: "2246.25 USD", 9: "310 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mudkip-adv-p-020:
+    name: ミズゴロウ 020/ADV-P（セブンイレブン）
+    match: '^(?=.*ミズゴロウ).*?(?:(?<!\d)0*20\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*20(?!\d))'
+    sold_keyword: ミズゴロウ ADV-P
+    raw_price: "105.47 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "105.47 USD"
+    prices: {10: "5999 USD", 9: "599.99 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  jirachi-adv-p-025:
+    name: ジラーチ 025/ADV-P（セブンイレブン キラ）
+    match: '^(?=.*ジラーチ).*?(?:(?<!\d)0*25\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*25(?!\d))'
+    sold_keyword: ジラーチ ADV-P
+    raw_price: "75.65 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "75.65 USD"
+    prices: {10: "2900 USD", 9: "378.35 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  meowth-adv-p-029:
+    name: ニャース 029/ADV-P
+    match: '^(?=.*ニャース).*?(?:(?<!\d)0*29\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*29(?!\d))'
+    sold_keyword: ニャース ADV-P
+    raw_price: "44 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "44 USD"
+    prices: {10: "1450 USD", 9: "159 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  flygon-adv-p-033:
+    name: フライゴン 033/ADV-P
+    match: '^(?=.*フライゴン).*?(?:(?<!\d)0*33\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*33(?!\d))'
+    sold_keyword: フライゴン ADV-P
+    raw_price: "36.42 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "36.42 USD"
+    prices: {10: "1054.5 USD", 9: "169 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  treecko-adv-p-036:
+    name: サトシのキモリ 036/ADV-P
+    match: '^(?=.*キモリ).*?(?:(?<!\d)0*36\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*36(?!\d))'
+    sold_keyword: キモリ ADV-P
+    raw_price: "115.36 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "115.36 USD"
+    prices: {10: "5050 USD", 9: "1900 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  torchic-adv-p-037:
+    name: ハルカのアチャモ 037/ADV-P
+    match: '^(?=.*アチャモ).*?(?:(?<!\d)0*37\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*37(?!\d))'
+    sold_keyword: アチャモ ADV-P
+    raw_price: "73.67 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "73.67 USD"
+    prices: {10: "4841.27 USD", 9: "613 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mudkip-adv-p-038:
+    name: タケシのミズゴロウ 038/ADV-P
+    match: '^(?=.*ミズゴロウ).*?(?:(?<!\d)0*38\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*38(?!\d))'
+    sold_keyword: ミズゴロウ ADV-P
+    raw_price: "135.34 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "135.34 USD"
+    prices: {10: "6042.33 USD", 9: "1750 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  blaziken-adv-p-047:
+    name: バシャーモ 047/ADV-P
+    match: '^(?=.*バシャーモ).*?(?:(?<!\d)0*47\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*47(?!\d))'
+    sold_keyword: バシャーモ ADV-P
+    raw_price: "4.66 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "4.66 USD"
+    prices: {10: "749.99 USD", 9: "45 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  plusle-adv-p-049:
+    name: プラスル 049/ADV-P（マクドナルド）
+    match: '^(?=.*プラスル).*?(?:(?<!\d)0*49\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*49(?!\d))'
+    sold_keyword: プラスル ADV-P
+    raw_price: "41.15 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "41.15 USD"
+    prices: {10: "2076 USD", 9: "143.75 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  minun-adv-p-050:
+    name: マイナン 050/ADV-P（マクドナルド）
+    match: '^(?=.*マイナン).*?(?:(?<!\d)0*50\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*50(?!\d))'
+    sold_keyword: マイナン ADV-P
+    raw_price: "35.62 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "35.62 USD"
+    prices: {10: "702.5 USD", 9: "66.18 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  bulbasaur-adv-p-051:
+    name: フシギダネ 051/ADV-P（明治）
+    match: '^(?=.*フシギダネ).*?(?:(?<!\d)0*51\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*51(?!\d))'
+    sold_keyword: フシギダネ ADV-P
+    raw_price: "34.3 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "34.3 USD"
+    prices: {10: "1096.99 USD", 9: "151 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  raichu-adv-p-058:
+    name: ライチュウ 058/ADV-P
+    match: '^(?=.*ライチュウ).*?(?:(?<!\d)0*58\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*58(?!\d))'
+    sold_keyword: ライチュウ ADV-P
+    raw_price: "45 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "45 USD"
+    prices: {10: "685 USD", 9: "122.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  slowpoke-adv-p-059:
+    name: ヤドン 059/ADV-P
+    match: '^(?=.*ヤドン).*?(?:(?<!\d)0*59\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*59(?!\d))'
+    sold_keyword: ヤドン ADV-P
+    raw_price: "23.38 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "23.38 USD"
+    prices: {10: "1394.69 USD", 9: "200 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  meowth-adv-p-062:
+    name: ニャース 062/ADV-P
+    match: '^(?=.*ニャース).*?(?:(?<!\d)0*62\s*/\s*ADV-?P(?![A-Za-z])|(?<![A-Za-z])ADV-?P\s*[-#]?\s*0*62(?!\d))'
+    sold_keyword: ニャース ADV-P
+    raw_price: "28.38 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "28.38 USD"
+    prices: {10: "956 USD", 9: "91.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  blastoise-pcg-p-001:
+    name: カメックス 001/PCG-P（コロコロ）
+    match: '^(?=.*カメックス).*?(?:(?<!\d)0*1\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*1(?!\d))'
+    sold_keyword: カメックス PCG-P
+    raw_price: "29.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "29.99 USD"
+    prices: {10: "577.97 USD", 9: "363.19 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  deoxys-pcg-p-017:
+    name: デオキシス 017/PCG-P
+    match: '^(?=.*デオキシス).*?(?:(?<!\d)0*17\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*17(?!\d))'
+    sold_keyword: デオキシス PCG-P
+    raw_price: "12.37 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "12.37 USD"
+    prices: {10: "3850 USD", 9: "400.25 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  deoxys-pcg-p-019:
+    name: デオキシス 019/PCG-P
+    match: '^(?=.*デオキシス).*?(?:(?<!\d)0*19\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*19(?!\d))'
+    sold_keyword: デオキシス PCG-P
+    raw_price: "11.39 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "11.39 USD"
+    prices: {10: "2400 USD", 9: "364.19 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  munchlax-pcg-p-025:
+    name: ゴンベ 025/PCG-P
+    match: '^(?=.*ゴンベ).*?(?:(?<!\d)0*25\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*25(?!\d))'
+    sold_keyword: ゴンベ PCG-P
+    raw_price: "51.26 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "51.26 USD"
+    prices: {10: "1500 USD", 9: "473.26 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pichu-pcg-p-031:
+    name: ピチュー 031/PCG-P
+    match: '^(?=.*ピチュー).*?(?:(?<!\d)0*31\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*31(?!\d))'
+    sold_keyword: ピチュー PCG-P
+    raw_price: "16.92 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "16.92 USD"
+    prices: {10: "1880.5 USD", 9: "218.84 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  rockets-persian-ex-pcg-p-036:
+    name: ロケット団のペルシアンex 036/PCG-P
+    match: '^(?=.*ペルシアン).*?(?:(?<!\d)0*36\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*36(?!\d))'
+    sold_keyword: ペルシアン PCG-P
+    raw_price: "89.88 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "89.88 USD"
+    prices: {10: "871.91 USD", 9: "208.16 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  treecko-pcg-p-037:
+    name: キモリ 037/PCG-P（ポケモンセンターヨコハマ）
+    match: '^(?=.*キモリ).*?(?:(?<!\d)0*37\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*37(?!\d))'
+    sold_keyword: キモリ PCG-P
+    raw_price: "161 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "161 USD"
+    prices: {10: "1730.66 USD", 9: "594.84 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  suicune-pcg-p-039:
+    name: スイクン 039/PCG-P
+    match: '^(?=.*スイクン).*?(?:(?<!\d)0*39\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*39(?!\d))'
+    sold_keyword: スイクン PCG-P
+    raw_price: "19.42 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "19.42 USD"
+    prices: {10: "687 USD", 9: "153 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  rayquaza-pcg-p-041:
+    name: レックウザ 041/PCG-P
+    match: '^(?=.*レックウザ).*?(?:(?<!\d)0*41\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*41(?!\d))'
+    sold_keyword: レックウザ PCG-P
+    raw_price: "45.62 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "45.62 USD"
+    prices: {10: "2025 USD", 9: "282.2 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  groudon-pcg-p-042:
+    name: グラードン 042/PCG-P
+    match: '^(?=.*グラードン).*?(?:(?<!\d)0*42\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*42(?!\d))'
+    sold_keyword: グラードン PCG-P
+    raw_price: "58.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "58.99 USD"
+    prices: {10: "1061 USD", 9: "211.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pokeparks-pikachu-pcg-p-043:
+    name: ポケパークのピカチュウ 043/PCG-P
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*43\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*43(?!\d))'
+    sold_keyword: ピカチュウ PCG-P
+    raw_price: "122.37 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "122.37 USD"
+    prices: {10: "5250 USD", 9: "808.66 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pokeparks-whismur-pcg-p-046:
+    name: ポケパークのゴニョニョ 046/PCG-P
+    match: '^(?=.*ゴニョニョ).*?(?:(?<!\d)0*46\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*46(?!\d))'
+    sold_keyword: ゴニョニョ PCG-P
+    raw_price: "14.48 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "14.48 USD"
+    prices: {10: "332 USD", 9: "49 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pokeparks-torchic-pcg-p-047:
+    name: ポケパークのアチャモ 047/PCG-P
+    match: '^(?=.*アチャモ).*?(?:(?<!\d)0*47\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*47(?!\d))'
+    sold_keyword: アチャモ PCG-P
+    raw_price: "46.89 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "46.89 USD"
+    prices: {10: "1335.37 USD", 9: "280 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pokeparks-mudkip-pcg-p-048:
+    name: ポケパークのミズゴロウ 048/PCG-P
+    match: '^(?=.*ミズゴロウ).*?(?:(?<!\d)0*48\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*48(?!\d))'
+    sold_keyword: ミズゴロウ PCG-P
+    raw_price: "89.24 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "89.24 USD"
+    prices: {10: "2634.43 USD", 9: "399 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  celebi-ex-pcg-p-052:
+    name: セレビィex 052/PCG-P
+    match: '^(?=.*セレビィ).*?(?:(?<!\d)0*52\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*52(?!\d))'
+    sold_keyword: セレビィ PCG-P
+    raw_price: "225 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "225 USD"
+    prices: {10: "4052.52 USD", 9: "570.54 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  ho-oh-ex-pcg-p-076:
+    name: ホウオウex 076/PCG-P（コロコロ）
+    match: '^(?=.*ホウオウ).*?(?:(?<!\d)0*76\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*76(?!\d))'
+    sold_keyword: ホウオウ PCG-P
+    raw_price: "37.5 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "37.5 USD"
+    prices: {10: "5124.3 USD", 9: "390.79 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-pcg-p-084:
+    name: ピカチュウ 084/PCG-P（マクドナルド）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*84\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*84(?!\d))'
+    sold_keyword: ピカチュウ PCG-P
+    raw_price: "49 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "49 USD"
+    prices: {10: "3605 USD", 9: "332.05 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mew-pcg-p-085:
+    name: ミュウ 085/PCG-P
+    match: '^(?=.*ミュウ(?!ツー)).*?(?:(?<!\d)0*85\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*85(?!\d))'
+    sold_keyword: ミュウ PCG-P
+    raw_price: "72.5 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "72.5 USD"
+    prices: {10: "11000 USD", 9: "620 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  rotas-munchlax-pcg-p-088:
+    name: ロータのゴンベ 088/PCG-P
+    match: '^(?=.*ゴンベ).*?(?:(?<!\d)0*88\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*88(?!\d))'
+    sold_keyword: ゴンベ PCG-P
+    raw_price: "33.2 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "33.2 USD"
+    prices: {10: "474.98 USD", 9: "200 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  lucario-pcg-p-090:
+    name: ルカリオ 090/PCG-P
+    match: '^(?=.*ルカリオ).*?(?:(?<!\d)0*90\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*90(?!\d))'
+    sold_keyword: ルカリオ PCG-P
+    raw_price: "30.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "30.99 USD"
+    prices: {10: "3550 USD", 9: "160 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mew-pcg-p-091:
+    name: ミュウ 091/PCG-P
+    match: '^(?=.*ミュウ(?!ツー)).*?(?:(?<!\d)0*91\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*91(?!\d))'
+    sold_keyword: ミュウ PCG-P
+    raw_price: "62 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "62 USD"
+    prices: {10: "14200 USD", 9: "1290 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  lucario-pcg-p-093:
+    name: ルカリオ 093/PCG-P
+    match: '^(?=.*ルカリオ).*?(?:(?<!\d)0*93\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*93(?!\d))'
+    sold_keyword: ルカリオ PCG-P
+    raw_price: "39.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "39.99 USD"
+    prices: {10: "973.75 USD", 9: "234.49 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  rayquaza-pcg-p-094:
+    name: レックウザ 094/PCG-P（予選大会入賞）
+    match: '^(?=.*レックウザ).*?(?:(?<!\d)0*94\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*94(?!\d))'
+    sold_keyword: レックウザ PCG-P
+    raw_price: "442.58 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "442.58 USD"
+    prices: {10: "6120 USD", 9: "1275 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  registeel-pcg-p-100:
+    name: レジスチル 100/PCG-P
+    match: '^(?=.*レジスチル).*?(?:(?<!\d)0*100\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*100(?!\d))'
+    sold_keyword: レジスチル PCG-P
+    raw_price: "5.24 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "5.24 USD"
+    prices: {10: "702.55 USD", 9: "102.14 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  flareon-pcg-p-102:
+    name: ブースター 102/PCG-P
+    match: '^(?=.*ブースター).*?(?:(?<!\d)0*102\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*102(?!\d))'
+    sold_keyword: ブースター PCG-P
+    raw_price: "39 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "39 USD"
+    prices: {10: "1397.69 USD", 9: "100 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  rayquaza-delta-pcg-p-103:
+    name: レックウザδ 103/PCG-P
+    match: '^(?=.*レックウザ).*?(?:(?<!\d)0*103\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*103(?!\d))'
+    sold_keyword: レックウザ PCG-P
+    raw_price: "58.35 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "58.35 USD"
+    prices: {10: "7400 USD", 9: "790 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  vaporeon-pcg-p-104:
+    name: シャワーズ 104/PCG-P
+    match: '^(?=.*シャワーズ).*?(?:(?<!\d)0*104\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*104(?!\d))'
+    sold_keyword: シャワーズ PCG-P
+    raw_price: "109.59 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "109.59 USD"
+    prices: {10: "910 USD", 9: "122.92 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  jolteon-pcg-p-106:
+    name: サンダース 106/PCG-P
+    match: '^(?=.*サンダース).*?(?:(?<!\d)0*106\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*106(?!\d))'
+    sold_keyword: サンダース PCG-P
+    raw_price: "30.98 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "30.98 USD"
+    prices: {10: "732.5 USD", 9: "103.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mewtwo-pcg-p-107:
+    name: ミュウツー 107/PCG-P（明治）
+    match: '^(?=.*ミュウツー).*?(?:(?<!\d)0*107\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*107(?!\d))'
+    sold_keyword: ミュウツー PCG-P
+    raw_price: "36 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "36 USD"
+    prices: {10: "3998.15 USD", 9: "300 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  ditto-pcg-p-108:
+    name: メタモン 108/PCG-P
+    match: '^(?=.*メタモン).*?(?:(?<!\d)0*108\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*108(?!\d))'
+    sold_keyword: メタモン PCG-P
+    raw_price: "47.66 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "47.66 USD"
+    prices: {10: "2395 USD", 9: "193.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-pcg-p-113:
+    name: ピカチュウ 113/PCG-P（バトルロード オータム）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*113\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*113(?!\d))'
+    sold_keyword: ピカチュウ PCG-P
+    raw_price: "550 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "550 USD"
+    prices: {10: "12512.3 USD", 9: "789 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-pcg-p-118:
+    name: ピカチュウ 118/PCG-P（ワンダーランド）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*118\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*118(?!\d))'
+    sold_keyword: ピカチュウ PCG-P
+    raw_price: "116.75 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "116.75 USD"
+    prices: {10: "1479.69 USD", 9: "1246.2 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  latias-pcg-p-120:
+    name: ラティアス 120/PCG-P（マクドナルド）
+    match: '^(?=.*ラティアス).*?(?:(?<!\d)0*120\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*120(?!\d))'
+    sold_keyword: ラティアス PCG-P
+    raw_price: "23.07 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "23.07 USD"
+    prices: {10: "1784 USD", 9: "262.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  latios-pcg-p-122:
+    name: ラティオス 122/PCG-P（マクドナルド）
+    match: '^(?=.*ラティオス).*?(?:(?<!\d)0*122\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*122(?!\d))'
+    sold_keyword: ラティオス PCG-P
+    raw_price: "13.49 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "13.49 USD"
+    prices: {10: "2550 USD", 9: "292.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-pcg-p-123:
+    name: ピカチュウ 123/PCG-P
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*123\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*123(?!\d))'
+    sold_keyword: ピカチュウ PCG-P
+    raw_price: "59.98 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "59.98 USD"
+    prices: {10: "5800 USD", 9: "330.88 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  touch-exchange-pcg-p-130:
+    name: タッチ交換! 130/PCG-P（バトルロード スプリング 2006）
+    match: '^.*?(?:(?<!\d)0*130\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*130(?!\d))'
+    sold_keyword: PCG-P
+    raw_price: "145.86 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "145.86 USD"
+    prices: {10: "2650 USD", 9: "250 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mew-pcg-p-148:
+    name: ミュウ 148/PCG-P
+    match: '^(?=.*ミュウ(?!ツー)).*?(?:(?<!\d)0*148\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*148(?!\d))'
+    sold_keyword: ミュウ PCG-P
+    raw_price: "798.17 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "798.17 USD"
+    prices: {10: "17500 USD", 9: "1675 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  seas-manaphy-pcg-p-154:
+    name: マナフィ 154/PCG-P
+    match: '^(?=.*マナフィ).*?(?:(?<!\d)0*154\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*154(?!\d))'
+    sold_keyword: マナフィ PCG-P
+    raw_price: "49.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "49.99 USD"
+    prices: {10: "2025 USD", 9: "346.43 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  piplup-dp-p-029:
+    name: ポッチャマ 029/DP-P（マクドナルド）
+    match: '^(?=.*ポッチャマ).*?(?:(?<!\d)0*29\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*29(?!\d))'
+    sold_keyword: ポッチャマ DP-P
+    raw_price: "24.41 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "24.41 USD"
+    prices: {10: "1825 USD", 9: "90 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  darkrai-dp-p-046:
+    name: ダークライ 046/DP-P
+    match: '^(?=.*ダークライ).*?(?:(?<!\d)0*46\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*46(?!\d))'
+    sold_keyword: ダークライ DP-P
+    raw_price: "61.55 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "61.55 USD"
+    prices: {10: "295 USD", 9: "97.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  garchomp-lvx-dp-p-058:
+    name: ガブリアス LV.X 058/DP-P
+    match: '^(?=.*ガブリアス).*?(?:(?<!\d)0*58\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*58(?!\d))'
+    sold_keyword: ガブリアス DP-P
+    raw_price: "133.18 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "133.18 USD"
+    prices: {10: "2325 USD", 9: "405 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  eevee-dp-p-063:
+    name: イーブイ 063/DP-P
+    match: '^(?=.*イーブイ).*?(?:(?<!\d)0*63\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*63(?!\d))'
+    sold_keyword: イーブイ DP-P
+    raw_price: "129.65 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "129.65 USD"
+    prices: {10: "1478.61 USD", 9: "530 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  infernape-lvx-dp-p-071:
+    name: ゴウカザル LV.X 071/DP-P
+    match: '^(?=.*ゴウカザル).*?(?:(?<!\d)0*71\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*71(?!\d))'
+    sold_keyword: ゴウカザル DP-P
+    raw_price: "150.23 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "150.23 USD"
+    prices: {10: "3671.68 USD", 9: "299.99 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  torterra-lvx-dp-p-076:
+    name: ドダイトス LV.X 076/DP-P
+    match: '^(?=.*ドダイトス).*?(?:(?<!\d)0*76\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*76(?!\d))'
+    sold_keyword: ドダイトス DP-P
+    raw_price: "56.57 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "56.57 USD"
+    prices: {10: "399.7 USD", 9: "145 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  empoleon-lvx-dp-p-078:
+    name: エンペルト LV.X 078/DP-P
+    match: '^(?=.*エンペルト).*?(?:(?<!\d)0*78\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*78(?!\d))'
+    sold_keyword: エンペルト DP-P
+    raw_price: "30.67 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "30.67 USD"
+    prices: {10: "1000 USD", 9: "172.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  munchlax-dp-p-091:
+    name: ゴンベ 091/DP-P
+    match: '^(?=.*ゴンベ).*?(?:(?<!\d)0*91\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*91(?!\d))'
+    sold_keyword: ゴンベ DP-P
+    raw_price: "27.14 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "27.14 USD"
+    prices: {10: "1776 USD", 9: "198 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-dp-p-098:
+    name: ピカチュウ 098/DP-P
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*98\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*98(?!\d))'
+    sold_keyword: ピカチュウ DP-P
+    raw_price: "365 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "365 USD"
+    prices: {10: "3950.5 USD", 9: "1221 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-dp-p-099:
+    name: ピカチュウ 099/DP-P（10周年 大阪）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*99\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*99(?!\d))'
+    sold_keyword: ピカチュウ DP-P
+    raw_price: "399.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "399.99 USD"
+    prices: {10: "5000 USD", 9: "1169.58 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  palkia-dp-p-105:
+    name: パルキア 105/DP-P
+    match: '^(?=.*パルキア).*?(?:(?<!\d)0*105\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*105(?!\d))'
+    sold_keyword: パルキア DP-P
+    raw_price: "40.4 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "40.4 USD"
+    prices: {10: "3050 USD", 9: "314.72 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  giratina-dp-p-109:
+    name: ギラティナ 109/DP-P
+    match: '^(?=.*ギラティナ).*?(?:(?<!\d)0*109\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*109(?!\d))'
+    sold_keyword: ギラティナ DP-P
+    raw_price: "28.1 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "28.1 USD"
+    prices: {10: "345 USD", 9: "60.24 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  regigigas-dp-p-111:
+    name: レジギガス 111/DP-P
+    match: '^(?=.*レジギガス).*?(?:(?<!\d)0*111\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*111(?!\d))'
+    sold_keyword: レジギガス DP-P
+    raw_price: "4.31 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "4.31 USD"
+    prices: {10: "199.99 USD", 9: "35.53 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  drapion-lvx-dp-p-123:
+    name: ドラピオン LV.X 123/DP-P
+    match: '^(?=.*ドラピオン).*?(?:(?<!\d)0*123\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*123(?!\d))'
+    sold_keyword: ドラピオン DP-P
+    raw_price: "64.97 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "64.97 USD"
+    prices: {10: "1325 USD", 9: "139.19 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  snorlax-lvx-dp-p-127:
+    name: カビゴン LV.X 127/DP-P
+    match: '^(?=.*カビゴン).*?(?:(?<!\d)0*127\s*/\s*DP-?P(?![A-Za-z])|(?<![A-Za-z])DP-?P\s*[-#]?\s*0*127(?!\d))'
+    sold_keyword: カビゴン DP-P
+    raw_price: "245 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "245 USD"
+    prices: {10: "6518.31 USD", 9: "2776 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  darkrai-g-dpt-p-005:
+    name: ダークライG 005/DPt-P
+    match: '^(?=.*ダークライ).*?(?:(?<!\d)0*5\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*5(?!\d))'
+    sold_keyword: ダークライ DPt-P
+    raw_price: "18.59 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "18.59 USD"
+    prices: {10: "925 USD", 9: "84.35 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mismagius-gl-lvx-dpt-p-011:
+    name: ムウマージGL LV.X 011/DPt-P
+    match: '^(?=.*ムウマージ).*?(?:(?<!\d)0*11\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*11(?!\d))'
+    sold_keyword: ムウマージ DPt-P
+    raw_price: "18.52 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "18.52 USD"
+    prices: {10: "514.98 USD", 9: "125.64 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  dragonite-fb-dpt-p-018:
+    name: カイリューFB 018/DPt-P
+    match: '^(?=.*カイリュー).*?(?:(?<!\d)0*18\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*18(?!\d))'
+    sold_keyword: カイリュー DPt-P
+    raw_price: "312.36 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "312.36 USD"
+    prices: {10: "2100 USD", 9: "868.38 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  bulbasaur-dpt-p-030:
+    name: フシギダネ 030/DPt-P
+    match: '^(?=.*フシギダネ).*?(?:(?<!\d)0*30\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*30(?!\d))'
+    sold_keyword: フシギダネ DPt-P
+    raw_price: "219.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "219.99 USD"
+    prices: {10: "3563.98 USD", 9: "510.45 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  arceus-dpt-p-041:
+    name: アルセウス 041/DPt-P
+    match: '^(?=.*アルセウス).*?(?:(?<!\d)0*41\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*41(?!\d))'
+    sold_keyword: アルセウス DPt-P
+    raw_price: "6.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "6.99 USD"
+    prices: {10: "403.66 USD", 9: "76 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  spiky-eared-pichu-dpt-p-042:
+    name: ギザみみピチュー 042/DPt-P
+    match: '^(?=.*ピチュー).*?(?:(?<!\d)0*42\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*42(?!\d))'
+    sold_keyword: ピチュー DPt-P
+    raw_price: "139.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "139.99 USD"
+    prices: {10: "3713.88 USD", 9: "967.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-m-lvx-dpt-p-043:
+    name: ピカチュウM LV.X 043/DPt-P
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*43\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*43(?!\d))'
+    sold_keyword: ピカチュウ DPt-P
+    raw_price: "399.6 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "399.6 USD"
+    prices: {10: "5785.01 USD", 9: "1752.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  michina-temple-dpt-p-044:
+    name: ミチーナの神殿 044/DPt-P
+    match: '^.*?(?:(?<!\d)0*44\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*44(?!\d))'
+    sold_keyword: DPt-P
+    raw_price: "70 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "70 USD"
+    prices: {10: "721.55 USD", 9: "173 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mewtwo-dpt-p-049:
+    name: ミュウツー 049/DPt-P
+    match: '^(?=.*ミュウツー).*?(?:(?<!\d)0*49\s*/\s*DPt-?P(?![A-Za-z])|(?<![A-Za-z])DPt-?P\s*[-#]?\s*0*49(?!\d))'
+    sold_keyword: ミュウツー DPt-P
+    raw_price: "101.5 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "101.5 USD"
+    prices: {10: "3000 USD", 9: "339 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  chikorita-l-p-005:
+    name: チコリータ 005/L-P
+    match: '^(?=.*チコリータ).*?(?:(?<!\d)0*5\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*5(?!\d))'
+    sold_keyword: チコリータ L-P
+    raw_price: "39.5 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "39.5 USD"
+    prices: {10: "470 USD", 9: "164.3 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  cyndaquil-l-p-006:
+    name: ヒノアラシ 006/L-P
+    match: '^(?=.*ヒノアラシ).*?(?:(?<!\d)0*6\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*6(?!\d))'
+    sold_keyword: ヒノアラシ L-P
+    raw_price: "37.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "37.99 USD"
+    prices: {10: "596.71 USD", 9: "130 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  totodile-l-p-007:
+    name: ワニノコ 007/L-P
+    match: '^(?=.*ワニノコ).*?(?:(?<!\d)0*7\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*7(?!\d))'
+    sold_keyword: ワニノコ L-P
+    raw_price: "45.59 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "45.59 USD"
+    prices: {10: "762.5 USD", 9: "142.55 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mareep-l-p-008:
+    name: メリープ 008/L-P
+    match: '^(?=.*メリープ).*?(?:(?<!\d)0*8\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*8(?!\d))'
+    sold_keyword: メリープ L-P
+    raw_price: "24.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "24.99 USD"
+    prices: {10: "300 USD", 9: "81 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-gold-rank-l-p-019:
+    name: ピカチュウ 019/L-P（だいすきクラブ ゴールドランク）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*19\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*19(?!\d))'
+    sold_keyword: ピカチュウ L-P
+    raw_price: "433.77 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "433.77 USD"
+    prices: {10: "3283.97 USD", 9: "770 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  darkrai-l-p-021:
+    name: ダークライ 021/L-P（スーパーランク賞）
+    match: '^(?=.*ダークライ).*?(?:(?<!\d)0*21\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*21(?!\d))'
+    sold_keyword: ダークライ L-P
+    raw_price: "94.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "94.99 USD"
+    prices: {10: "3000 USD", 9: "411 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  slowpoke-l-p-028:
+    name: ヤドン 028/L-P
+    match: '^(?=.*ヤドン).*?(?:(?<!\d)0*28\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*28(?!\d))'
+    sold_keyword: ヤドン L-P
+    raw_price: "116.71 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "116.71 USD"
+    prices: {10: "2285.17 USD", 9: "599 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  slowbro-l-p-029:
+    name: ヤドラン 029/L-P
+    match: '^(?=.*ヤドラン).*?(?:(?<!\d)0*29\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*29(?!\d))'
+    sold_keyword: ヤドラン L-P
+    raw_price: "188.43 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "188.43 USD"
+    prices: {10: "3383 USD", 9: "877.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  slowking-l-p-030:
+    name: ヤドキング 030/L-P
+    match: '^(?=.*ヤドキング).*?(?:(?<!\d)0*30\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*30(?!\d))'
+    sold_keyword: ヤドキング L-P
+    raw_price: "148.89 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "148.89 USD"
+    prices: {10: "2987.1 USD", 9: "610 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-bronze-medal-l-p-031:
+    name: ピカチュウ 031/L-P（2009 銅メダル）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*31\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*31(?!\d))'
+    sold_keyword: ピカチュウ L-P
+    raw_price: "196.95 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "196.95 USD"
+    prices: {10: "700 USD", 9: "277.25 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-silver-medal-l-p-032:
+    name: ピカチュウ 032/L-P（2009 銀メダル）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*32\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*32(?!\d))'
+    sold_keyword: ピカチュウ L-P
+    raw_price: "201.25 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "201.25 USD"
+    prices: {10: "805 USD", 9: "259.14 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  pikachu-victory-medal-l-p-033:
+    name: ピカチュウ 033/L-P（ビクトリーメダル）
+    match: '^(?=.*ピカチュウ).*?(?:(?<!\d)0*33\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*33(?!\d))'
+    sold_keyword: ピカチュウ L-P
+    raw_price: "338.91 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "338.91 USD"
+    prices: {10: "1902.69 USD", 9: "590 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  lugia-l-p-047:
+    name: ルギア 047/L-P
+    match: '^(?=.*ルギア).*?(?:(?<!\d)0*47\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*47(?!\d))'
+    sold_keyword: ルギア L-P
+    raw_price: "156.58 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "156.58 USD"
+    prices: {10: "2283.65 USD", 9: "358.25 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  ho-oh-l-p-048:
+    name: ホウオウ 048/L-P
+    match: '^(?=.*ホウオウ).*?(?:(?<!\d)0*48\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*48(?!\d))'
+    sold_keyword: ホウオウ L-P
+    raw_price: "32.8 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "32.8 USD"
+    prices: {10: "699.49 USD", 9: "171.69 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  entei-l-p-059:
+    name: エンテイ 059/L-P
+    match: '^(?=.*エンテイ).*?(?:(?<!\d)0*59\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*59(?!\d))'
+    sold_keyword: エンテイ L-P
+    raw_price: "23.49 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "23.49 USD"
+    prices: {10: "5143.75 USD", 9: "178.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  suicune-l-p-060:
+    name: スイクン 060/L-P
+    match: '^(?=.*スイクン).*?(?:(?<!\d)0*60\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*60(?!\d))'
+    sold_keyword: スイクン L-P
+    raw_price: "40.5 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "40.5 USD"
+    prices: {10: "593.37 USD", 9: "255 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  raikou-l-p-061:
+    name: ライコウ 061/L-P
+    match: '^(?=.*ライコウ).*?(?:(?<!\d)0*61\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*61(?!\d))'
+    sold_keyword: ライコウ L-P
+    raw_price: "25 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "25 USD"
+    prices: {10: "1293.47 USD", 9: "254.81 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  electabuzz-l-p-069:
+    name: エレブー 069/L-P
+    match: '^(?=.*エレブー).*?(?:(?<!\d)0*69\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*69(?!\d))'
+    sold_keyword: エレブー L-P
+    raw_price: "185.98 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "185.98 USD"
+    prices: {10: "1050 USD", 9: "349.99 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  kyogre-l-p-071:
+    name: カイオーガ 071/L-P
+    match: '^(?=.*カイオーガ).*?(?:(?<!\d)0*71\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*71(?!\d))'
+    sold_keyword: カイオーガ L-P
+    raw_price: "406.26 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "406.26 USD"
+    prices: {10: "6500 USD", 9: "1577.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  groudon-l-p-072:
+    name: グラードン 072/L-P（伝説ポケモンプレゼント）
+    match: '^(?=.*グラードン).*?(?:(?<!\d)0*72\s*/\s*L-?P(?![A-Za-z])|(?<![A-Za-z])L-?P\s*[-#]?\s*0*72(?!\d))'
+    sold_keyword: グラードン L-P
+    raw_price: "382.36 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "382.36 USD"
+    prices: {10: "8900 USD", 9: "1399.99 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  lanturn-e-p-031:
+    name: ランターン 031/P
+    match: '^(?=.*ランターン).*?(?:(?<!\d)0*31\s*/\s*P(?![A-Za-z])|(?<![A-Za-z])P\s*[-#]?\s*0*31(?!\d))'
+    sold_keyword: ランターン 031/P
+    raw_price: "29.65 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "29.65 USD"
+    prices: {10: "365 USD", 9: "106.69 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  snorlax-cd-promo:
+    name: カビゴン 旧裏 CDプロモ（キラ）
+    match: '^(?=.*カビゴン)(?=.*CD)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: カビゴン CD プロモ
+    raw_price: "21.02 USD"            # PriceCharting pokemon-japanese-cd-promo, ungraded, 2026-10-25
+    raw_price_played: "21.02 USD"
+    prices: {10: "252.6 USD", 9: "71.81 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mew-cd-promo:
+    name: ミュウ 旧裏 CDプロモ（光沢）
+    match: '^(?=.*ミュウ(?!ツー))(?=.*CD)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ミュウ CD プロモ
+    raw_price: "21.51 USD"            # PriceCharting pokemon-japanese-cd-promo, ungraded, 2026-10-25
+    raw_price_played: "21.51 USD"
+    prices: {10: "711.99 USD", 9: "53 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mewtwo-cd-promo:
+    name: ミュウツー 旧裏 CDプロモ（光沢）
+    match: '^(?=.*ミュウツー)(?=.*CD)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ミュウツー CD プロモ
+    raw_price: "16.99 USD"            # PriceCharting pokemon-japanese-cd-promo, ungraded, 2026-10-25
+    raw_price_played: "16.99 USD"
+    prices: {10: "342.14 USD", 9: "51.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  porygon-cd-promo:
+    name: ポリゴン 旧裏 CDプロモ（キラ）
+    match: '^(?=.*ポリゴン)(?=.*CD)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ポリゴン CD プロモ
+    raw_price: "7.01 USD"            # PriceCharting pokemon-japanese-cd-promo, ungraded, 2026-10-25
+    raw_price_played: "7.01 USD"
+    prices: {10: "139.88 USD", 9: "29.42 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  meowth-cd-promo:
+    name: ニャース 旧裏 CDプロモ
+    match: '^(?=.*ニャース)(?=.*CD)(?!.*(GB|ゲームボーイ|コロコロ))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ニャース CD プロモ
+    raw_price: "49.44 USD"            # PriceCharting pokemon-japanese-cd-promo, ungraded, 2026-10-25
+    raw_price_played: "49.44 USD"
+    prices: {10: "950 USD", 9: "77.8 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  ancient-mew:
+    name: 古代ミュウ（劇場版 2000）
+    match: '^(?=.*古代ミュウ)(?!.*(Nintedo|ニンテド|エラー|2019|復刻))'
+    sold_keyword: 古代ミュウ
+    raw_price: "111.27 USD"            # PriceCharting pokemon-japanese-promo/ancient-mew；Nintedo 錯字版與 2019 復刻版不適用, ungraded, 2026-10-25
+    raw_price_played: "111.27 USD"
+    prices: {10: "4188.86 USD", 9: "645.5 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  zapdos-ana:
+    name: サンダー 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*サンダー(?!ス))(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: サンダー 全日空
+    raw_price: "112.15 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "112.15 USD"
+    prices: {10: "2188.71 USD", 9: "384.8 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  articuno-ana:
+    name: フリーザー 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*フリーザー)(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: フリーザー 全日空
+    raw_price: "131.61 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "131.61 USD"
+    prices: {10: "2573.14 USD", 9: "527.46 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  moltres-ana:
+    name: ファイヤー 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*ファイヤー)(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ファイヤー 全日空
+    raw_price: "77.12 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "77.12 USD"
+    prices: {10: "1801.87 USD", 9: "459.75 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  dragonite-ana:
+    name: そらとぶカイリュー 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*カイリュー)(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: カイリュー 全日空
+    raw_price: "69.99 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "69.99 USD"
+    prices: {10: "2226.01 USD", 9: "455 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  togepi-ana:
+    name: トゲピー 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*トゲピー)(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: トゲピー 全日空
+    raw_price: "82.68 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "82.68 USD"
+    prices: {10: "2550 USD", 9: "316.52 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  marill-ana:
+    name: マリル 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*マリル)(?=.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: マリル 全日空
+    raw_price: "56.71 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
+    raw_price_played: "56.71 USD"
+    prices: {10: "2142.47 USD", 9: "346.9 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  flying-pikachu-ana:
+    name: そらとぶピカチュウ 旧裏 ANA（全日空）プロモ
+    match: '^(?=.*ピカチュウ)(?=.*(ANA|全日空))(?!.*(ジャンボ|ANA\s*2001|ヨーギラス))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: そらとぶピカチュウ 全日空
+    raw_price: "131.21 USD"            # PriceCharting pokemon-japanese-promo（Flying Pikachu, ANA Plane on Right）, ungraded, 2026-10-25
+    raw_price_played: "131.21 USD"
+    prices: {10: "4600 USD", 9: "733.67 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  flying-pikachu-corocoro:
+    name: そらとぶピカチュウ 旧裏 コロコロ プロモ
+    match: '^(?=.*(そらとぶ|空(を)?飛ぶ)\s*ピカチュウ)(?!.*(ANA|全日空|ジャンボ|V|VMAX|GX|ex(?![a-z])))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: そらとぶピカチュウ 旧裏
+    raw_price: "59.98 USD"            # PriceCharting pokemon-japanese-promo（Flying Pikachu [CoroCoro]）, ungraded, 2026-10-25
+    raw_price_played: "59.98 USD"
+    prices: {10: "4500 USD", 9: "1257.47 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  surfing-pikachu-corocoro:
+    name: なみのりピカチュウ 旧裏 コロコロ プロモ
+    match: '^(?=.*(なみのり|波乗り)\s*ピカチュウ)(?=.*(旧裏|コロコロ))(?!.*(富士|ジャンボ|V|VMAX|GX|ex(?![a-z])))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: なみのりピカチュウ 旧裏
+    raw_price: "65.75 USD"            # PriceCharting pokemon-japanese-promo（Surfing Pikachu [CoroCoro]）, ungraded, 2026-10-25
+    raw_price_played: "65.75 USD"
+    prices: {10: "3758 USD", 9: "3131.41 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  snap-pikachu:
+    name: ピカチュウ 旧裏 ポケモンスナップ プロモ
+    match: '^(?=.*ピカチュウ)(?=.*(スナップ|snap))(?!.*(ニュー|New))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ピカチュウ ポケモンスナップ 旧裏
+    raw_price: "612.46 USD"            # PriceCharting pokemon-japanese-promo（Snap Pikachu）, ungraded, 2026-10-25
+    raw_price_played: "612.46 USD"
+    prices: {10: "5100.01 USD", 9: "2467.53 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  cleffa-corocoro:
+    name: ピィ neo コロコロ 光沢プロモ
+    match: '^(?=.*ピィ)(?=.*(コロコロ|光沢))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ピィ コロコロ
+    raw_price: "27.42 USD"            # PriceCharting pokemon-japanese-promo（Cleffa [Corocoro Glossy]）, ungraded, 2026-10-25
+    raw_price_played: "27.42 USD"
+    prices: {10: "2149.28 USD", 9: "300 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  wooper-corocoro:
+    name: ウパー neo コロコロ プロモ
+    match: '^(?=.*ウパー)(?=.*コロコロ)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ウパー コロコロ
+    raw_price: "44 USD"            # PriceCharting pokemon-japanese-promo（Wooper [CoroCoro]）, ungraded, 2026-10-25
+    raw_price_played: "44 USD"
+    prices: {10: "2306.02 USD", 9: "357.19 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  scizor-corocoro:
+    name: ハッサム neo コロコロ 光沢プロモ
+    match: '^(?=.*ハッサム)(?=.*コロコロ)(?!.*ロケット団)(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: ハッサム コロコロ
+    raw_price: "28.03 USD"            # PriceCharting pokemon-japanese-promo（Scizor [Corocoro Comics Glossy]）, ungraded, 2026-10-25
+    raw_price_played: "28.03 USD"
+    prices: {10: "2159.36 USD", 9: "320 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  togepi-corocoro:
+    name: トゲピー neo コロコロ プロモ
+    match: '^(?=.*トゲピー)(?=.*コロコロ)(?!.*(ANA|全日空))(?!.*\d+\s*/\s*(?:P|T|ADV-?P|PCG-?P|DP-?P|DPt-?P|L-?P)(?![A-Za-z]))'
+    sold_keyword: トゲピー コロコロ
+    raw_price: "26.7 USD"            # PriceCharting pokemon-japanese-promo（Togepi [Corocoro Comics]）, ungraded, 2026-10-25
+    raw_price_played: "26.7 USD"
+    prices: {10: "13800 USD", 9: "1030.94 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  mistys-staryu-corocoro:
+    name: カスミのヒトデマン 旧裏 コロコロ プロモ
+    match: '^(?=.*カスミのヒトデマン)(?=.*(コロコロ|プロモ|光沢))'
+    sold_keyword: カスミのヒトデマン
+    raw_price: "9.28 USD"            # PriceCharting pokemon-japanese-promo（Misty's Staryu [Corocoro Comics]）, ungraded, 2026-10-25
+    raw_price_played: "9.28 USD"
+    prices: {10: "10000 USD", 9: "380 USD"}   # PriceCharting 2026-10-25
+    probability_set: default
+
+  dark-persian-magazine:
+    name: わるいペルシアン 旧裏 ポケモン雑誌付録プロモ
+    match: '^(?=.*わるいペルシアン)(?=.*(プロモ|付録|雑誌|マガジン|ファンブック))'
+    sold_keyword: わるいペルシアン プロモ
+    raw_price: "103.33 USD"            # PriceCharting pokemon-japanese-promo（Dark Persian [Pokemon Magazine]）, ungraded, 2026-10-25
+    raw_price_played: "103.33 USD"
+    prices: {10: "1050 USD", 9: "300.33 USD"}   # PriceCharting 2026-10-25
+    probability_set: default

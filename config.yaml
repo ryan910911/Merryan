@@ -198,6 +198,38 @@ items:
   - {name: ポケモンXD ファミ通 3Dカード, keyword: ポケモンXD ファミ通 カード}
   - {name: ダークルギア イーブイ 3Dカード, keyword: ダークルギア イーブイ カード}
 
+  # ---- 舊世代促銷卡（2026-10-25 加入）----
+  # 廣泛搜尋加 only_matched: true → 只通知對得到 cards.yaml 卡號的刊登，其他同系列便宜卡不洗版
+  - {name: ADV-P プロモ 全般, keyword: ADV-P ポケモンカード, only_matched: true}
+  - {name: PCG-P プロモ 全般, keyword: PCG-P ポケモンカード, only_matched: true}
+  - {name: DP-P プロモ 全般, keyword: DP-P ポケモンカード, only_matched: true}
+  - {name: DPt-P プロモ 全般, keyword: DPt-P ポケモンカード, only_matched: true}
+  - {name: L-P プロモ 全般, keyword: L-P ポケモンカード プロモ, only_matched: true}
+  # 高價卡單獨搜尋（廣泛搜尋一頁只看最新 40 件，避免被洗掉）
+  - {name: ピカチュウM LV.X DPt-P, keyword: ピカチュウM LV.X DPt-P}
+  - {name: カビゴン LV.X DP-P, keyword: カビゴン LV.X DP-P}
+  - {name: ポケパーク プロモ PCG-P, keyword: ポケパーク PCG-P}
+  - {name: ミュウ PCG-P, keyword: ミュウ PCG-P}
+  - {name: レックウザ PCG-P, keyword: レックウザ PCG-P}
+  - {name: ピカチュウ PCG-P, keyword: ピカチュウ PCG-P, only_matched: true}
+  - {name: ピカチュウ DP-P, keyword: ピカチュウ DP-P, only_matched: true}
+  - {name: ギザみみピチュー DPt-P, keyword: ギザみみピチュー DPt-P}
+  - {name: カイオーガ グラードン L-P, keyword: L-P カイオーガ グラードン}
+  - {name: サトシのキモリ ハルカのアチャモ タケシのミズゴロウ, keyword: ADV-P サトシ ハルカ タケシ}
+  - {name: ミズゴロウ セブンイレブン ADV-P, keyword: ミズゴロウ ADV-P}
+  # 旧裏／neo 無編號促銷卡
+  - {name: 旧裏 CD プロモ, keyword: 旧裏 CD プロモ, only_matched: true}
+  - {name: 古代ミュウ, keyword: 古代ミュウ}
+  - {name: 旧裏 ANA 全日空, keyword: 全日空 ポケモンカード 旧裏, only_matched: true}
+  - {name: 旧裏 ANA, keyword: ANA ポケモンカード 旧裏, only_matched: true}
+  - {name: そらとぶピカチュウ 旧裏, keyword: そらとぶピカチュウ 旧裏}
+  - {name: なみのりピカチュウ 旧裏, keyword: なみのりピカチュウ 旧裏}
+  - {name: ポケモンスナップ ピカチュウ, keyword: ポケモンスナップ ピカチュウ 旧裏}
+  - {name: 旧裏 コロコロ プロモ, keyword: 旧裏 コロコロ プロモ, only_matched: true}
+  - {name: カスミのヒトデマン, keyword: カスミのヒトデマン}
+  - {name: わるいペルシアン プロモ, keyword: わるいペルシアン プロモ}
+  - {name: ランターン 031/P, keyword: ランターン 031/P}
+
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版
     keyword: ロルカナ エルサ 氷をつくりし者 英語版
