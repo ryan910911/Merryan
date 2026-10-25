@@ -5,7 +5,13 @@ os.makedirs('docs', exist_ok=True); base = int(time.time() * 1000); w = []
 for i, x in enumerate(man):
     d = {"asset": up[x['id']], "w": x['w'], "h": x['h'], "thumb": x['thumb'], "group": x['group'], "n": x['n'],
          "side": None, "psa": None, "edges": None, "corners": None, "surface": None, "marks": [], "done": False,
+         "ai": None,
          "createdAt": base - i, "updatedAt": base}
+    if x.get("label"):  # Claude 預標：直接放進 marks 當初稿（ai=True），人確認後按完成
+        lab = x["label"]
+        d["ai"] = {"model": lab.get("model"), "side": lab.get("side"), "clean": lab.get("clean"), "psa": lab.get("psa"), "note": lab.get("note")}
+        d["marks"] = [{"t": m["t"], "box": m["box"], "ai": True, "note": m.get("note", "")} for m in lab.get("marks", [])]
+        d["side"] = lab.get("side") if lab.get("side") in ("front", "back") else None
     p = os.path.abspath(f"docs/{x['id']}.json"); json.dump(d, open(p, 'w'))
     w.append({"op": "set", "collection": "photos", "doc_id": x['id'], "file_path": p})
 for f in glob.glob(qdir + '/*.json'):
