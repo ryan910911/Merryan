@@ -55,6 +55,12 @@ items:
   - name: ルギア e-P 047
     keyword: ルギア 047/P
 
+  # ---- 炎帝（2026-10-25 加入）----
+  - name: エンテイ e-P 043（JR プロモ）
+    keyword: エンテイ 043/P
+  - name: エンテイ 海からの風 027/087 キラ
+    keyword: エンテイ 027/087
+
   # ---- 寶可夢 e 卡促銷卡（P 編號，2001~2002）----
   # 編號依 Serebii／TCGCollector 的 P Promos 清單
   - name: リザードン e-P 014
