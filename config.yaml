@@ -230,6 +230,23 @@ items:
   - {name: わるいペルシアン プロモ, keyword: わるいペルシアン プロモ}
   - {name: ランターン 031/P, keyword: ランターン 031/P}
 
+  # ---- 2011~2020 促銷卡（BW-P／XY-P／SM-P／S-P 初期，2026-10-25 加入）----
+  - {name: BW-P プロモ 全般, keyword: BW-P ポケモンカード, only_matched: true}
+  - {name: XY-P プロモ 全般, keyword: XY-P ポケモンカード, only_matched: true}
+  - {name: SM-P プロモ 全般, keyword: SM-P ポケモンカード, only_matched: true}
+  - {name: S-P プロモ 初期, keyword: S-P ポケモンカード プロモ, only_matched: true}
+  - {name: ピカチュウ SM-P, keyword: ピカチュウ SM-P, only_matched: true}
+  - {name: ピカチュウ BW-P, keyword: ピカチュウ BW-P, only_matched: true}
+  - {name: ごっこピカチュウ, keyword: ごっこピカチュウ, only_matched: true}
+  - {name: ポンチョを着たイーブイ, keyword: ポンチョを着たイーブイ, only_matched: true}
+  - {name: マリオ ルイージ ピカチュウ, keyword: マリオピカチュウ ルイージピカチュウ プロモ, only_matched: true}
+  - {name: マリオピカチュウ, keyword: マリオピカチュウ, only_matched: true}
+  - {name: ルイージピカチュウ, keyword: ルイージピカチュウ, only_matched: true}
+  - {name: ムンク展 プロモ, keyword: ムンク ポケモンカード プロモ, only_matched: true}
+  - {name: サトシのピカチュウ SM-P, keyword: サトシのピカチュウ SM-P, only_matched: true}
+  - {name: ギラティナEX BW-P, keyword: ギラティナEX BW-P}
+  - {name: リーリエ 397/SM-P, keyword: リーリエ SM-P プロモ, only_matched: true}
+
   # ---- 迪士尼 Lorcana ----
   - name: エルサ 氷をつくりし者 英語版
     keyword: ロルカナ エルサ 氷をつくりし者 英語版

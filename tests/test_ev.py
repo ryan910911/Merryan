@@ -398,3 +398,5 @@ def test_old_promo_profiles_match_by_number():
     assert pick_card(cfg, "auto", "旧裏 ミュウ CDプロモ 光沢") == "mew-cd-promo"
     assert pick_card(cfg, "auto", "ピカチュウ 004/P ANA") == "pikachu-e-p-004"  # 舊的 e 卡 profile 仍優先
     assert pick_card(cfg, "auto", "アチャモ 052/ADV-P") is None
+    assert pick_card(cfg, "auto", "マリオピカチュウ 294/XY-P") == "mario-pikachu-xy-p-294"
+    assert pick_card(cfg, "auto", "ピカチュウ 002/SM-P") is None  # 002/S-P 是シブヤ，不能混到 SM-P
