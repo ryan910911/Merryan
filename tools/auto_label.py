@@ -43,14 +43,14 @@ SCHEMA = {
     "properties": {
         "side": {"type": "string", "enum": ["front", "back", "other"]},
         "clean": {"type": "boolean"},
-        "psa": {"type": ["integer", "null"], "minimum": 1, "maximum": 10},
+        "psa": {"type": ["integer", "null"]},
         "marks": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "t": {"type": "string", "enum": MARK_TYPES},
-                    "box": {"type": "array", "items": {"type": "number", "minimum": 0, "maximum": 1}, "minItems": 4, "maxItems": 4},
+                    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
                     "note": {"type": "string"},
                 },
                 "required": ["t", "box", "note"],
@@ -81,10 +81,12 @@ def label_photo(client: anthropic.Anthropic, raw: bytes, listing: dict, model: s
         return {"side": "other", "clean": False, "psa": None, "marks": [], "note": "模型拒絕判讀", "refused": True}
     text = next((b.text for b in resp.content if b.type == "text"), "{}")
     data = json.loads(text)
-    # 框順序保險：x0<x1、y0<y1
+    # 框順序與範圍保險：x0<x1、y0<y1，夾在 0~1（schema 不能寫 minimum/maximum）
     for m in data["marks"]:
-        x0, y0, x1, y1 = m["box"]
+        x0, y0, x1, y1 = (min(1.0, max(0.0, float(v))) for v in m["box"])
         m["box"] = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
+    if data.get("psa") is not None:
+        data["psa"] = min(10, max(1, int(data["psa"])))
     data["usage"] = {"in": resp.usage.input_tokens, "out": resp.usage.output_tokens}
     return data
 
@@ -119,6 +121,8 @@ def main() -> None:
         done += 1
         print(f"{p.name}: {data['side']} marks={len(data['marks'])} clean={data['clean']} psa={data['psa']}")
     print(f"標了 {done} 張（略過已有 {skipped}），tokens in {tok_in} / out {tok_out}")
+    if photos and done == 0 and skipped == 0:
+        sys.exit(1)  # 全部失敗（key 錯、schema 錯）：讓 workflow 變紅，不要默默推空結果
 
 
 if __name__ == "__main__":
