@@ -4,6 +4,7 @@
   QUEUE_DIR/m<id>_<n>.jpg   fetch_photos.py 下載的照片
   QUEUE_DIR/m<id>.json      刊登資料（標題、品況，給模型當背景）
   → QUEUE_DIR/m<id>_<n>.label.json  {"side", "clean", "psa", "marks":[{"t","box","note"}], "model"}
+  （schema 不能用 minimum/maximum/minItems，所以框用 x0,y0,x1,y1 四個欄位，程式再夾到 0~1）
 
 需要 ANTHROPIC_API_KEY；每張照片一次呼叫，約 1,500～2,500 tokens。
 框座標跟標註頁一樣是 0~1 的正規化座標 [x0, y0, x1, y1]。
@@ -25,7 +26,7 @@ PROMPT = """這是日本 Mercari 上一張寶可夢卡片的賣家照片，要�
 賣家標示品況：{condition}
 
 請只看「卡片本身」的實體瑕疵，忽略背景、反光、卡套、照片壓縮雜訊，也忽略印刷本來就有的白線、白框、文字。
-找出每一處瑕疵並給出框（正規化座標，0~1，相對整張照片），類型：
+找出每一處瑕疵並給出框 x0,y0,x1,y1（正規化座標，0~1，相對整張照片，左上角是 0,0），類型：
 - edge：邊緣白邊（卡邊的白色紙芯露出）
 - corner：角尖白掉或磨圓
 - spot：白點、小缺損
@@ -36,24 +37,24 @@ PROMPT = """這是日本 Mercari 上一張寶可夢卡片的賣家照片，要�
 框要緊貼瑕疵；同一條邊上連續的白邊給一個框即可。不確定的不要標，寧可少標。
 side：這張是卡片正面 front、背面 back，還是看不出／不是卡片 other。
 clean：這張照片裡看得到的部分完全沒有瑕疵時為 true。
-psa：只在看得到整張卡（正面或背面全圖）時，估一個 PSA 分數 1~10；看不到整張就給 null。"""
+psa：只在看得到整張卡（正面或背面全圖）時，估一個 PSA 分數 1~10；看不到整張就給 0。"""
 
 SCHEMA = {
     "type": "object",
     "properties": {
         "side": {"type": "string", "enum": ["front", "back", "other"]},
         "clean": {"type": "boolean"},
-        "psa": {"type": ["integer", "null"]},
+        "psa": {"type": "integer"},
         "marks": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "t": {"type": "string", "enum": MARK_TYPES},
-                    "box": {"type": "array", "items": {"type": "number"}, "minItems": 4, "maxItems": 4},
+                    "x0": {"type": "number"}, "y0": {"type": "number"}, "x1": {"type": "number"}, "y1": {"type": "number"},
                     "note": {"type": "string"},
                 },
-                "required": ["t", "box", "note"],
+                "required": ["t", "x0", "y0", "x1", "y1", "note"],
                 "additionalProperties": False,
             },
         },
@@ -83,10 +84,9 @@ def label_photo(client: anthropic.Anthropic, raw: bytes, listing: dict, model: s
     data = json.loads(text)
     # 框順序與範圍保險：x0<x1、y0<y1，夾在 0~1（schema 不能寫 minimum/maximum）
     for m in data["marks"]:
-        x0, y0, x1, y1 = (min(1.0, max(0.0, float(v))) for v in m["box"])
+        x0, y0, x1, y1 = (min(1.0, max(0.0, float(m.pop(k)))) for k in ("x0", "y0", "x1", "y1"))
         m["box"] = [min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)]
-    if data.get("psa") is not None:
-        data["psa"] = min(10, max(1, int(data["psa"])))
+    data["psa"] = min(10, int(data["psa"])) if int(data.get("psa") or 0) >= 1 else None
     data["usage"] = {"in": resp.usage.input_tokens, "out": resp.usage.output_tokens}
     return data
 
