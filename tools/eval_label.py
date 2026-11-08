@@ -79,6 +79,46 @@ TILE_PROMPT_V2 = """這是日本 Mercari 上一張寶可夢卡片的賣家照片
 side：正面 front、背面 back、看不出 other。clean：看得到的部分完全沒有瑕疵。psa：看得到整張卡才估 1~10，否則 0。"""
 
 
+EDGE_PROMPT = """這是日本 Mercari 上一張寶可夢卡片的賣家照片，要送 PSA 鑑定前先看卡況。
+刊登標題：{title}
+賣家標示品況：{condition}
+
+第一張圖是整張照片，後面 {n} 張是沿著卡片四條邊切下來的放大長條（tile 0~{last}，左上角有編號），每條都包含一段卡邊和一點背景。
+只檢查卡邊和卡角：沿著卡邊從頭看到尾，找彩色邊框（黃框、藍底、銀框）最外緣露出白色紙芯的小白點、小缺口、毛邊、角尖發白或磨圓。
+背景、桌面、卡套邊、相機反光造成的亮線不算；卡片印刷本身的白線不算。
+每一處回報 tile 編號和在那張長條圖裡的框 x0,y0,x1,y1（0~1），框要緊貼；同一處出現在重疊的兩條裡只報一次。
+類型只用 edge（邊）、corner（角）、spot（邊上的小缺口）。
+side：正面 front、背面 back、看不出 other。clean：看得到的邊和角都沒有瑕疵。psa：給 0。"""
+
+
+def _tile_call(client, im, ts, prompt, effort, long_side=1000, only=None):
+    w, h = im.size
+    content = [_jpeg(im)]
+    f = _font(28)
+    for i, (x0, y0, x1, y1) in enumerate(ts):
+        t = im.crop((int(x0 * w), int(y0 * h), int(x1 * w), int(y1 * h)))
+        sc = long_side / max(t.size)
+        t = t.resize((max(1, int(t.width * sc)), max(1, int(t.height * sc))), Image.LANCZOS)
+        dd = ImageDraw.Draw(t)
+        dd.rectangle([0, 0, 120, 40], fill="white")
+        dd.text((6, 4), f"tile {i}", fill="black", font=f)
+        content.append(_jpeg(t))
+    content.append({"type": "text", "text": prompt})
+    d, usage = _call(client, content, _schema_with({"tile": {"type": "integer"}}), effort)
+    marks = []
+    for m in d["marks"]:
+        ti = min(len(ts) - 1, max(0, int(m.pop("tile"))))
+        tx0, ty0, tx1, ty1 = ts[ti]
+        b = _clamp_box(m.pop("x0"), m.pop("y0"), m.pop("x1"), m.pop("y1"))
+        m["box"] = [tx0 + b[0] * (tx1 - tx0), ty0 + b[1] * (ty1 - ty0), tx0 + b[2] * (tx1 - tx0), ty0 + b[3] * (ty1 - ty0)]
+        m["tile"] = ti
+        if only is None or m["t"] in only:
+            marks.append(m)
+    d["marks"] = marks
+    d["usage"] = usage
+    return d
+
+
 def _schema_with(extra: dict | None = None) -> dict:
     s = json.loads(json.dumps(SCHEMA))
     if extra:
@@ -196,6 +236,22 @@ def run_variant(client, variant: str, raw: bytes, listing: dict, effort: str) ->
             m["box"] = _clamp_box(*(m.pop(k) / 100 for k in ("x0", "y0", "x1", "y1")))
         d["usage"] = usage
         return d
+    if variant == "edges":
+        # 只看卡邊：沿卡片外框切 8 條細長帶（每邊兩段），放大後專找白邊與角
+        r = card_region(raw, margin=0.02)
+        bw, bh = r[2] - r[0], r[3] - r[1]
+        t = 0.14
+        strips = []
+        for k in range(2):
+            a, b = r[0] + k * bw / 2 - (0.03 * bw if k else 0), r[0] + (k + 1) * bw / 2 + (0.03 * bw if not k else 0)
+            strips.append((a, r[1], b, r[1] + t * bh))                  # 上
+            strips.append((a, r[3] - t * bh, b, r[3]))                  # 下
+        for k in range(2):
+            a, b = r[1] + k * bh / 2 - (0.03 * bh if k else 0), r[1] + (k + 1) * bh / 2 + (0.03 * bh if not k else 0)
+            strips.append((r[0], a, r[0] + t * bw, b))                  # 左
+            strips.append((r[2] - t * bw, a, r[2], b))                  # 右
+        return _tile_call(client, im, strips, EDGE_PROMPT.format(title=title, condition=cond, n=len(strips), last=len(strips) - 1),
+                          effort, long_side=1400, only={"edge", "corner", "spot"})
     if variant.startswith("tiles") or variant.startswith("card"):
         # tilesN：整張照片切 N×N；cardN：先用 OpenCV 找卡片範圍，只在卡片上切 N×N（card1 = 只放大卡片）
         r = card_region(raw) if variant.startswith("card") else (0.0, 0.0, 1.0, 1.0)
