@@ -6,7 +6,8 @@
   → QUEUE_DIR/m<id>_<n>.label.json  {"side", "clean", "psa", "marks":[{"t","box","note"}], "model"}
   （schema 不能用 minimum/maximum/minItems，所以框用 x0,y0,x1,y1 四個欄位，程式再夾到 0~1）
 
-需要 ANTHROPIC_API_KEY；每張照片一次呼叫，約 1,500～2,500 tokens。
+需要 ANTHROPIC_API_KEY；每張照片一次呼叫。預設 --method card2（整張 + 卡片切 4 塊放大，約 7,000 tokens），
+在人工考卷上召回 41%、精確 55%；舊的整張看（--method full，約 2,500 tokens）召回 0%。
 框座標跟標註頁一樣是 0~1 的正規化座標 [x0, y0, x1, y1]。
 """
 from __future__ import annotations
@@ -96,6 +97,8 @@ def main() -> None:
     ap.add_argument("queue", type=Path)
     ap.add_argument("--model", default="claude-opus-5-5")
     ap.add_argument("--effort", default="medium")
+    ap.add_argument("--method", default="card2",
+                    help="card2 = 先用 OpenCV 找卡片再切 4 塊放大（2026-11-08 在 37 張人工考卷上最準）；full = 舊的整張看")
     a = ap.parse_args()
     client = anthropic.Anthropic()
     photos = sorted(a.queue.glob("m*_*.jpg"))
@@ -110,11 +113,17 @@ def main() -> None:
         lj = a.queue / f"{lid}.json"
         listing = json.loads(lj.read_text()) if lj.exists() else {}
         try:
-            data = label_photo(client, p.read_bytes(), listing, a.model, a.effort)
+            if a.method == "full":
+                data = label_photo(client, p.read_bytes(), listing, a.model, a.effort)
+            else:
+                from eval_label import run_variant  # 放在這裡避免互相 import
+                data = run_variant(client, a.method, p.read_bytes(), listing, a.effort)
+                data["psa"] = min(10, int(data["psa"])) if int(data.get("psa") or 0) >= 1 else None
         except anthropic.APIStatusError as e:
             print(f"{p.name}: API 錯誤 {e.status_code} {e.message}", file=sys.stderr)
             continue
         data["model"] = a.model
+        data["method"] = a.method
         out.write_text(json.dumps(data, ensure_ascii=False))
         tok_in += data.get("usage", {}).get("in", 0)
         tok_out += data.get("usage", {}).get("out", 0)

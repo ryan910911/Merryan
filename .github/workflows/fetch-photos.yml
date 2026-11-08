@@ -25,13 +25,13 @@ jobs:
       - name: Label existing queue
         if: inputs.urls == 'label'
         run: |
-          pip install anthropic
+          pip install anthropic pillow opencv-python-headless numpy
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git fetch origin photo-queue
-          git show origin/main:tools/auto_label.py > /tmp/auto_label.py
+          cp -r tools /tmp/tools && cp defect_scan.py /tmp/
           git checkout -B photo-queue origin/photo-queue
-          python /tmp/auto_label.py queue
+          python /tmp/tools/auto_label.py queue
           git add queue
           git commit -qm "Label queued photos" || exit 0
           git push origin photo-queue
