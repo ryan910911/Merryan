@@ -176,6 +176,8 @@ def main() -> None:
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
     defaults = cfg["defaults"]
     exclude = [w.lower() for w in defaults.get("exclude_words", [])]
+    paused = [w for w in (defaults.get("paused_pokemon") or []) if w]
+    exclude += [w.lower() for w in paused]  # 暫停的寶可夢：廣泛搜尋抓到也不通知
     seen: dict[str, list[str]] = (
         json.loads(SEEN_PATH.read_text(encoding="utf-8")) if SEEN_PATH.exists() else {}
     )
@@ -207,7 +209,10 @@ def main() -> None:
         )
         page = ctx.new_page()
 
-        items = cfg["items"]
+        items = [
+            item for item in cfg["items"]
+            if not item.get("paused") and not any(w in f"{item['name']} {item['keyword']}" for w in paused)
+        ]
         start = (seen.get(CURSOR_KEY) or [0])[0] % max(len(items), 1)
         order = items[start:] + items[:start]
         began = time.monotonic()
