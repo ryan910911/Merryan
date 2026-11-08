@@ -63,6 +63,22 @@ TILE_PROMPT = """這是日本 Mercari 上一張寶可夢卡片的賣家照片，
 side：正面 front、背面 back、看不出 other。clean：看得到的部分完全沒有瑕疵。psa：看得到整張卡才估 1~10，否則 0。"""
 
 
+TILE_PROMPT_V2 = """這是日本 Mercari 上一張寶可夢卡片的賣家照片，要送 PSA 鑑定前先看卡況。
+刊登標題：{title}
+賣家標示品況：{condition}
+
+第一張圖是整張照片（給你看全貌），後面 {n} 張是卡片的放大區塊，編號 tile 0~{last}，每張放大圖左上角寫了編號。
+你是挑剔的 PSA 鑑定員。PSA 10 和 9 的差別常常只是一個針尖大的白點或一條要斜光才看得到的細刮痕，所以請逐張放大圖仔細找，小瑕疵也要標：
+1. 卡邊：沿著每條看得到的卡邊走一遍，找彩色邊框上露出白色紙芯的小點、小缺口、毛邊（edge）。
+2. 卡角：角尖有沒有白、磨圓、分層（corner）。
+3. 表面：閃面或亮面上的細直線、弧線、髮絲狀刮痕（scratch）；白點、小凹坑、壓痕（spot、dent）；摺線（crease）；髒污（stain）。
+要排除的：背景、桌面、卡套、相機反光的亮斑、壓縮雜訊，以及印刷本來就有的白線、白字、閃卡圖樣。
+每一處瑕疵回報它在哪個 tile，以及在那張放大圖裡的框 x0,y0,x1,y1（0~1，相對那張放大圖），框要緊貼瑕疵。
+同一個瑕疵出現在兩個重疊的區塊時只回報一次；同一條邊上相鄰的幾個白點可以合成一個框。
+{types}
+side：正面 front、背面 back、看不出 other。clean：看得到的部分完全沒有瑕疵。psa：看得到整張卡才估 1~10，否則 0。"""
+
+
 def _schema_with(extra: dict | None = None) -> dict:
     s = json.loads(json.dumps(SCHEMA))
     if extra:
@@ -161,6 +177,11 @@ def _clamp_box(x0, y0, x1, y1):
 
 
 def run_variant(client, variant: str, raw: bytes, listing: dict, effort: str) -> dict:
+    # 名稱後面的 #k 只是重跑同一個做法量穩定度；結尾 p 代表用加強版提示
+    variant = variant.split("#")[0]
+    tile_prompt = TILE_PROMPT
+    if variant.endswith("p"):
+        variant, tile_prompt = variant[:-1], TILE_PROMPT_V2
     title, cond = listing.get("title", ""), listing.get("condition", "")
     if variant == "full":
         d = label_photo(client, raw, listing, MODEL, effort)
@@ -191,7 +212,7 @@ def run_variant(client, variant: str, raw: bytes, listing: dict, effort: str) ->
             dd.rectangle([0, 0, 120, 40], fill="white")
             dd.text((6, 4), f"tile {i}", fill="black", font=f)
             content.append(_jpeg(t))
-        content.append({"type": "text", "text": TILE_PROMPT.format(title=title, condition=cond, n=len(ts), last=len(ts) - 1, types=TYPE_HELP)})
+        content.append({"type": "text", "text": tile_prompt.format(title=title, condition=cond, n=len(ts), last=len(ts) - 1, types=TYPE_HELP)})
         d, usage = _call(client, content, _schema_with({"tile": {"type": "integer"}}), effort)
         for m in d["marks"]:
             ti = min(len(ts) - 1, max(0, int(m.pop("tile"))))
