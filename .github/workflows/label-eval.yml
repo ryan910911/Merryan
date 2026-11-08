@@ -1,0 +1,54 @@
+name: Label Eval
+
+# 拿 label-eval 分支上的人工標註當考卷，比較不同的 Claude 標瑕疵做法（tools/eval_label.py）
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 做法，逗號分開（full, grid, tiles3, card1, card2, card3）
+        required: true
+        default: full
+      effort:
+        description: low / medium / high
+        required: true
+        default: medium
+      limit:
+        description: 只跑前 N 張（0 = 全部）
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: label-eval
+  cancel-in-progress: false
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install anthropic pillow opencv-python-headless numpy
+      - name: Run
+        env:
+          VARIANT: ${{ inputs.variant }}
+          EFFORT: ${{ inputs.effort }}
+          LIMIT: ${{ inputs.limit }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          cp -r tools /tmp/tools && cp defect_scan.py /tmp/
+          git fetch origin label-eval
+          git checkout -B label-eval origin/label-eval
+          python /tmp/tools/eval_label.py eval --variant "$VARIANT" --effort "$EFFORT" --limit "${LIMIT:-0}"
+          git add eval/pred
+          git commit -qm "Eval $VARIANT $EFFORT" || exit 0
+          git pull --rebase -q origin label-eval
+          git push origin label-eval
