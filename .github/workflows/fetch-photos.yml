@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       urls:
-        description: Mercari 商品網址或編號（可多筆，空格分開）；search = 自動找候選（search:關鍵字1|關鍵字2）；clear = 刪除 photo-queue 分支
+        description: Mercari 商品網址或編號（可多筆，空格分開）；search = 自動找候選（search:關鍵字1|關鍵字2）；label = 只替 photo-queue 上已有的照片跑 Claude 預標；clear = 刪除 photo-queue 分支
         required: true
 
 permissions:
@@ -22,25 +22,38 @@ jobs:
       - name: Clear queue
         if: inputs.urls == 'clear'
         run: git push origin --delete photo-queue || true
+      - name: Label existing queue
+        if: inputs.urls == 'label'
+        run: |
+          pip install anthropic
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git fetch origin photo-queue
+          git show origin/main:tools/auto_label.py > /tmp/auto_label.py
+          git checkout -B photo-queue origin/photo-queue
+          python /tmp/auto_label.py queue
+          git add queue
+          git commit -qm "Label queued photos" || exit 0
+          git push origin photo-queue
       - uses: actions/setup-python@v5
-        if: inputs.urls != 'clear'
+        if: inputs.urls != 'clear' && inputs.urls != 'label'
         with:
           python-version: "3.12"
           cache: pip
-      - if: inputs.urls != 'clear'
+      - if: inputs.urls != 'clear' && inputs.urls != 'label'
         run: pip install -r requirements.txt
-      - if: inputs.urls != 'clear'
+      - if: inputs.urls != 'clear' && inputs.urls != 'label'
         run: playwright install --with-deps chromium
       - name: Download
-        if: inputs.urls != 'clear'
+        if: inputs.urls != 'clear' && inputs.urls != 'label'
         env:
           URLS: ${{ inputs.urls }}
         run: python tools/fetch_photos.py "$URLS"
       - name: Auto label with Claude
-        if: inputs.urls != 'clear' && env.ANTHROPIC_API_KEY != ''
+        if: inputs.urls != 'clear' && inputs.urls != 'label' && env.ANTHROPIC_API_KEY != ''
         run: python tools/auto_label.py queue
       - name: Push to photo-queue
-        if: inputs.urls != 'clear'
+        if: inputs.urls != 'clear' && inputs.urls != 'label'
         run: |
           mv queue /tmp/queue
           git config user.name "github-actions[bot]"
