@@ -1,0 +1,276 @@
+{
+ "photos": 37,
+ "human_marks": 32,
+ "ai_marks": 30,
+ "recall": 0.281,
+ "precision": 0.267,
+ "missed": 23,
+ "false": 22,
+ "clean_photo_acc": "19/24",
+ "flagged_photo_acc": "9/13",
+ "per_photo": [
+  {
+   "id": "02982ab07d1dcab2dabd4ece",
+   "human": 1,
+   "ai": 3,
+   "human_hit": 1,
+   "ai_hit": 1
+  },
+  {
+   "id": "06a0b6a928ba6aa630c32fe2",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "1338fea0c31153138516b641",
+   "human": 5,
+   "ai": 3,
+   "human_hit": 2,
+   "ai_hit": 2
+  },
+  {
+   "id": "15b05c6c271672f04947369f",
+   "human": 1,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "1b1c2f3b08c64cdb93f8d990",
+   "human": 0,
+   "ai": 2,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "23307db5deb83c63de32d3e0",
+   "human": 0,
+   "ai": 2,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "2bcfa997c210ec982d341437",
+   "human": 0,
+   "ai": 1,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "479345f2c008e305f3fe653a",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "4ae986398b180dfd4c56ed03",
+   "human": 4,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "510460bd4e0684851e7dded3",
+   "human": 4,
+   "ai": 1,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "55862222eaba110114d24d1f",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "5a61e58c3b4406c7dd0a0a85",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "763b4e15358c4b4603306220",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "7e7f4a8698ed538dceb48cbb",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8967900f1b9cc028adef26bb",
+   "human": 1,
+   "ai": 1,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8a81c36c271dc4159350fc84",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8bf96a3a1ff59c7ec9acf714",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8c5a41e49631859d74e4419f",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8c6b849cb2af265ac31fb630",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "8f3b30ed722e580d558c3309",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "901e142749c7f0c736fa66be",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "98cf2fc7cb80ea6ac39e8c28",
+   "human": 4,
+   "ai": 3,
+   "human_hit": 1,
+   "ai_hit": 1
+  },
+  {
+   "id": "a51c5eb4c36ed5416ec54753",
+   "human": 1,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "a6d0900a0ec68794958de54c",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "a9f41daf91c489cb8c7add90",
+   "human": 2,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "b4fcc6b7408ac58f17fc2bfa",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "b54a2172e28ab1b4b5543b95",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "b93570a66ee9893d0b233bdd",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "b959c4cec74568fc9300992a",
+   "human": 3,
+   "ai": 3,
+   "human_hit": 3,
+   "ai_hit": 1
+  },
+  {
+   "id": "be0181bff91418a2478bf9cf",
+   "human": 2,
+   "ai": 2,
+   "human_hit": 1,
+   "ai_hit": 2
+  },
+  {
+   "id": "c884a18ab1695f4e01a098de",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "cfc7c45e0224a2707d9822eb",
+   "human": 3,
+   "ai": 2,
+   "human_hit": 1,
+   "ai_hit": 1
+  },
+  {
+   "id": "e77fa782b81d5b23ef9f1f56",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "e8cfb2a477721fd18a265d23",
+   "human": 0,
+   "ai": 2,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "e8ef4ed901adb843f3c3b3ab",
+   "human": 0,
+   "ai": 2,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "e940225450f98df7f1b29ee9",
+   "human": 1,
+   "ai": 3,
+   "human_hit": 0,
+   "ai_hit": 0
+  },
+  {
+   "id": "e9c0cc4c2266d1a4faff8ff6",
+   "human": 0,
+   "ai": 0,
+   "human_hit": 0,
+   "ai_hit": 0
+  }
+ ],
+ "tokens": {
+  "in": 466372,
+  "out": 14482
+ }
+}
