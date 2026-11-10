@@ -229,7 +229,7 @@ def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], j
     price = listing.get("price")
     sub = f"{title}   ¥{price:,.0f}" if price else title
     if price and jpy_rate:
-        sub += f" (NT${price * jpy_rate:,.0f})"
+        sub += f" (TWD {price * jpy_rate:,.0f})"
     d.text((52 + d.textlength(vtext, font=fh) + 30, 20), sub, fill=INK_2, font=fb)
 
     # 左：所有判讀過的照片排成格狀（最多 12 張）
@@ -288,14 +288,14 @@ def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], j
         s = ev.scenarios
 
         def nt(v):
-            return f"{'-' if v < 0 else '+'}NT${abs(v):,.0f}"
+            return f"{'-' if v < 0 else '+'}TWD {abs(v):,.0f}"
 
         rows = [
             ("Expected profit (base)", f"{nt(s['base'].ev_net)}   ROI {s['base'].roi:.0%}"),
             ("Pessimistic / optimistic", f"{nt(s['pessimistic'].ev_net)} / {nt(s['optimistic'].ev_net)}"),
             ("Grading vs selling raw", nt(ev.uplift)),
             ("PSA 10 needed to break even", f"{ev.breakeven_p10:.0%}" if ev.breakeven_p10 is not None else "never"),
-            ("Max bid", (f"¥{ev.max_bid / jpy_rate:,.0f}" if jpy_rate else f"NT${ev.max_bid:,.0f}") if ev.max_bid is not None else "none"),
+            ("Max bid", (f"¥{ev.max_bid / jpy_rate:,.0f} (TWD {ev.max_bid:,.0f})" if jpy_rate else f"TWD {ev.max_bid:,.0f}") if ev.max_bid is not None else "none"),
         ]
         for k, v in rows:
             d.text((rx, y), k, fill=INK_2, font=f)

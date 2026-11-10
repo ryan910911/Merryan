@@ -134,7 +134,7 @@ LIVE_CACHE: dict = {}  # 同一輪同一張卡只查一次近期成交
 def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
     """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
     from ev_calc import VERDICT_BUY, VERDICT_RISKY
-    from ev_check import card_profile, evaluate_listing, format_message
+    from ev_check import card_profile, evaluate_listing, format_message, fx_summary
     from ev_report import annotated_photos, render_report
     from listing import download_photos, fetch_listing
 
@@ -164,7 +164,7 @@ def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: 
         except Exception as e:
             print(f"[{item['name']}] 報告圖產生失敗: {e}")
             png, album = None, []
-        return format_message(name, listing, est, ev, jpy_rate=jpy), worth, png, album
+        return format_message(name, listing, est, ev, jpy_rate=jpy, fx_note=fx_summary(ev_cfg)), worth, png, album
     except Exception as e:
         print(f"[{item['name']}] EV 評估失敗: {e}")
         return fallback + "\n（EV 評估失敗）", True, None, []

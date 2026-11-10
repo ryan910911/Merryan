@@ -1,7 +1,7 @@
 """PSA 鑑定期望值（EV）計算
 
-所有金額內部一律換成日圓計算。config 裡的金額可以寫數字（視為日圓）或
-"2861 USD" 這種「數字 + 幣別」字串，依 cards.yaml 的 fx 匯率換算。
+所有金額內部一律換成台幣計算。config 裡的金額可以寫數字（視為台幣）或
+"2861 USD" 這種「數字 + 幣別」字串，依 cards.yaml 的 fx 匯率（每次執行抓當天匯率，見 fx.py）換算。
 
 EV 收入   = Σ(各級機率 × 該級淨賣價)
 EV 淨利   = EV 收入 − 總成本（買入 + 買入端費用 + 鑑定費 + 往返運費保險）
@@ -24,7 +24,7 @@ VERDICT_SKIP = "跳過"
 
 
 def parse_money(value, fx: dict) -> float:
-    """1234 / "1,234" / "2861 USD" / "¥5,000" -> 日圓"""
+    """1234 / "1,234" / "2861 USD" / "¥5,000" -> 台幣"""
     if value is None or value == "":
         return 0.0
     if isinstance(value, (int, float)):

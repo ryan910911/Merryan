@@ -32,8 +32,19 @@ SCEN_ZH = {"optimistic": "樂觀", "base": "基準", "pessimistic": "悲觀"}
 VERDICT_ICON = {VERDICT_BUY: "💰", VERDICT_RISKY: "🤔", VERDICT_SKIP: "⏭️"}
 
 
-def load_ev_config(path: Path = CARDS_PATH) -> dict:
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+def fx_summary(cfg: dict) -> str:
+    from fx import fx_summary as _f
+
+    return _f(cfg)
+
+
+def load_ev_config(path: Path = CARDS_PATH, live_fx: bool = True) -> dict:
+    cfg = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if live_fx:
+        from fx import apply_live_fx
+
+        apply_live_fx(cfg)
+    return cfg
 
 
 def card_profile(cfg: dict, key: str) -> dict:
@@ -124,10 +135,10 @@ def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes
 
 
 def money(v: float | None) -> str:
-    """計價幣別（cards.yaml 的 fx 裡匯率為 1 的那個，目前是台幣）"""
+    """台幣（cards.yaml 的 fx 裡匯率為 1 的計價幣別）"""
     if v is None:
         return "—"
-    return f"{'-' if v < 0 else ''}NT${abs(v):,.0f}"
+    return f"{'-' if v < 0 else ''}{abs(v):,.0f} 元"
 
 
 def yen(v: float | None) -> str:
@@ -137,11 +148,11 @@ def yen(v: float | None) -> str:
 
 
 def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False,
-                   jpy_rate: float | None = None) -> str:
+                   jpy_rate: float | None = None, fx_note: str | None = None) -> str:
     """jpy_rate：1 日圓 = 多少計價幣別，用來把最高出價換回日圓"""
     cond = CONDITION_LABELS.get(est.condition, listing.get("condition") or "狀態不明")
     price_jpy = listing.get("price")
-    price_txt = yen(price_jpy) + (f"（{money(price_jpy * jpy_rate)}）" if price_jpy and jpy_rate else "")
+    price_txt = yen(price_jpy) + (f"（約台幣 {money(price_jpy * jpy_rate)}）" if price_jpy and jpy_rate else "")
     head = f"{listing.get('title') or card_name}\n{price_txt} · {cond}"
     if ev is None:
         reason = est.notes[0] if est.scenarios is None else "抓不到價格"
@@ -154,7 +165,7 @@ def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation 
         f"期望淨利 基準 {money(s['base'].ev_net)}（ROI {s['base'].roi:.0%}）/ 悲觀 {money(s['pessimistic'].ev_net)} / 樂觀 {money(s['optimistic'].ev_net)}",
         f"鑑定增量 {money(ev.uplift)} · PSA10 機率 {s['base'].probs[10]:.0%}"
         + (f"（打平需 {ev.breakeven_p10:.0%}）" if ev.breakeven_p10 is not None else "（PSA10 也無法打平）"),
-        "最高出價 " + ((yen(ev.max_bid / jpy_rate) if jpy_rate else money(ev.max_bid)) if ev.max_bid is not None
+        "最高出價 " + ((f"{yen(ev.max_bid / jpy_rate)}（{money(ev.max_bid)}）" if jpy_rate else money(ev.max_bid)) if ev.max_bid is not None
                       else "—（鑑定不如直接賣裸卡）" if ev.uplift <= 0 else "—（任何價格都達不到門檻）"),
     ]
     if ev.reasons:
@@ -170,6 +181,8 @@ def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation 
         for g in GRADES:
             label = f"PSA {g}" if g != "low" else "PSA ≤4"
             lines.append(f"{label:<7} " + "  ".join(f"{s[k].probs[g]:>5.0%}" for k in ("optimistic", "base", "pessimistic")))
+    if fx_note:
+        lines.append(fx_note)
     lines.append(listing.get("url", ""))
     return "\n".join(lines).strip()
 
@@ -285,7 +298,7 @@ def main(argv=None) -> int:
             print("查近期成交失敗：", e)
     est, ev = evaluate_listing(cfg, card_key, listing, photos, live=live)
     name = card_profile(cfg, card_key).get("name", card_key)
-    msg = format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"])
+    msg = format_message(name, listing, est, ev, detail=True, jpy_rate=cfg["fx"]["JPY"], fx_note=fx_summary(cfg))
     print(msg)
     png = None
     if args.report or args.telegram:

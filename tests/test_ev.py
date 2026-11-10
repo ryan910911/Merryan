@@ -1,4 +1,5 @@
 import io
+import os
 import sys
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+os.environ.setdefault("MERRYAN_FX_LIVE", "0")  # 測試用固定匯率，不連網
 
 from ev_calc import VERDICT_BUY, VERDICT_PASS, Costs, evaluate, normalize, parse_money  # noqa: E402
 from ev_check import evaluate_listing, format_message, load_ev_config  # noqa: E402
@@ -400,3 +402,30 @@ def test_old_promo_profiles_match_by_number():
     assert pick_card(cfg, "auto", "アチャモ 052/ADV-P") is None
     assert pick_card(cfg, "auto", "マリオピカチュウ 294/XY-P") == "mario-pikachu-xy-p-294"
     assert pick_card(cfg, "auto", "ピカチュウ 002/SM-P") is None  # 002/S-P 是シブヤ，不能混到 SM-P
+
+
+def test_live_fx_applies_and_falls_back(monkeypatch):
+    import fx
+
+    monkeypatch.setenv("MERRYAN_FX_LIVE", "1")
+    cfg = {"fx": {"TWD": 1, "USD": 32.61, "JPY": 0.2074}, "fx_live": {"markup": 0}}
+    monkeypatch.setattr(fx, "fetch_twd_rates", lambda cur: ({"USD": 31.0, "JPY": 0.02}, "Tue, 10 Nov 2026 00:02:31 +0000"))
+    fx.apply_live_fx(cfg)
+    assert cfg["fx"]["USD"] == 31.0          # 合理 → 採用
+    assert cfg["fx"]["JPY"] == 0.2074        # 差太多 → 沿用固定值
+    assert "即時匯率" in cfg["fx_source"]
+
+    def boom(cur):
+        raise OSError("offline")
+
+    cfg = {"fx": {"TWD": 1, "USD": 32.61}}
+    monkeypatch.setattr(fx, "fetch_twd_rates", boom)
+    fx.apply_live_fx(cfg)
+    assert cfg["fx"]["USD"] == 32.61 and cfg["fx_source"] == "cards.yaml 固定匯率"
+
+
+def test_message_amounts_in_twd():
+    cfg = load_ev_config()
+    est, ev = evaluate_listing(cfg, "lugia-e-p-047", {"title": "ルギア 047/P", "price": 30000, "condition": 2}, [])
+    msg = format_message("ルギア", {"title": "ルギア 047/P", "price": 30000}, est, ev, jpy_rate=cfg["fx"]["JPY"])
+    assert "NT$" not in msg and "USD" not in msg and " 元" in msg and "¥30,000" in msg
