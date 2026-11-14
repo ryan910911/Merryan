@@ -18,6 +18,8 @@ import requests
 import yaml
 from playwright.sync_api import sync_playwright
 
+from listing import parse_price, set_fallback_rates, strip_price, watch_conversion_rate
+
 ROOT = Path(__file__).parent
 BASE = "https://jp.mercari.com"
 SEEN_PATH = ROOT / "seen.json"
@@ -115,13 +117,11 @@ def scrape(page, url: str) -> list[dict]:
             continue
         text = (a.get_attribute("aria-label") or a.inner_text() or "")
         text = re.sub(r"\s+", " ", text).strip()
-        price = re.search(r"[¥￥]\s*([\d,]+)|([\d,]+)\s*円", text)
-        price_txt = ""
-        if price:
-            price_txt = "¥" + (price.group(1) or price.group(2))
+        yen = parse_price(text)  # 海外連線會顯示 US$，換回日圓
+        price_txt = f"¥{yen:,}" if yen else ""
         found[m.group(1)] = {
             "id": m.group(1),
-            "title": text,
+            "title": strip_price(text) or text,
             "price": price_txt,
             "url": f"{BASE}/item/{m.group(1)}",
         }
@@ -191,6 +191,8 @@ def main() -> None:
         from ev_check import load_ev_config, pick_card
 
         ev_cfg = load_ev_config()
+        set_fallback_rates(ev_cfg.get("fx") or {})  # 還沒抓到 Mercari 匯率前的備用值
+    jpy_twd = float(((ev_cfg or {}).get("fx") or {}).get("JPY") or 0)  # 1 日圓 = 多少台幣
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -202,6 +204,7 @@ def main() -> None:
                 "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
             ),
         )
+        watch_conversion_rate(ctx)
         # 搜尋頁不需要圖片、字型，擋掉加快速度
         ctx.route(
             re.compile(r".*\.(png|jpe?g|webp|gif|svg|woff2?|ttf)(\?.*)?$"),
@@ -242,7 +245,9 @@ def main() -> None:
                         continue
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
-                    msg = f"🆕 {key}\n{r['title']}\n{r['price']}\n{r['url']}"
+                    yen = parse_price(r["price"])
+                    twd = f"（約台幣 {yen * jpy_twd:,.0f} 元）" if yen and jpy_twd else ""
+                    msg = f"🆕 {key}\n{r['title']}\n{r['price']}{twd}\n{r['url']}"
                     png, album = None, []
                     card_key = pick_card(ev_cfg, item.get("card", defaults.get("card")), r["title"]) if ev_cfg else None
                     if item.get("only_matched") and not card_key:  # 廣泛搜尋：對不到 cards.yaml 的卡就不通知

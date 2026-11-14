@@ -238,6 +238,9 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     cfg = load_ev_config(Path(args.config))
+    from listing import set_fallback_rates
+
+    set_fallback_rates(cfg.get("fx") or {})
     listing: dict = {}
     photos = [Path(p).read_bytes() for p in args.photos]
     if args.listing:
@@ -245,11 +248,11 @@ def main(argv=None) -> int:
     elif args.url:
         from playwright.sync_api import sync_playwright
 
-        from listing import UA, download_photos, fetch_listing
+        from listing import download_photos, fetch_listing, jp_context
 
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_context(locale="ja-JP", timezone_id="Asia/Tokyo", user_agent=UA).new_page()
+            page = jp_context(browser).new_page()
             listing = fetch_listing(page, args.url)
             browser.close()
         if not photos:
@@ -285,12 +288,12 @@ def main(argv=None) -> int:
         try:
             from playwright.sync_api import sync_playwright
 
-            from listing import UA
+            from listing import jp_context
             from market import live_prices
 
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
-                page = browser.new_context(locale="ja-JP", timezone_id="Asia/Tokyo", user_agent=UA).new_page()
+                page = jp_context(browser).new_page()
                 live = live_prices(page, keyword, card_profile(cfg, card_key)["match"])
                 browser.close()
             print("近期成交：", live["notes"] or f"「{keyword}」查不到足夠成交，用 cards.yaml 行情")

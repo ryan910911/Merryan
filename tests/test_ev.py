@@ -429,3 +429,16 @@ def test_message_amounts_in_twd():
     est, ev = evaluate_listing(cfg, "lugia-e-p-047", {"title": "ルギア 047/P", "price": 30000, "condition": 2}, [])
     msg = format_message("ルギア", {"title": "ルギア 047/P", "price": 30000}, est, ev, jpy_rate=cfg["fx"]["JPY"])
     assert "NT$" not in msg and "USD" not in msg and " 元" in msg and "¥30,000" in msg
+
+
+def test_parse_foreign_price():
+    import listing
+
+    listing.CONVERSION_RATES.clear()
+    listing.FALLBACK_RATES.clear()
+    assert listing.parse_price("US$ 131.39 ルギア") is None  # 沒有匯率就不亂猜
+    listing.CONVERSION_RATES["USD"] = 0.00657
+    assert abs(listing.parse_price("US$ 131.39 ルギア") - 19999) <= 2  # 換算有幾圓誤差
+    assert listing.parse_price("US$\n131.40\n(\n¥\n19,999") == 19999  # 有日圓就用日圓
+    assert listing.strip_price("US$ 131.39 ルギア 30th 142/103") == "ルギア 30th 142/103"
+    listing.CONVERSION_RATES.clear()

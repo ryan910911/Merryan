@@ -22,11 +22,68 @@ def item_id(url_or_id: str) -> str:
     return m.group(1)
 
 
+# Mercari 對海外連線（例如 GitHub Actions 在美國）會把價格顯示成當地幣別，如「US$ 131.39」。
+# 換回日圓用 Mercari 自己的匯率（頁面會呼叫 getCurrencyConversionRate，watch_conversion_rate 會記下來）；
+# 還沒抓到時用 FALLBACK_RATES（1 日圓 = 多少外幣，由 monitor 依 cards.yaml 的 fx 設定）。
+CONVERSION_RATES: dict[str, float] = {}
+FALLBACK_RATES: dict[str, float] = {}
+FOREIGN_PRICE_RE = re.compile(r"(US|HK|NT)\s*\$\s*([\d,]+(?:\.\d+)?)")
+FOREIGN_CODES = {"US": "USD", "HK": "HKD", "NT": "TWD"}
+
+
+def watch_conversion_rate(ctx) -> None:
+    """在 Playwright context 上記錄 Mercari 的外幣匯率"""
+
+    def on_response(resp):
+        if "getCurrencyConversionRate" not in resp.url:
+            return
+        try:
+            data = resp.json()
+            if data.get("currencyCode") and float(data.get("rate") or 0) > 0:
+                CONVERSION_RATES[data["currencyCode"]] = float(data["rate"])
+        except Exception:
+            pass
+
+    ctx.on("response", on_response)
+
+
+def set_fallback_rates(fx: dict) -> None:
+    """cards.yaml 的 fx（1 外幣 = 多少台幣）→ 1 日圓 = 多少外幣"""
+    jpy = float(fx.get("JPY") or 0)
+    if not jpy:
+        return
+    for code in ("USD", "HKD", "TWD"):
+        if fx.get(code):
+            FALLBACK_RATES[code] = jpy / float(fx[code])
+
+
+def jp_context(browser):
+    """日文、東京時區的 context，並記錄 Mercari 外幣匯率"""
+    ctx = browser.new_context(locale="ja-JP", timezone_id="Asia/Tokyo", user_agent=UA)
+    watch_conversion_rate(ctx)
+    return ctx
+
+
 def parse_price(text: str) -> int | None:
+    """回傳日圓；頁面若只有外幣價就換回日圓"""
     m = re.search(r"[¥￥]\s*([\d,]+)|([\d,]+)\s*円", text or "")
+    if m:
+        return int((m.group(1) or m.group(2)).replace(",", ""))
+    m = FOREIGN_PRICE_RE.search(text or "")
     if not m:
         return None
-    return int((m.group(1) or m.group(2)).replace(",", ""))
+    code = FOREIGN_CODES[m.group(1)]
+    rate = CONVERSION_RATES.get(code) or FALLBACK_RATES.get(code)
+    if not rate:
+        return None
+    return round(float(m.group(2).replace(",", "")) / rate)
+
+
+def strip_price(text: str) -> str:
+    """把搜尋結果文字裡的價格拿掉，只留標題"""
+    text = FOREIGN_PRICE_RE.sub("", text or "")
+    text = re.sub(r"[¥￥]\s*[\d,]+|[\d,]+\s*円", "", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def parse_condition(text: str) -> str | None:
