@@ -133,8 +133,7 @@ LIVE_CACHE: dict = {}  # 同一輪同一張卡只查一次近期成交
 
 def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: str) -> tuple[str, bool, bytes | None, list]:
     """打開商品頁做 EV 評估，回傳 (文字, 是否值得, 報告圖, 有瑕疵的標註照片)；失敗就退回原本的簡單通知"""
-    from ev_calc import VERDICT_BUY, VERDICT_RISKY
-    from ev_check import card_profile, evaluate_listing, format_message, fx_summary
+    from ev_check import card_profile, evaluate_listing, format_message, fx_summary, is_worth
     from ev_report import annotated_photos, render_report
     from listing import download_photos, fetch_listing
 
@@ -156,8 +155,8 @@ def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: 
                 LIVE_CACHE[cache_key] = None
         est, ev = evaluate_listing(ev_cfg, card_key, listing, photos, live=LIVE_CACHE[cache_key])
         name = card_profile(ev_cfg, card_key).get("name", item["name"])
-        worth = ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
         jpy = ev_cfg["fx"]["JPY"]
+        worth = is_worth(listing, ev, jpy)  # 拍賣看出價上限是否高於目前出價
         try:
             png = render_report(name, listing, est, ev, photos, jpy_rate=jpy)
             album = annotated_photos(photos, est)

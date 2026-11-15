@@ -147,6 +147,50 @@ def yen(v: float | None) -> str:
     return f"{'-' if v < 0 else ''}¥{abs(v):,.0f}"
 
 
+def _tw_time(epoch: int | None) -> str:
+    if not epoch:
+        return "結束時間不明"
+    from datetime import timedelta
+
+    t = datetime.fromtimestamp(epoch, timezone(timedelta(hours=8)))
+    return f"{t:%m/%d %H:%M} 結束（台灣時間）"
+
+
+def auction_summary(listing: dict, ev: Evaluation | None, jpy_rate: float | None) -> tuple[bool, list]:
+    """拍賣商品：回傳 (值不值得出價, 說明行)。值得 = 算得出出價上限，且上限高於目前最高出價。
+    拍賣頁上的價格只是目前出價，最後得標價通常會高很多，所以不用它判斷「建議買進」。"""
+    a = listing.get("auction") or {}
+    if a.get("ended"):
+        return False, ["🔨 拍賣已結束"]
+    bid = a.get("highest_bid")
+    head = "🔨 拍賣商品｜目前最高出價 " + (yen(bid) if bid else "不明")
+    if a.get("total_bids") is not None:
+        head += f"（{a['total_bids']} 次出價）"
+    lines = [head + " · " + _tw_time(a.get("end_time"))]
+    if ev is None or ev.max_bid is None or not jpy_rate:
+        lines.append("⏭️ 不建議出價：" + ("鑑定不如直接賣裸卡" if ev is not None and ev.uplift <= 0 else "任何價格都達不到門檻"))
+        return False, lines
+    cap = ev.max_bid / jpy_rate
+    if bid and bid >= cap:
+        lines.append(f"⏭️ 目前出價已超過你的出價上限 {yen(cap)}（{money(ev.max_bid)}），不用跟")
+        return False, lines
+    lines.append(f"💰 可以出價｜出價上限 {yen(cap)}（{money(ev.max_bid)}），超過就放棄")
+    if ev.raw_price:
+        raw_yen = ev.raw_price / jpy_rate
+        if raw_yen > cap:
+            lines.append(f"⚠️ 這張裸卡行情約 {yen(raw_yen)}，高於你的上限，最後大概標不到這個價")
+        else:
+            lines.append(f"參考：裸卡行情約 {yen(raw_yen)}，得標價可能落在這附近")
+    return True, lines
+
+
+def is_worth(listing: dict, ev: Evaluation | None, jpy_rate: float | None = None) -> bool:
+    """一般商品：建議買進／可考慮；拍賣：出價上限高於目前出價"""
+    if listing.get("auction"):
+        return auction_summary(listing, ev, jpy_rate)[0]
+    return ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
+
+
 def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False,
                    jpy_rate: float | None = None, fx_note: str | None = None) -> str:
     """jpy_rate：1 日圓 = 多少計價幣別，用來把最高出價換回日圓"""
@@ -159,15 +203,23 @@ def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation 
         return f"⏭️ {VERDICT_SKIP} | {card_name}\n{head}\n{reason}\n{listing.get('url', '')}".strip()
 
     s = ev.scenarios
-    lines = [
-        f"{VERDICT_ICON.get(ev.verdict, '🙅')} {ev.verdict} | {card_name}",
-        head,
+    auction = listing.get("auction")
+    if auction:  # 拍賣：判斷看出價上限，下面的期望值只是用目前出價算的參考
+        worth, alines = auction_summary(listing, ev, jpy_rate)
+        lines = [f"{'🔨' if worth else '⏭️'} {'拍賣・可以出價' if worth else '拍賣・不建議出價'} | {card_name}",
+                 f"{listing.get('title') or card_name}\n{cond}", *alines,
+                 "（以下期望值以目前出價計算，得標價越高越少）"]
+    else:
+        lines = [f"{VERDICT_ICON.get(ev.verdict, '🙅')} {ev.verdict} | {card_name}", head]
+    lines += [
         f"期望淨利 基準 {money(s['base'].ev_net)}（ROI {s['base'].roi:.0%}）/ 悲觀 {money(s['pessimistic'].ev_net)} / 樂觀 {money(s['optimistic'].ev_net)}",
         f"鑑定增量 {money(ev.uplift)} · PSA10 機率 {s['base'].probs[10]:.0%}"
         + (f"（打平需 {ev.breakeven_p10:.0%}）" if ev.breakeven_p10 is not None else "（PSA10 也無法打平）"),
-        "最高出價 " + ((f"{yen(ev.max_bid / jpy_rate)}（{money(ev.max_bid)}）" if jpy_rate else money(ev.max_bid)) if ev.max_bid is not None
-                      else "—（鑑定不如直接賣裸卡）" if ev.uplift <= 0 else "—（任何價格都達不到門檻）"),
     ]
+    if not auction:
+        lines.append(
+        "最高出價 " + ((f"{yen(ev.max_bid / jpy_rate)}（{money(ev.max_bid)}）" if jpy_rate else money(ev.max_bid)) if ev.max_bid is not None
+                      else "—（鑑定不如直接賣裸卡）" if ev.uplift <= 0 else "—（任何價格都達不到門檻）"))
     if ev.reasons:
         lines.append("原因：" + "；".join(ev.reasons))
     shown = est.notes if detail else est.notes[:6]

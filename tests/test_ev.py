@@ -442,3 +442,27 @@ def test_parse_foreign_price():
     assert listing.parse_price("US$\n131.40\n(\n¥\n19,999") == 19999  # 有日圓就用日圓
     assert listing.strip_price("US$ 131.39 ルギア 30th 142/103") == "ルギア 30th 142/103"
     listing.CONVERSION_RATES.clear()
+
+
+def test_auction_uses_bid_cap_not_current_bid():
+    from ev_check import auction_summary, is_worth
+    from listing import parse_auction
+
+    api = {"price": 1000, "auction_info": {"highest_bid": 1000, "initial_price": 500, "total_bids": 6,
+                                            "expected_end_time": 1794743580, "state": "STATE_ONGOING"}}
+    a = parse_auction(api)
+    assert a == {"highest_bid": 1000, "initial_price": 500, "total_bids": 6, "end_time": 1794743580}
+    assert parse_auction({"price": 900}) is None
+    assert parse_auction({"auction_info": {"state": "STATE_FINISHED"}})["ended"]
+
+    ev = evaluate(price=1000, scenario_probs=SETS, prices={10: 300000, 9: 100000, 8: 50000},
+                  raw_price=20000, costs=Costs.from_config({"grading": {"tiers": [{"fee": "25 USD"}]}}, FX))
+    listing = {"price": 1000, "auction": a, "title": "x"}
+    worth, lines = auction_summary(listing, ev, jpy_rate=1)
+    assert worth and any("出價上限" in l for l in lines)
+    # 目前出價已超過上限 → 不值得，且一般「建議買進」字樣不出現
+    listing_hi = {"price": ev.max_bid + 1, "auction": {**a, "highest_bid": ev.max_bid + 1}, "title": "x"}
+    assert not is_worth(listing_hi, ev, jpy_rate=1)
+    est = Estimate(scenarios=SETS, condition=3, notes=[], observations=[])
+    msg = format_message("x", listing, est, ev, jpy_rate=1)
+    assert "拍賣" in msg and VERDICT_BUY not in msg

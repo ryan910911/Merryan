@@ -2752,9 +2752,10 @@ cards:
     name: ミュウ 091/PCG-P
     match: '^(?=.*ミュウ(?!ツー)).*?(?:(?<!\d)0*91\s*/\s*PCG-?P(?![A-Za-z])|(?<![A-Za-z])PCG-?P\s*[-#]?\s*0*91(?!\d))'
     sold_keyword: ミュウ PCG-P
-    raw_price: "62 USD"            # PriceCharting pokemon-japanese-promo, ungraded, 2026-10-25
-    raw_price_played: "62 USD"
-    prices: {10: "14200 USD", 9: "1290 USD"}   # PriceCharting 2026-10-25
+    raw_price: "68 USD"            # pokeinvest.io 裸卡中位數（24 筆），2026-11-15
+    raw_price_played: "68 USD"
+    # PSA 9 = 3 筆成交中位數；PSA 10 網站估 14,200 USD 但沒有實際成交，保守用 PSA 9 的 2 倍（2026-11-15）
+    prices: {10: "3150 USD", 9: "1575 USD"}
     probability_set: default
 
   lucario-pcg-p-093:

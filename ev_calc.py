@@ -135,6 +135,7 @@ class Evaluation:
     reasons: list
     max_bid: float | None
     breakeven_p10: float | None
+    raw_price: float | None = None  # 裸卡行情（不鑑定直接賣的比較基準）
 
 
 def _grade_price(prices: dict, g, fallback: float) -> float:
@@ -225,6 +226,7 @@ def evaluate(
         reasons=reasons,
         max_bid=max_bid,
         breakeven_p10=breakeven,
+        raw_price=raw_price,
     )
 
 

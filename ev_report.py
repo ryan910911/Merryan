@@ -222,12 +222,21 @@ def render_report(card_name: str, listing: dict, est, ev, photos: list[bytes], j
     # 標頭
     verdict = ev.verdict if ev else VERDICT_SKIP
     vtext, vcol = VERDICT_STYLE.get(verdict, ("?", INK_2))
+    if listing.get("auction"):  # 拍賣：標頭改看出價上限，不顯示「建議買進」
+        from ev_check import auction_summary
+
+        worth = auction_summary(listing, ev, jpy_rate)[0]
+        cap = ev.max_bid / jpy_rate if worth and ev and ev.max_bid and jpy_rate else None
+        vtext = f"AUCTION - bid up to ¥{cap:,.0f}" if cap else "AUCTION - skip"
+        vcol = VERDICT_STYLE.get(VERDICT_BUY if cap else VERDICT_SKIP, ("?", INK_2))[1]
     d.rectangle([0, 0, W, 64], fill="#f0efec")
     d.rounded_rectangle([20, 14, 40, 50], radius=4, fill=vcol)
     d.text((52, 14), vtext, fill=INK, font=fh)
     title = (card_name if HAS_CJK else listing.get("id", "")) or ""
     price = listing.get("price")
     sub = f"{title}   ¥{price:,.0f}" if price else title
+    if price and listing.get("auction"):
+        sub = f"{title}   bid ¥{price:,.0f}"
     if price and jpy_rate:
         sub += f" (TWD {price * jpy_rate:,.0f})"
     d.text((52 + d.textlength(vtext, font=fh) + 30, 20), sub, fill=INK_2, font=fb)

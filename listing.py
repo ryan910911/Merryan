@@ -104,6 +104,16 @@ def fetch_listing(page, url_or_id: str) -> dict:
     """用現有的 Playwright page 打開商品頁並解析"""
     iid = item_id(url_or_id)
     url = f"{BASE}/item/{iid}"
+    api: dict = {}
+
+    def on_response(resp):  # 商品頁會呼叫 items/get，裡面有拍賣資訊（auction_info）
+        if f"items/get?id={iid}" in resp.url:
+            try:
+                api.update(resp.json().get("data") or {})
+            except Exception:
+                pass
+
+    page.on("response", on_response)
     page.goto(url, wait_until="domcontentloaded", timeout=60000)
     try:
         page.wait_for_selector('[data-testid="price"], h1', timeout=20000)
@@ -120,6 +130,13 @@ def fetch_listing(page, url_or_id: str) -> dict:
     price = parse_price(text_of('[data-testid="price"]')) or parse_price(body)
     description = text_of('[data-testid="description"]') or text_of("pre")
     condition = text_of('[data-testid="商品の状態"]') or parse_condition(body)
+    try:
+        page.remove_listener("response", on_response)
+    except Exception:
+        pass
+    auction = parse_auction(api, body)
+    if auction and auction.get("highest_bid"):
+        price = auction["highest_bid"]  # 拍賣以目前最高出價（日圓）為準，不用頁面上的外幣價
     return {
         "id": iid,
         "url": url,
@@ -128,7 +145,31 @@ def fetch_listing(page, url_or_id: str) -> dict:
         "condition": parse_condition(condition) or condition,
         "description": description,
         "photos": photo_urls(page.content(), iid),
+        "auction": auction,
     }
+
+
+def parse_auction(api: dict, body: str = "") -> dict | None:
+    """拍賣（オークション）商品回傳 {highest_bid, initial_price, total_bids, end_time}；一般商品回傳 None。
+    頁面上的價格只是目前最高出價，最後得標價通常高很多，不能當成買入價。"""
+    info = (api or {}).get("auction_info") or None
+    if info:
+        if str(info.get("state") or "").upper() not in ("", "STATE_ONGOING"):
+            return {"ended": True, "state": info.get("state")}
+        def num(k):
+            try:
+                return int(info.get(k)) if info.get(k) not in (None, "") else None
+            except (TypeError, ValueError):
+                return None
+        return {
+            "highest_bid": num("highest_bid") or num("initial_price") or (api.get("price") if isinstance(api.get("price"), int) else None),
+            "initial_price": num("initial_price"),
+            "total_bids": num("total_bids") or 0,
+            "end_time": num("expected_end_time"),
+        }
+    if "オークション商品" in (body or "") or "入札する" in (body or ""):
+        return {"highest_bid": None, "initial_price": None, "total_bids": None, "end_time": None}
+    return None
 
 
 def download_photos(urls: list[str], limit: int = 10) -> list[bytes]:
