@@ -103,11 +103,33 @@ def build_url(item: dict, defaults: dict) -> str:
 
 
 def scrape(page, url: str) -> list[dict]:
-    page.goto(url, wait_until="domcontentloaded", timeout=60000)
+    # 搜尋頁會呼叫 entities:search，回傳的每件商品有 auction 欄位（頁面上藍色「オークション」標籤）；
+    # 網頁卡片本身看不出來，所以從 API 回應記下哪些是拍賣
+    auction_ids: set[str] = set()
+
+    def on_response(resp):
+        if "entities:search" not in resp.url:
+            return
+        try:
+            for it in resp.json().get("items") or []:
+                if it.get("auction"):
+                    auction_ids.add(it.get("id"))
+        except Exception:
+            pass
+
+    page.on("response", on_response)
     try:
-        page.wait_for_selector('a[href*="/item/m"]', timeout=12000)
-    except Exception:
-        return []  # 沒結果，或被擋
+        page.goto(url, wait_until="domcontentloaded", timeout=60000)
+        try:
+            page.wait_for_selector('a[href*="/item/m"]', timeout=12000)
+        except Exception:
+            return []  # 沒結果，或被擋
+        page.wait_for_timeout(500)  # 讓 API 回應的處理跑完
+    finally:
+        try:
+            page.remove_listener("response", on_response)
+        except Exception:
+            pass
 
     found: dict[str, dict] = {}
     for a in page.query_selector_all('a[href*="/item/m"]'):
@@ -124,10 +146,12 @@ def scrape(page, url: str) -> list[dict]:
             "title": strip_price(text) or text,
             "price": price_txt,
             "url": f"{BASE}/item/{m.group(1)}",
+            "auction": m.group(1) in auction_ids,
         }
     return list(found.values())[:40]
 
 
+SKIP_AUCTIONS = [True]  # main() 依 config 設定
 LIVE_CACHE: dict = {}  # 同一輪同一張卡只查一次近期成交
 
 
@@ -153,6 +177,8 @@ def ev_message(ctx, ev_cfg: dict, item: dict, card_key: str, r: dict, fallback: 
             except Exception as e:
                 print(f"[{item['name']}] 查近期成交失敗: {e}")
                 LIVE_CACHE[cache_key] = None
+        if listing.get("auction") and SKIP_AUCTIONS[0]:  # 搜尋 API 沒標到、商品頁才看出是拍賣
+            return None, False, None, []
         est, ev = evaluate_listing(ev_cfg, card_key, listing, photos, live=LIVE_CACHE[cache_key])
         name = card_profile(ev_cfg, card_key).get("name", item["name"])
         jpy = ev_cfg["fx"]["JPY"]
@@ -177,6 +203,8 @@ def main() -> None:
     exclude = [w.lower() for w in defaults.get("exclude_words", [])]
     paused = [w for w in (defaults.get("paused_pokemon") or []) if w]
     exclude += [w.lower() for w in paused]  # 暫停的寶可夢：廣泛搜尋抓到也不通知
+    skip_auctions = defaults.get("skip_auctions", True)
+    SKIP_AUCTIONS[0] = skip_auctions
     seen: dict[str, list[str]] = (
         json.loads(SEEN_PATH.read_text(encoding="utf-8")) if SEEN_PATH.exists() else {}
     )
@@ -242,6 +270,8 @@ def main() -> None:
                 for r in fresh:
                     if any(w in r["title"].lower() for w in exclude):
                         continue
+                    if r.get("auction") and skip_auctions:  # 2026-11-15 ryan：拍賣起標價都很好看，先全部排除
+                        continue
                     if shown >= MAX_NOTIFY_PER_ITEM:
                         break
                     yen = parse_price(r["price"])
@@ -254,6 +284,9 @@ def main() -> None:
                     if card_key and ev_count < MAX_EV_PER_RUN:
                         ev_count += 1
                         msg, worth, png, album = ev_message(ctx, ev_cfg, item, card_key, r, msg)
+                        if msg is None:
+                            print(f"[{key}] {r['id']} 是拍賣，略過")
+                            continue
                         if not worth and item.get("ev_notify", defaults.get("ev_notify")) == "worth_only":
                             print(f"[{key}] {r['id']} EV 不划算，略過通知")
                             continue

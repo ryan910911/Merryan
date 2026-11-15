@@ -11,6 +11,8 @@ defaults:
   # 品項有 card（對應 cards.yaml）時，通知會附鑑定期望值判斷
   # annotate = 全部通知並附判斷；worth_only = 只通知「建議買進／可考慮」
   ev_notify: annotate
+  # 拍賣（オークション，藍色標籤）商品：true = 不通知（2026-11-15 ryan：起標價都很便宜，會誤判）
+  skip_auctions: true
   # auto = 依標題比對 cards.yaml 全部卡（match），對到才評估；個別品項可寫 card: 卡種 key 指定
   card: auto
   # 標題含這些字的商品一律略過（嚴重損傷、破損、零件用）
