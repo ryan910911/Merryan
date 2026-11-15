@@ -50,6 +50,9 @@ analysis:
   # 照片分析器。local = 本機 OpenCV 逐張檢查（不花錢，預設）
   # 想加 Claude 看照片：改成 [local, claude] 並設定 ANTHROPIC_API_KEY（會產生 API 費用）
   analyzers: [local]
+  # 數字算出「建議買進」後，再請 Claude 看照片複查（讀卡號比對標題、估等級、折痕、仿品）並重算。
+  # 只有過關的才會叫（約佔評估件數 1~2%），每件約幾千 tokens；改成 none 就關掉
+  verify: claude
   claude_model: claude-opus-5-5
   claude_effort: medium
   max_images: 6

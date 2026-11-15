@@ -151,6 +151,8 @@ def scrape(page, url: str) -> list[dict]:
     return list(found.values())[:40]
 
 
+# 保留給特定買家的刊登（「○○様専用」「ウ*様 ピカチュウ…」「取り置き」），別人買不到
+RESERVED_RE = re.compile(r"専用|取り?置き?|(?:^|\s)\S{0,12}(?<![仕模])様(?=\s|$)")
 SKIP_AUCTIONS = [True]  # main() 依 config 設定
 LIVE_CACHE: dict = {}  # 同一輪同一張卡只查一次近期成交
 
@@ -269,6 +271,8 @@ def main() -> None:
                 shown = 0
                 for r in fresh:
                     if any(w in r["title"].lower() for w in exclude):
+                        continue
+                    if RESERVED_RE.search(r["title"]):
                         continue
                     if r.get("auction") and skip_auctions:  # 2026-11-15 ryan：拍賣起標價都很好看，先全部排除
                         continue

@@ -22,7 +22,7 @@ from pathlib import Path
 
 import yaml
 
-from ev_calc import GRADES, VERDICT_BUY, VERDICT_RISKY, VERDICT_SKIP, Costs, Evaluation, evaluate, parse_money
+from ev_calc import GRADES, VERDICT_BUY, VERDICT_PASS, VERDICT_RISKY, VERDICT_SKIP, Costs, Evaluation, evaluate, parse_money
 from grade_estimator import CONDITION_LABELS, Estimate, estimate
 from image_analysis import build_analyzers
 
@@ -75,9 +75,66 @@ def pick_card(cfg: dict, spec, title: str) -> str | None:
     return None
 
 
+class _Precomputed:
+    """把已經算好的照片觀察當成 analyzer 重用（複查後重算 EV 時不用重跑 OpenCV）"""
+
+    def __init__(self, obs):
+        self.obs, self.name = obs, obs.source
+
+    def analyze(self, images, listing):
+        return self.obs
+
+
+CARD_NO_RE = re.compile(r"(\d{1,3})\s*/\s*([A-Za-z][A-Za-z-]*|\d{2,3})")
+
+
+def card_number_mismatch(title: str, seen: str | None) -> str | None:
+    """標題卡號和照片上讀到的卡號不同就回傳說明（例：標題 024/ADV-P、照片 023/ADV-P）"""
+    if not seen:
+        return None
+    t = CARD_NO_RE.search(unicodedata.normalize("NFKC", title or ""))
+    p = CARD_NO_RE.search(unicodedata.normalize("NFKC", seen))
+    if not t or not p:
+        return None
+    norm = lambda m: (int(m.group(1)), m.group(2).upper().replace("-", ""))
+    if norm(t) != norm(p):
+        return f"照片上的卡號是 {p.group(0)}，跟標題 {t.group(0)} 不同，可能是別張卡"
+    return None
+
+
 def evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None,
-                     live: dict | None = None):
-    """回傳 (Estimate, Evaluation 或 None)"""
+                     live: dict | None = None, verify: bool = True):
+    """回傳 (Estimate, Evaluation 或 None)。
+    數字判斷為「建議買進」且 cards.yaml 設 analysis.verify: claude 時，再請 Claude 看照片複查一次：
+    讀卡號比對標題、估等級、看折痕與仿品疑慮，然後用複查結果重算。"""
+    est, ev = _evaluate_listing(cfg, card_key, listing, photos, analyzers, live)
+    if not (verify and photos and ev is not None and ev.verdict == VERDICT_BUY):
+        return est, ev
+    from image_analysis import build_verifier
+
+    verifier = build_verifier(cfg.get("analysis"))
+    if verifier is None:
+        return est, ev
+    try:
+        vobs = verifier.analyze(photos, listing)
+    except Exception as e:
+        est.notes.append(f"Claude 複查失敗：{e}")
+        return est, ev
+    est2, ev2 = _evaluate_listing(cfg, card_key, listing, photos,
+                                  [_Precomputed(o) for o in est.observations] + [_Precomputed(vobs)], live)
+    est2.notes.insert(0, "Claude 已看照片複查")
+    mismatch = card_number_mismatch(listing.get("title", ""), vobs.card_number)
+    if ev2 is not None and mismatch:
+        ev2.verdict = VERDICT_PASS
+        ev2.reasons.insert(0, mismatch)
+    if ev2 is not None and vobs.authenticity_concern and ev2.verdict != VERDICT_PASS:
+        ev2.verdict = VERDICT_PASS
+        ev2.reasons.insert(0, "照片有仿品疑慮")
+    return est2, ev2
+
+
+def _evaluate_listing(cfg: dict, card_key: str, listing: dict, photos: list[bytes] | None = None, analyzers=None,
+                      live: dict | None = None):
     fx = cfg["fx"]
     card = card_profile(cfg, card_key)
     sets = card.get("probabilities") or cfg["probability_sets"][card.get("probability_set", "default")]
@@ -188,7 +245,7 @@ def is_worth(listing: dict, ev: Evaluation | None, jpy_rate: float | None = None
     """一般商品：建議買進／可考慮；拍賣：出價上限高於目前出價"""
     if listing.get("auction"):
         return auction_summary(listing, ev, jpy_rate)[0]
-    return ev is not None and ev.verdict in (VERDICT_BUY, VERDICT_RISKY)
+    return ev is not None and ev.verdict == VERDICT_BUY  # ryan 的規則：悲觀情境也不能虧，「可考慮」不算
 
 
 def format_message(card_name: str, listing: dict, est: Estimate, ev: Evaluation | None, detail: bool = False,

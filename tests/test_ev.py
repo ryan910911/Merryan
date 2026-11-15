@@ -466,3 +466,18 @@ def test_auction_uses_bid_cap_not_current_bid():
     est = Estimate(scenarios=SETS, condition=3, notes=[], observations=[])
     msg = format_message("x", listing, est, ev, jpy_rate=1)
     assert "拍賣" in msg and VERDICT_BUY not in msg
+
+
+def test_card_number_mismatch_and_risky_not_worth():
+    from ev_calc import VERDICT_RISKY
+    from ev_check import card_number_mismatch, is_worth
+
+    assert card_number_mismatch("ピカチュウ PROMO ADV-Pプロモカード 024/ADV-P", "023/ADV-P")
+    assert card_number_mismatch("ピカチュウ 024/ADV-P", "024/ADV-P") is None
+    assert card_number_mismatch("ピカチュウ ０２４／ＡＤＶ－Ｐ", "24/ADV-P") is None
+    assert card_number_mismatch("ひかるミュウ 旧裏", "No.151") is None  # 沒卡號可比就不判
+    assert card_number_mismatch("ピカチュウ 024/ADV-P", None) is None
+
+    class E:
+        verdict = VERDICT_RISKY
+    assert not is_worth({}, E())

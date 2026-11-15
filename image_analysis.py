@@ -39,6 +39,8 @@ class Observation:
     has_front: bool | None = None
     has_back: bool | None = None
     authenticity_concern: bool | None = None
+    card_number: str | None = None  # 照片上讀到的卡號，例如 024/ADV-P（視覺模型才有）
+    card_name: str | None = None
     # 直接由照片估出的 PSA 各級機率 {10: p, 9: p, ..., "low": p}（視覺模型才有）
     grade_probs: dict | None = None
     # 細項分數 1~10：centering / corners / edges / surface（視覺模型才有）
@@ -238,6 +240,8 @@ VISION_PROMPT = """你是寶可夢卡 PSA 鑑定前的驗卡員。以下是一�
 - grade_probs：綜合以上，估這張卡送 PSA 拿到各級的機率（"10"、"9"、"8"、"7"、"6"、"5"、"low" = 4 以下，總和為 1）。
   手機照片看不到細微白點、表面細刮和壓痕，所以給 10 要保守；照片越模糊、張數越少，機率要分散得越開。
 - confidence：照片清晰度與角度足以支撐你判讀的程度，0 到 1。
+- card_number：照片上卡片的卡號原文（通常在右下角，例如 024/ADV-P、021/P、No.151），看不清楚填 null，不要照標題抄。
+- card_name：照片上卡片的寶可夢名稱（日文原文），看不清楚填 null。
 - notes：用繁體中文寫 1 到 3 句重點。
 
 刊登標題：{title}
@@ -275,10 +279,12 @@ VISION_SCHEMA = {
             "required": _GRADE_KEYS,
             "additionalProperties": False,
         },
+        "card_number": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "card_name": {"anyOf": [{"type": "string"}, {"type": "null"}]},
         "confidence": {"type": "number"},
         "notes": {"type": "string"},
     },
-    "required": ["centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back",
+    "required": ["card_number", "card_name", "centering_lr", "centering_tb", "corners", "edges", "surface", "crease", "has_front", "has_back",
                  "authenticity_concern", "subgrades", "grade_probs", "confidence", "notes"],
     "additionalProperties": False,
 }
@@ -340,6 +346,18 @@ class ClaudeVisionAnalyzer:
         if notes:
             obs.notes.append(notes)
         return obs
+
+
+def build_verifier(cfg: dict):
+    """數字過關後才叫 Claude 複查照片（analysis.verify: claude）；沒設定或沒 API key 回傳 None"""
+    cfg = cfg or {}
+    if cfg.get("verify") != "claude" or not ClaudeVisionAnalyzer.available():
+        return None
+    return ClaudeVisionAnalyzer(
+        model=cfg.get("claude_model", "claude-opus-5-5"),
+        max_images=int(cfg.get("max_images", 6)),
+        effort=cfg.get("claude_effort", "medium"),
+    )
 
 
 def build_analyzers(cfg: dict) -> list:
