@@ -4572,3 +4572,152 @@ cards:
     raw_price_played: "173.36 USD"
     prices: {10: "820 USD", 9: "224.3 USD"}   # PriceCharting 2026-10-25
     probability_set: default
+
+  # ================================================================ 乱戦！ポケモンスクランブル（2026-11-26 加入）
+  # 2009 年 Wii《乱戦！ポケモンスクランブル》特典卡，全 16 張（卡號 NN/016，右下有「乱」字）。
+  # 每隻寶可夢在這系列只有一張，所以 match = 名字 + 乱戦/スクランブル（標題常省略卡號）。
+  # 行情：PriceCharting pokemon-japanese-melee-pokemon-scramble 2026-11-26（Ungraded／Grade 9／PSA 10）；
+  # 成交量很少，單筆高價常見，偏樂觀 → 會先用 Mercari 成交價蓋掉（有資料時）。
+  venusaur-scramble-001:
+    name: フシギバナ 001/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*フシギバナ)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: フシギバナ スクランブル
+    raw_price: "210.25 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "210.25 USD"
+    prices: {10: "2630 USD", 9: "1025 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  cherrim-scramble-002:
+    name: チェリム 002/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*チェリム)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: チェリム スクランブル
+    raw_price: "33.28 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "33.28 USD"
+    prices: {10: "1225 USD", 9: "221.11 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  ninetales-scramble-003:
+    name: キュウコン 003/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*キュウコン)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: キュウコン スクランブル
+    raw_price: "168.18 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "168.18 USD"
+    prices: {10: "2440.9 USD", 9: "215.39 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  heatran-scramble-004:
+    name: ヒードラン 004/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ヒードラン)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ヒードラン スクランブル
+    raw_price: "41.0 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "41.0 USD"
+    prices: {10: "798 USD", 9: "57.57 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  starmie-scramble-005:
+    name: スターミー 005/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*スターミー)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: スターミー スクランブル
+    raw_price: "14.09 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "14.09 USD"
+    prices: {10: "1875 USD", 9: "225 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  gyarados-scramble-006:
+    name: ギャラドス 006/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ギャラドス)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ギャラドス スクランブル
+    raw_price: "155.96 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "155.96 USD"
+    prices: {10: "5000 USD", 9: "354.77 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  pikachu-scramble-007:
+    name: ピカチュウ 007/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ピカチュウ)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ピカチュウ スクランブル
+    raw_price: "1477.78 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "1477.78 USD"
+    prices: {10: "10510 USD", 9: "4450 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  zapdos-scramble-008:
+    name: サンダー 008/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*サンダー)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: サンダー スクランブル
+    raw_price: "201.79 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "201.79 USD"
+    prices: {10: "3025 USD", 9: "976 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  mewtwo-scramble-009:
+    name: ミュウツー 009/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ミュウツー)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ミュウツー スクランブル
+    raw_price: "1188 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "1188 USD"
+    prices: {10: "9999.99 USD", 9: "1649.55 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  mew-scramble-010:
+    name: ミュウ 010/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ミュウ(?!ツー))(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ミュウ スクランブル
+    raw_price: "600 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "600 USD"
+    prices: {10: "13799 USD", 9: "2500 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  diglett-scramble-011:
+    name: ディグダ 011/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ディグダ)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ディグダ スクランブル
+    raw_price: "122.9 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "122.9 USD"
+    prices: {10: "1800 USD", 9: "349 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  lucario-scramble-012:
+    name: ルカリオ 012/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ルカリオ)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ルカリオ スクランブル
+    raw_price: "237.86 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "237.86 USD"
+    prices: {10: "2502.95 USD", 9: "552 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  skuntank-scramble-013:
+    name: スカタンク 013/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*スカタンク)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: スカタンク スクランブル
+    raw_price: "24.99 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "24.99 USD"
+    prices: {10: "930 USD", 9: "222.54 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  bastiodon-scramble-014:
+    name: トリデプス 014/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*トリデプス)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: トリデプス スクランブル
+    raw_price: "35.19 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "35.19 USD"
+    prices: {10: "611.1 USD", 9: "203 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  rattata-scramble-015:
+    name: コラッタ 015/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*コラッタ)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: コラッタ スクランブル
+    raw_price: "60.59 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "60.59 USD"
+    prices: {10: "1225 USD", 9: "250 USD"}   # PriceCharting 2026-11-26
+    probability_set: default
+
+  bibarel-scramble-016:
+    name: ビーダル 016/016（乱戦！ポケモンスクランブル）
+    match: '^(?=.*ビーダル)(?!.*(?:フィギュア|スクランブルU|ソフト))(?=.*(?:乱戦|乱戰|亂戰|Ransen|/\s*0?16(?!\d)|スクランブル.*(?:カード|プロモ|ポケカ)|(?:カード|プロモ|ポケカ).*スクランブル)).*'
+    sold_keyword: ビーダル スクランブル
+    raw_price: "72.67 USD"            # PriceCharting melee-pokemon-scramble, ungraded, 2026-11-26
+    raw_price_played: "72.67 USD"
+    prices: {10: "1063 USD", 9: "144.29 USD"}   # PriceCharting 2026-11-26
+    probability_set: default

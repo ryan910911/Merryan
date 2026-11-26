@@ -254,6 +254,15 @@ items:
   - {name: わるいペルシアン プロモ, keyword: わるいペルシアン プロモ}
   - {name: ランターン 031/P, keyword: ランターン 031/P}
 
+  # ---- 乱戦！ポケモンスクランブル 016 張（2026-11-26 加入）----
+  - {name: 乱戦 ポケモンスクランブル 全般, keyword: 乱戦 ポケモンスクランブル, only_matched: true}
+  - {name: ポケモンスクランブル 016, keyword: ポケモンスクランブル 016, only_matched: true}
+  - {name: ピカチュウ スクランブル, keyword: ピカチュウ 乱戦 スクランブル}
+  - {name: ミュウ スクランブル, keyword: ミュウ 乱戦 スクランブル}
+  - {name: ミュウツー スクランブル, keyword: ミュウツー 乱戦 スクランブル}
+  - {name: サンダー スクランブル, keyword: サンダー 乱戦 スクランブル}
+  - {name: ルカリオ スクランブル, keyword: ルカリオ 乱戦 スクランブル}
+
   # ---- 2011~2020 促銷卡（BW-P／XY-P／SM-P／S-P 初期，2026-10-25 加入）----
   - {name: BW-P プロモ 全般, keyword: BW-P ポケモンカード, only_matched: true}
   - {name: XY-P プロモ 全般, keyword: XY-P ポケモンカード, only_matched: true}
